@@ -6,7 +6,7 @@
   },
   "scripts": {
     "vendor": "mkdir -p money_plan/static/js/vendor && cp node_modules/choices.js/public/assets/scripts/choices.min.js money_plan/static/js/vendor/choices.min.js && cp node_modules/htmx.org/dist/htmx.min.js money_plan/static/js/vendor/htmx.min.js && cp node_modules/alpinejs/dist/cdn.min.js money_plan/static/js/vendor/alpine.min.js",
-    "dev": "npm run vendor && tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --watch",
+    "dev": "npm run vendor && tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --watch=always",
     "build": "npm run vendor && tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --minify"
   },
   "devDependencies": {
