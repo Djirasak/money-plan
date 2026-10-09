@@ -1,13 +1,9 @@
 from decimal import Decimal
 
 from django import template
+from django.utils.dates import MONTHS_3
 
 register = template.Library()
-
-THAI_MONTHS = [
-    "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
-    "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค.",
-]  # fmt: skip
 
 
 @register.filter
@@ -22,9 +18,10 @@ def baht(value) -> str:
 
 
 @register.filter
-def thai_month(value: str) -> str:
+def month_label(value: str) -> str:
+    """'2027-01' -> 'Jan 2027'; the month name follows the active language."""
     year, month = value.split("-")
-    return f"{THAI_MONTHS[int(month) - 1]} {year}"
+    return f"{str(MONTHS_3[int(month)]).capitalize()} {year}"
 
 
 @register.filter

@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from .models import LogEntry
 from .models import Pile
@@ -25,12 +26,12 @@ class LogEntryForm(forms.ModelForm):
             "note": forms.TextInput(attrs=FIELD),
         }
         labels = {
-            "date": "วันที่",
-            "type": "ชนิด",
-            "from_pile": "จากกอง",
-            "to_pile": "เข้ากอง",
-            "amount": "จำนวน (บาท)",
-            "note": "โน้ต (ไม่บังคับ)",
+            "date": _("Date"),
+            "type": _("Type"),
+            "from_pile": _("From pile"),
+            "to_pile": _("To pile"),
+            "amount": _("Amount (THB)"),
+            "note": _("Note (optional)"),
         }
 
     def __init__(self, *args, user, **kwargs):
@@ -44,7 +45,7 @@ class LogEntryForm(forms.ModelForm):
     def clean_amount(self):
         amount = self.cleaned_data["amount"]
         if amount <= 0:
-            msg = "จำนวนต้องมากกว่า 0"
+            msg = _("Amount must be greater than 0")
             raise forms.ValidationError(msg)
         return amount
 
@@ -52,16 +53,16 @@ class LogEntryForm(forms.ModelForm):
         data = super().clean()
         kind, src, dst = data.get("type"), data.get("from_pile"), data.get("to_pile")
         if kind == LogEntry.SPEND and (not src or dst):
-            msg = "รายการจ่ายต้องเลือก 'จากกอง' อย่างเดียว"
+            msg = _("A spend entry needs only a 'From pile'")
             raise forms.ValidationError(msg)
         if kind in (LogEntry.TRANSFER, LogEntry.SWEEP) and not (src and dst):
-            msg = "การย้ายเงินต้องเลือกทั้ง 'จากกอง' และ 'เข้ากอง'"
+            msg = _("A transfer needs both a 'From pile' and a 'To pile'")
             raise forms.ValidationError(msg)
         if kind == LogEntry.ADJUST and bool(src) == bool(dst):
-            msg = "การปรับยอดเลือกได้อย่างใดอย่างหนึ่ง (จากกอง หรือ เข้ากอง)"
+            msg = _("An adjustment needs either a 'From pile' or a 'To pile', not both")
             raise forms.ValidationError(msg)
         if src and dst and src == dst:
-            msg = "กองต้นทางและปลายทางต้องไม่เหมือนกัน"
+            msg = _("The source and target piles must differ")
             raise forms.ValidationError(msg)
         return data
 
@@ -81,20 +82,20 @@ class PileForm(forms.ModelForm):
             "color": forms.TextInput(attrs=FIELD | {"type": "color"}),
             "kind": forms.Select(attrs=FIELD),
             "mode": forms.Select(attrs=FIELD),
-            "cap": forms.NumberInput(attrs=FIELD | {"placeholder": "ไม่จำกัด"}),
+            "cap": forms.NumberInput(attrs=FIELD | {"placeholder": _("Unlimited")}),
             "overflow_to": forms.Select(attrs=FIELD),
-            "target": forms.NumberInput(attrs=FIELD | {"placeholder": "ไม่มี"}),
+            "target": forms.NumberInput(attrs=FIELD | {"placeholder": _("None")}),
             "order": forms.NumberInput(attrs=FIELD),
         }
         labels = {
-            "name": "ชื่อกอง",
-            "color": "สีประจำกอง",
-            "kind": "ชนิด",
-            "mode": "โหมดยอดเหลือ",
-            "cap": "เพดานทบ (ว่าง = ไม่จำกัด)",
-            "overflow_to": "กองที่ล้นไป",
-            "target": "เป้าหมาย (กองสะสม)",
-            "order": "ลำดับ",
+            "name": _("Pile name"),
+            "color": _("Pile color"),
+            "kind": _("Type"),
+            "mode": _("Leftover mode"),
+            "cap": _("Rollover cap (empty = unlimited)"),
+            "overflow_to": _("Overflow pile"),
+            "target": _("Target (savings fund)"),
+            "order": _("Order"),
         }
 
     def __init__(self, *args, user, **kwargs):
@@ -112,7 +113,7 @@ class PileForm(forms.ModelForm):
         if self.instance.pk:
             dup = dup.exclude(pk=self.instance.pk)
         if dup.exists():
-            msg = "ชื่อกองนี้มีอยู่แล้ว"
+            msg = _("A pile with this name already exists")
             raise forms.ValidationError(msg)
         return name
 
@@ -136,7 +137,7 @@ class SalaryForm(forms.Form):
     def clean(self):
         data = super().clean()
         if Salary.objects.filter(user=self.user).count() >= MAX_SALARIES:
-            msg = f"เพิ่มเงินเดือนได้ไม่เกิน {MAX_SALARIES} แถว"
+            msg = _("You can add at most %(max)s salaries") % {"max": MAX_SALARIES}
             raise forms.ValidationError(msg)
         return data
 
@@ -152,6 +153,6 @@ class PlanPeriodForm(forms.Form):
     def clean_effective_month(self):
         month = self.cleaned_data["effective_month"]
         if PlanPeriod.objects.filter(user=self.user, effective_month=month).exists():
-            msg = "มีแผนของเดือนนี้อยู่แล้ว"
+            msg = _("A plan for this month already exists")
             raise forms.ValidationError(msg)
         return month

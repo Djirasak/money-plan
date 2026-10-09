@@ -6,24 +6,25 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from . import engine
 
 month_validator = RegexValidator(
     r"^\d{4}-(0[1-9]|1[0-2])$",
-    "รูปแบบเดือนต้องเป็น YYYY-MM",
+    _("Month must be in YYYY-MM format"),
 )
-color_validator = RegexValidator(r"^#[0-9a-fA-F]{6}$", "สีต้องเป็น #rrggbb")
+color_validator = RegexValidator(r"^#[0-9a-fA-F]{6}$", _("Color must be #rrggbb"))
 FORBIDDEN_START = ("=", "+", "-", "@")
 MAX_SALARIES = 60
 
 
 def validate_pile_name(value: str) -> None:
     if value.startswith(FORBIDDEN_START):
-        msg = "ชื่อกองห้ามขึ้นต้นด้วย = + - @"
+        msg = _("Pile name cannot start with = + - or @")
         raise ValidationError(msg)
     if re.search(r"[\x00-\x1f]", value):
-        msg = "ชื่อกองมีอักขระที่ใช้ไม่ได้"
+        msg = _("Pile name contains invalid characters")
         raise ValidationError(msg)
 
 
@@ -44,10 +45,10 @@ class PlannerSettings(models.Model):
 class Pile(models.Model):
     BUDGET = engine.BUDGET
     FUND = engine.FUND
-    KIND_CHOICES = [(BUDGET, "งบรายเดือน"), (FUND, "กองสะสม")]
+    KIND_CHOICES = [(BUDGET, _("Monthly budget")), (FUND, _("Savings fund"))]
     SWEEP = engine.SWEEP
     ROLLOVER = engine.ROLLOVER
-    MODE_CHOICES = [(SWEEP, "กวาดไปกองอื่น"), (ROLLOVER, "ทบได้")]
+    MODE_CHOICES = [(SWEEP, _("Sweep to another pile")), (ROLLOVER, _("Rollover"))]
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -63,7 +64,7 @@ class Pile(models.Model):
     kind = models.CharField(max_length=10, choices=KIND_CHOICES, default=BUDGET)
     mode = models.CharField(max_length=10, choices=MODE_CHOICES, default=ROLLOVER)
     cap = models.DecimalField(
-        "เพดานทบ",
+        _("Rollover cap"),
         max_digits=14,
         decimal_places=2,
         null=True,
@@ -77,7 +78,7 @@ class Pile(models.Model):
         related_name="+",
     )
     target = models.DecimalField(
-        "เป้าหมาย",
+        _("Target"),
         max_digits=14,
         decimal_places=2,
         null=True,
@@ -170,10 +171,10 @@ class PlanItem(models.Model):
 class LogEntry(models.Model):
     SPEND, TRANSFER, SWEEP, ADJUST = "spend", "transfer", "sweep", "adjust"
     TYPE_CHOICES = [
-        (SPEND, "จ่าย"),
-        (TRANSFER, "ย้ายเงิน"),
-        (SWEEP, "กวาดยอด"),
-        (ADJUST, "ปรับยอด"),
+        (SPEND, _("Spend")),
+        (TRANSFER, _("Transfer")),
+        (SWEEP, _("Sweep")),
+        (ADJUST, _("Adjust")),
     ]
 
     user = models.ForeignKey(

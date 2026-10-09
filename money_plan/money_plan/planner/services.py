@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from . import engine
 from .models import LogEntry
@@ -29,21 +30,21 @@ def ensure_defaults(user: AbstractBaseUser) -> PlannerSettings:
     if created and not user.piles.exists():
         reserve = Pile.objects.create(
             user=user,
-            name="เงินสำรอง",
+            name=_("Reserve"),
             color="#10b981",
             kind=Pile.FUND,
             order=3,
         )
         spend = Pile.objects.create(
             user=user,
-            name="ค่าใช้จ่าย",
+            name=_("Expenses"),
             color="#5b5bf0",
             order=1,
             overflow_to=reserve,
         )
         free = Pile.objects.create(
             user=user,
-            name="เงินใช้ฟรี",
+            name=_("Spending money"),
             color="#f59e0b",
             cap=Decimal(20000),
             order=2,
@@ -52,7 +53,7 @@ def ensure_defaults(user: AbstractBaseUser) -> PlannerSettings:
         period = PlanPeriod.objects.create(
             user=user,
             effective_month=cfg.start_month,
-            name="สะสมเงินสำรอง",
+            name=_("Build the reserve"),
         )
         for pile, percent in ((spend, 55), (free, 12), (reserve, 33)):
             PlanItem.objects.create(period=period, pile=pile, percent=percent)

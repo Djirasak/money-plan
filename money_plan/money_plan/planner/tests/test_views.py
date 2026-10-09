@@ -13,18 +13,6 @@ from money_plan.planner.models import Salary
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture
-def client_in(client, user):
-    client.force_login(user)
-    services.ensure_defaults(user)
-    Salary.objects.create(
-        user=user,
-        effective_month=user.planner_settings.start_month,
-        amount=Decimal(48000),
-    )
-    return client
-
-
 def test_anonymous_redirected_to_login(client):
     resp = client.get(reverse("planner:summary"))
     assert resp.status_code == 302
@@ -116,3 +104,38 @@ def test_delete_pile_in_use_is_blocked(client_in, user):
     )
     client_in.post(reverse("planner:piles"), {"action": "delete", "id": spend.pk})
     assert Pile.objects.filter(pk=spend.pk).exists()
+
+
+def test_logout_modal_posts_to_logout(client_in):
+    html = client_in.get(reverse("planner:summary")).content.decode()
+    assert 'id="logout-modal"' in html
+    assert 'action="/accounts/logout/"' in html
+
+
+def test_logout_via_post_signs_out(client_in):
+    assert client_in.post("/accounts/logout/").status_code == 302
+    assert client_in.get(reverse("planner:summary")).status_code == 302
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["planner:summary", "planner:log", "planner:settings", "planner:piles", "planner:plan"],
+)
+def test_every_page_renders(client_in, name):
+    assert client_in.get(reverse(name)).status_code == 200
+
+
+@pytest.mark.parametrize("name", ["planner:piles", "planner:plan"])
+def test_action_bar_has_add_left_and_save_right(client_in, name):
+    html = client_in.get(reverse(name)).content.decode()
+    assert html.index('aria-label="เพิ่มใหม่"') < html.index('aria-label="บันทึก')
+
+
+def test_edit_page_renders_with_add_link(client_in, user):
+    spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
+    entry = LogEntry.objects.create(
+        user=user, date=date(2027, 1, 1), type="spend", from_pile=spend, amount=5,
+    )
+    resp = client_in.get(reverse("planner:log_edit", args=[entry.pk]))
+    assert resp.status_code == 200
+    assert b'aria-label="\xe0\xb9\x80\xe0\xb8\x9e\xe0\xb8\xb4\xe0\xb9\x88\xe0\xb8\xa1\xe0\xb9\x83\xe0\xb8\xab\xe0\xb8\xa1\xe0\xb9\x88"' in resp.content

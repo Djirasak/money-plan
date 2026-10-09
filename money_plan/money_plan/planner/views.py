@@ -7,6 +7,7 @@ from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from . import services
@@ -28,9 +29,9 @@ def _selected_month(request, cfg) -> str:
 
 
 NAV = [
-    ("summary", "สรุป", "/", "▦"),
-    ("log", "บันทึก", "/log/", "✎"),
-    ("settings", "ตั้งค่า", "/settings/", "⚙"),
+    ("summary", _("Summary"), "/", "▦"),
+    ("log", _("Log"), "/log/", "✎"),
+    ("settings", _("Settings"), "/settings/", "⚙"),
 ]
 
 
@@ -94,7 +95,7 @@ def log(request, pk: int | None = None):
     if request.method == "POST":
         if form.is_valid():
             form.save()
-            messages.success(request, "บันทึกรายการแล้ว")
+            messages.success(request, _("Entry saved"))
             return redirect(f"{request.path_info.split('/edit')[0]}?m={ctx['month']}")
         _errors(request, form)
     year, mon = ctx["month"].split("-")
@@ -115,7 +116,7 @@ def log(request, pk: int | None = None):
 def log_delete(request, pk: int):
     entry = get_object_or_404(LogEntry, pk=pk, user=request.user)
     entry.delete()
-    messages.success(request, "ลบรายการแล้ว")
+    messages.success(request, _("Entry deleted"))
     return redirect(f"/log/?m={request.POST.get('m', entry.month)}")
 
 
@@ -133,7 +134,7 @@ def settings_general(request):
                     effective_month=form.cleaned_data["effective_month"],
                     defaults={"amount": form.cleaned_data["amount"]},
                 )
-                messages.success(request, "บันทึกเงินเดือนแล้ว")
+                messages.success(request, _("Salary saved"))
             else:
                 _errors(request, form)
         elif action == "salary_delete":
@@ -147,14 +148,14 @@ def settings_general(request):
                 cfg.start_month, cfg.salary_multiplier = month, mult
                 cfg.full_clean()
                 cfg.save()
-                messages.success(request, "บันทึกการตั้งค่าแล้ว")
+                messages.success(request, _("Settings saved"))
             except (InvalidOperation, ValueError, Exception):  # noqa: BLE001
-                messages.error(request, "ค่าที่กรอกไม่ถูกต้อง")
+                messages.error(request, _("Invalid value"))
         return redirect("planner:settings")
     ctx |= {
         "cfg": cfg,
         "salaries": Salary.objects.filter(user=request.user),
-        "months": services.month_range(services.current_month(), 12 * 5),
+        "salary_months": services.month_range(services.current_month(), 12 * 5),
         "default_month": services.current_month(),
     }
     return render(request, "planner/settings_general.html", ctx)
@@ -172,14 +173,14 @@ def settings_piles(request):
         if action == "delete" and pile:
             try:
                 pile.delete()
-                messages.success(request, "ลบกองแล้ว")
+                messages.success(request, _("Pile deleted"))
             except ProtectedError:
-                messages.error(request, "ลบไม่ได้: กองนี้ถูกใช้ในรายการบันทึก")
+                messages.error(request, _("Cannot delete: this pile is used by log entries"))
         else:
             form = PileForm(request.POST, instance=pile, user=request.user)
             if form.is_valid():
                 form.save()
-                messages.success(request, "บันทึกกองแล้ว")
+                messages.success(request, _("Pile saved"))
             else:
                 _errors(request, form)
         return redirect("planner:piles")
@@ -234,7 +235,7 @@ def settings_plan(request):
                         percent=src.percent if src else 0,
                         fixed=src.fixed if src else 0,
                     )
-                messages.success(request, "เพิ่มแผนแล้ว")
+                messages.success(request, _("Plan added"))
             else:
                 _errors(request, form)
         else:
@@ -245,7 +246,7 @@ def settings_plan(request):
             )
             if action == "delete":
                 period.delete()
-                messages.success(request, "ลบแผนแล้ว")
+                messages.success(request, _("Plan deleted"))
             elif action == "save":
                 period.name = request.POST.get("name", "")[:60]
                 period.save(update_fields=["name"])
@@ -258,7 +259,7 @@ def settings_plan(request):
                             "fixed": _dec(request.POST.get(f"fixed_{pile.pk}")),
                         },
                     )
-                messages.success(request, "บันทึกแผนแล้ว")
+                messages.success(request, _("Plan saved"))
         return redirect("planner:plan")
     periods = []
     for period in request.user.plan_periods.prefetch_related("items"):
