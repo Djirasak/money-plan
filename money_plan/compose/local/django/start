@@ -5,6 +5,7 @@ set -o pipefail
 set -o nounset
 
 
+python manage.py compilemessages
 python manage.py migrate
 python manage.py initial_user_data --first-run
 exec python manage.py runserver_plus 0.0.0.0:8000

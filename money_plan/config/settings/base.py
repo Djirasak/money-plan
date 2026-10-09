@@ -26,14 +26,13 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 # In Windows, this must be set to your system time zone.
 TIME_ZONE = "Asia/Bangkok"
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "th"
 # https://docs.djangoproject.com/en/dev/ref/settings/#languages
 # from django.utils.translation import gettext_lazy as _
-# LANGUAGES = [
-#     ('en', _('English')),
-#     ('fr-fr', _('French')),
-#     ('pt-br', _('Portuguese')),
-# ]
+LANGUAGES = [
+    ("th", "ไทย"),
+    ("en", "English"),
+]
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-i18n
@@ -245,7 +244,7 @@ EMAIL_TIMEOUT = 5
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL.
-ADMIN_URL = "admin/"
+ADMIN_URL = "staff/admin/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = ['"Daniel Roy Greenfeld" <daniel-roy-greenfeld@example.com>']
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
@@ -328,7 +327,7 @@ ACCOUNT_LOGIN_METHODS = {"username"}
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 # https://docs.allauth.org/en/latest/account/configuration.html
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = "none"
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_ADAPTER = "money_plan.users.adapters.AccountAdapter"
 # https://docs.allauth.org/en/latest/account/forms.html

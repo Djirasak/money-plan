@@ -10,6 +10,7 @@ from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", include("money_plan.planner.urls")),
     path(
         "about/",
