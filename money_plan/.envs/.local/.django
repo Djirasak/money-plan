@@ -1,0 +1,19 @@
+# General
+# ------------------------------------------------------------------------------
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+# Redis
+# ------------------------------------------------------------------------------
+REDIS_URL=redis://redis:6379/0
+
+# Celery
+# ------------------------------------------------------------------------------
+
+# Flower
+CELERY_FLOWER_USER=debug
+CELERY_FLOWER_PASSWORD=debug
+
+# Initial user (created on first start when no users exist)
+# Set INITIAL_USER_PASSWORD too, or a random one is generated and printed once.
+INITIAL_USER_USERNAME=zercoms
+INITIAL_USER_EMAIL=4.1.jirasak@gmail.com
