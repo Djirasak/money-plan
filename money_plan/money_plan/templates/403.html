@@ -1,13 +1,10 @@
-{% extends "base.html" %}
+{% extends "error_base.html" %}
+{% load i18n %}
 
-{% block title %}Forbidden (403){% endblock title %}
-{% block content %}
-  <h1>Forbidden (403)</h1>
-  <p>
-    {% if exception %}
-      {{ exception }}
-    {% else %}
-      You're not allowed to access this page.
-    {% endif %}
-  </p>
-{% endblock content %}
+{% block title %}{% trans "Access denied (403)" %}{% endblock title %}
+{% block icon %}
+  <svg viewBox="0 0 24 24" class="size-14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="3"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><circle cx="12" cy="15.5" r="1.4" fill="currentColor"/></svg>
+{% endblock icon %}
+{% block code %}403{% endblock code %}
+{% block heading %}{% trans "You can't go in here" %}{% endblock heading %}
+{% block text %}{% trans "You don't have permission to open this page. Try signing in with the right account, or go back home." %}{% endblock text %}

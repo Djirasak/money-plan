@@ -1,25 +1,23 @@
 {% extends "planner/layout.html" %}
+{% load i18n %}
 {% load planner_tags %}
-{% block heading %}กองเงิน{% endblock heading %}
+{% block heading %}{% trans "Piles" %}{% endblock heading %}
 {% block page %}
   {% include "planner/_settings_tabs.html" %}
   <div class="space-y-4">
     {% for pile, form in forms %}
       <form method="post" class="card space-y-3">
         {% csrf_token %}<input type="hidden" name="id" value="{{ pile.pk }}" /><input type="hidden" name="action" value="save" />
-        <div class="flex items-center gap-2 font-bold"><span class="size-3.5 rounded-full" style="background:{{ pile.color }}"></span>{{ pile.name }}</div>
+        <div class="flex items-center justify-between"><div class="flex items-center gap-2 font-bold"><span class="size-3.5 rounded-full" style="background:{{ pile.color }}"></span>{{ pile.name }}</div>{% include "planner/_trash.html" with confirm_text=_("Delete this pile?") %}</div>
         {% for f in form %}<div><label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endfor %}
-        <div class="flex gap-2">
-          <button class="btn" type="submit">บันทึก</button>
-          <button class="btn-danger" type="submit" name="action" value="delete" onclick="return confirm('ลบกอง {{ pile.name }}?')">ลบ</button>
-        </div>
+        {% include "planner/_actions.html" with add_href="#new-pile" %}
       </form>
     {% endfor %}
-    <form method="post" class="card space-y-3">
+    <form method="post" class="card space-y-3" id="new-pile">
       {% csrf_token %}<input type="hidden" name="action" value="save" />
-      <h2 class="text-lg font-bold">+ เพิ่มกองใหม่</h2>
+      <h2 class="text-lg font-bold">{% trans "+ Add a new pile" %}</h2>
       {% for f in new_form %}<div><label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endfor %}
-      <button class="btn" type="submit">เพิ่มกอง</button>
+      {% include "planner/_actions.html" with save_label=_("Add pile") %}
     </form>
   </div>
 {% endblock page %}

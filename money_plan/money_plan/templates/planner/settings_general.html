@@ -1,39 +1,51 @@
 {% extends "planner/layout.html" %}
+{% load i18n %}
 {% load planner_tags %}
-{% block heading %}ตั้งค่า{% endblock heading %}
+{% block heading %}{% trans "Settings" %}{% endblock heading %}
 {% block page %}
   {% include "planner/_settings_tabs.html" %}
   <form method="post" class="card space-y-4">
     {% csrf_token %}<input type="hidden" name="action" value="general" />
-    <h2 class="text-lg font-bold">เดือนเริ่มระบบ</h2>
+    <h2 class="text-lg font-bold">{% trans "Start month" %}</h2>
     <div>
-      <label class="label">เดือนแรกของตาราง (ครอบคลุม 30 ปี) รูปแบบ YYYY-MM</label>
+      <label class="label">{% trans "First month of the table (covers 30 years), format YYYY-MM" %}</label>
       <input class="field" name="start_month" value="{{ cfg.start_month }}" pattern="\d{4}-(0[1-9]|1[0-2])" required />
     </div>
     <div>
-      <label class="label">ตัวคูณเงินเดือน (1 = 100%, 0.6 = 60%)</label>
+      <label class="label">{% trans "Salary multiplier (1 = 100%, 0.6 = 60%)" %}</label>
       <input class="field" name="salary_multiplier" inputmode="decimal" value="{{ cfg.salary_multiplier|floatformat:"-4" }}" required />
     </div>
-    <button class="btn" type="submit">บันทึก</button>
+    {% include "planner/_actions.html" with save_label=_("Save start month") %}
   </form>
 
   <section class="card mt-4 space-y-4">
-    <h2 class="text-lg font-bold">เงินเดือน</h2>
-    <p class="text-sm text-slate-500">ใช้แถวล่าสุดที่เดือนไม่เกินเดือนนั้น · เพิ่มเมื่อเงินเดือนเปลี่ยน</p>
+    <h2 class="text-lg font-bold">{% trans "Salary" %}</h2>
+    <p class="text-sm text-slate-500">{% trans "The latest row not after a month applies to it · add one when your salary changes" %}</p>
     {% for s in salaries %}
       <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
-        <div class="flex-1"><p class="font-semibold">{{ s.amount|baht }}</p><p class="text-sm text-slate-500">ตั้งแต่ {{ s.effective_month|thai_month }}</p></div>
-        {% if forloop.first %}<span class="rounded-full bg-gradient-to-r from-brand-500 to-violet-500 px-3 py-1 text-xs font-semibold text-white">ล่าสุด</span>{% endif %}
-        <form method="post" onsubmit="return confirm('ลบเงินเดือนนี้?')">{% csrf_token %}<input type="hidden" name="action" value="salary_delete" /><input type="hidden" name="id" value="{{ s.pk }}" /><button class="btn-danger">ลบ</button></form>
+        <div class="flex-1"><p class="font-semibold">{{ s.amount|baht }}</p><p class="text-sm text-slate-500">{% blocktrans with m=s.effective_month|month_label %}From {{ m }}{% endblocktrans %}</p></div>
+        {% if forloop.first %}<span class="rounded-full bg-gradient-to-r from-brand-500 to-violet-500 px-3 py-1 text-xs font-semibold text-white">{% trans "Latest" %}</span>{% endif %}
+        <form method="post" onsubmit="return confirm('{% trans "Delete this salary?" as t %}{{ t|escapejs }}')">{% csrf_token %}<input type="hidden" name="action" value="salary_delete" /><input type="hidden" name="id" value="{{ s.pk }}" /><button class="btn-danger">{% trans "Delete" %}</button></form>
       </div>
     {% endfor %}
     <form method="post" class="grid grid-cols-2 gap-3">
       {% csrf_token %}<input type="hidden" name="action" value="salary_add" />
-      <div><label class="label">เดือนที่เริ่มใช้</label><select class="field" name="effective_month">{% for m in months %}<option value="{{ m }}" {% if m == default_month %}selected{% endif %}>{{ m|thai_month }}</option>{% endfor %}</select></div>
-      <div><label class="label">จำนวน (บาท)</label><input class="field" name="amount" inputmode="decimal" required /></div>
-      <button class="btn-soft col-span-2" type="submit">+ เพิ่มเงินเดือนใหม่</button>
+      <div><label class="label">{% trans "Effective from" %}</label><select class="field" name="effective_month">{% for m in salary_months %}<option value="{{ m }}" {% if m == default_month %}selected{% endif %}>{{ m|month_label }}</option>{% endfor %}</select></div>
+      <div><label class="label">{% trans "Amount (THB)" %}</label><input class="field" name="amount" inputmode="decimal" required /></div>
+      <div class="col-span-2">{% include "planner/_actions.html" with save_label=_("Save salary") %}</div>
     </form>
   </section>
 
-  <a href="{% url 'account_logout' %}" class="btn-soft mt-4">ออกจากระบบ</a>
+  <form method="post" action="{% url 'set_language' %}" class="card mt-4 space-y-3">
+    {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}" />
+    <h2 class="text-lg font-bold">{% trans "Language" %}</h2>
+    {% get_current_language as current_language %}
+    {% get_available_languages as languages %}
+    <div class="grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1" role="group" aria-label="{% trans 'Language' %}">
+      {% for code, name in languages %}
+        <button type="submit" name="language" value="{{ code }}" aria-pressed="{% if code == current_language %}true{% else %}false{% endif %}"
+                class="rounded-xl py-2.5 font-semibold transition {% if code == current_language %}bg-white text-brand-600 shadow{% else %}text-slate-500{% endif %}">{{ name }}</button>
+      {% endfor %}
+    </div>
+  </form>
 {% endblock page %}

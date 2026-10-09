@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load planner_tags %}
 {% block main %}
   <header class="mb-5 flex items-center gap-3">
@@ -10,19 +11,29 @@
       <h1 class="truncate text-2xl font-bold">{% block heading %}{% endblock heading %}</h1>
     </div>
     {% if months %}
-      <form method="get" class="shrink-0">
-        <select name="m" onchange="this.form.submit()" aria-label="เดือน"
-                class="rounded-2xl border-0 bg-white py-3 pl-4 pr-8 text-sm font-semibold shadow-sm">
-          {% for m in months %}<option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m|thai_month }}</option>{% endfor %}
+      <form method="get" class="header-month shrink-0">
+        <select name="m" onchange="this.form.submit()" aria-label="{% trans "Month" %}"
+                class="rounded-2xl border-0 bg-white py-3 pl-4 pr-8 text-sm font-semibold shadow-sm" data-search="true">
+          {% for m in months %}<option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m|month_label }}</option>{% endfor %}
         </select>
       </form>
     {% endif %}
-    <a href="{{ request.get_full_path }}" aria-label="รีเฟรช"
-       class="grid size-12 shrink-0 place-items-center rounded-full bg-white text-brand-600 shadow-sm">
-      <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg>
-    </a>
+    <button type="button" aria-label="{% trans "Sign out" %}" onclick="document.getElementById('logout-modal').showModal()"
+            class="grid size-12 shrink-0 place-items-center rounded-full bg-white text-brand-600 shadow-sm">
+      <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3M16 17l5-5-5-5M21 12H9"/></svg>
+    </button>
   </header>
   {% block page %}{% endblock page %}
+  <dialog id="logout-modal" class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-3xl bg-white p-6 text-ink shadow-2xl backdrop:bg-slate-900/40 backdrop:backdrop-blur-sm"
+          onclick="if (event.target === this) this.close()">
+    <h2 class="text-xl font-bold">{% trans "Sign out?" %}</h2>
+    <p class="mt-1 text-slate-500">{% trans "You will need to sign in again to continue." %}</p>
+    <form method="post" action="{% url 'account_logout' %}" class="mt-5 space-y-2">
+      {% csrf_token %}
+      <button type="submit" class="btn" data-loading-text="{% trans "Signing out..." %}">{% trans "Sign out" %}</button>
+      <button type="button" class="btn-soft" onclick="this.closest('dialog').close()">{% trans "Cancel" %}</button>
+    </form>
+  </dialog>
   <nav class="fixed inset-x-0 bottom-4 z-10 mx-auto flex w-[calc(100%-2rem)] max-w-md rounded-full bg-white/95 p-2 shadow-[0_10px_40px_rgba(60,60,120,0.18)] backdrop-blur">
     {% for key, label, url, icon in nav %}
       <a href="{{ url }}{% if month and key != 'settings' %}?m={{ month }}{% endif %}"

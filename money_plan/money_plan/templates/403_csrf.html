@@ -1,13 +1,14 @@
-{% extends "base.html" %}
+{% extends "error_base.html" %}
+{% load i18n %}
 
-{% block title %}Forbidden (403){% endblock title %}
-{% block content %}
-  <h1>Forbidden (403)</h1>
-  <p>
-    {% if exception %}
-      {{ exception }}
-    {% else %}
-      You're not allowed to access this page.
-    {% endif %}
-  </p>
-{% endblock content %}
+{% block title %}{% trans "Form expired (403)" %}{% endblock title %}
+{% block icon %}
+  <svg viewBox="0 0 24 24" class="size-14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 3h6"/></svg>
+{% endblock icon %}
+{% block code %}403{% endblock code %}
+{% block heading %}{% trans "The form has expired" %}{% endblock heading %}
+{% block text %}{% trans "This page was open for too long. Refresh it and try again." %}{% endblock text %}
+{% block actions %}
+  <button type="button" class="btn" onclick="location.reload()">{% trans "Refresh page" %}</button>
+  <a href="{% url 'planner:summary' %}" class="btn-soft">{% trans "Back to home" %}</a>
+{% endblock actions %}
