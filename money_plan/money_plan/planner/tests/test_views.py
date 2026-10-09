@@ -139,3 +139,11 @@ def test_edit_page_renders_with_add_link(client_in, user):
     resp = client_in.get(reverse("planner:log_edit", args=[entry.pk]))
     assert resp.status_code == 200
     assert b'aria-label="\xe0\xb9\x80\xe0\xb8\x9e\xe0\xb8\xb4\xe0\xb9\x88\xe0\xb8\xa1\xe0\xb9\x83\xe0\xb8\xab\xe0\xb8\xa1\xe0\xb9\x88"' in resp.content
+
+
+def test_salary_form_has_add_toggle_left_and_save_right(client_in):
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    start = html.index('value="salary_add"')
+    section = html[start:]
+    assert section.index("@click=") < section.index('type="submit"')
+    assert 'x-data="{ open: false }"' in html  # salary exists -> collapsed
