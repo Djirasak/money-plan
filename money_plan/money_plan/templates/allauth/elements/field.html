@@ -1,0 +1,45 @@
+{% load allauth %}
+
+{% if attrs.type == "textarea" %}
+  <div>
+    <label class="label" for="{{ attrs.id }}">{% slot label %}{% endslot %}</label>
+    <textarea {% if attrs.required %}required{% endif %}
+              {% if attrs.rows %}rows="{{ attrs.rows }}"{% endif %}
+              {% if attrs.disabled %}disabled{% endif %}
+              {% if attrs.readonly %}readonly{% endif %}
+              {% if attrs.name %}name="{{ attrs.name }}"{% endif %}
+              {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+              {% if attrs.placeholder %}placeholder="{{ attrs.placeholder }}"{% endif %}
+              class="field">{% slot value %}{% endslot %}</textarea>
+  </div>
+{% elif attrs.type == "radio" or attrs.type == "checkbox" %}
+  <div class="flex items-center gap-2">
+    <input {% if attrs.required %}required{% endif %}
+           {% if attrs.disabled %}disabled{% endif %}
+           {% if attrs.readonly %}readonly{% endif %}
+           {% if attrs.checked %}checked{% endif %}
+           {% if attrs.name %}name="{{ attrs.name }}"{% endif %}
+           {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+           value="{{ attrs.value|default_if_none:"" }}"
+           type="{{ attrs.type }}"
+           class="size-4 accent-brand-600" />
+    <label for="{{ attrs.id }}">{% slot label %}{% endslot %}</label>
+  </div>
+{% else %}
+  <div>
+    <label class="label" for="{{ attrs.id }}">{% slot label %}{% endslot %}</label>
+    <input {% if attrs.required %}required{% endif %}
+           {% if attrs.disabled %}disabled{% endif %}
+           {% if attrs.readonly %}readonly{% endif %}
+           {% if attrs.name %}name="{{ attrs.name }}"{% endif %}
+           {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+           {% if attrs.placeholder %}placeholder="{{ attrs.placeholder }}"{% endif %}
+           {% if attrs.autocomplete %}autocomplete="{{ attrs.autocomplete }}"{% endif %}
+           value="{{ attrs.value|default_if_none:"" }}"
+           type="{{ attrs.type }}"
+           class="field" />
+  </div>
+{% endif %}
+{% if slots.help_text %}
+  <p class="mt-1 text-xs text-slate-400">{% slot help_text %}{% endslot %}</p>
+{% endif %}

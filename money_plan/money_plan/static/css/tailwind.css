@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@source "../../templates";
+
+@theme {
+  --font-sans: "Noto Sans Thai", "Sarabun", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-50: #eef0ff;
+  --color-brand-100: #e0e3ff;
+  --color-brand-500: #5b5bf0;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-ink: #1b1b3a;
+}
+
+@layer base {
+  body {
+    background: #f6f7fb;
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-3xl bg-white p-5 shadow-[0_8px_30px_rgba(60,60,120,0.06)];
+  }
+  .label {
+    @apply mb-1 block text-sm text-slate-500;
+  }
+  .field,
+  .auth-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .auth-fields select,
+  .auth-fields textarea {
+    @apply w-full rounded-2xl border-0 bg-slate-100/80 px-4 py-3 text-base text-ink outline-none ring-0 focus:bg-brand-50 focus:ring-2 focus:ring-brand-500/40;
+  }
+  .btn {
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-500 to-violet-500 px-4 py-3.5 font-semibold text-white shadow-lg shadow-brand-500/30 active:scale-[0.99];
+  }
+  .btn-soft {
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-50 px-4 py-3 font-semibold text-brand-600 active:scale-[0.99];
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-xl bg-rose-50 px-3 py-1.5 text-sm font-medium text-rose-600;
+  }
+}
+
+@layer components {
+  .auth h1 {
+    @apply text-2xl font-bold;
+  }
+  .auth a:not(.btn):not(.btn-soft):not(.btn-danger) {
+    @apply font-semibold text-brand-600;
+  }
+  .auth p {
+    @apply text-slate-600;
+  }
+  .auth-fields input[type="checkbox"],
+  .auth-fields input[type="radio"] {
+    @apply size-4 accent-brand-600;
+  }
+}

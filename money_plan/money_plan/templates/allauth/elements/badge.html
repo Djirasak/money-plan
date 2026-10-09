@@ -1,0 +1,5 @@
+{% load allauth %}
+
+<span class="rounded-full px-3 py-1 text-xs font-semibold {% if 'success' in attrs.tags %}bg-emerald-100 text-emerald-700{% elif 'warning' in attrs.tags %}bg-amber-100 text-amber-800{% elif 'danger' in attrs.tags %}bg-rose-100 text-rose-700{% else %}bg-brand-50 text-brand-600{% endif %}">
+  {% slot %}{% endslot %}
+</span>

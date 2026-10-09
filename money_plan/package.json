@@ -1,0 +1,15 @@
+{
+  "name": "money_plan",
+  "version": "0.1.0",
+  "engines": {
+    "node": "26.5"
+  },
+  "scripts": {
+    "dev": "tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --watch",
+    "build": "tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}

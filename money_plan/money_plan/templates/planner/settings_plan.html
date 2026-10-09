@@ -1,0 +1,41 @@
+{% extends "planner/layout.html" %}
+{% load planner_tags %}
+{% block heading %}แผนแบ่งเงิน{% endblock heading %}
+{% block page %}
+  {% include "planner/_settings_tabs.html" %}
+  <p class="mb-4 px-1 text-sm text-slate-500">แต่ละแผนใช้ตั้งแต่เดือนที่กำหนดเป็นต้นไป กองได้รับ = เงินเดือน × % + จำนวนคงที่</p>
+  <div class="space-y-4">
+    {% for item in periods %}
+      <form method="post" class="card space-y-3">
+        {% csrf_token %}<input type="hidden" name="id" value="{{ item.period.pk }}" /><input type="hidden" name="action" value="save" />
+        <div class="flex items-center justify-between">
+          <p class="font-bold">ตั้งแต่ {{ item.period.effective_month|thai_month }}</p>
+          <span class="rounded-full px-3 py-1 text-xs font-semibold {% if item.total == 100 %}bg-emerald-100 text-emerald-700{% else %}bg-amber-100 text-amber-800{% endif %}">รวม {{ item.total|floatformat:"-2" }}%</span>
+        </div>
+        <input class="field" name="name" value="{{ item.period.name }}" placeholder="ชื่อแผน (ไม่บังคับ)" />
+        {% for pile, it in item.rows %}
+          <div class="grid grid-cols-[1fr_5rem_6rem] items-center gap-2">
+            <span class="flex items-center gap-2 font-medium"><span class="size-3 rounded-full" style="background:{{ pile.color }}"></span>{{ pile.name }}</span>
+            <input class="field !px-3 !py-2 text-right" name="percent_{{ pile.pk }}" inputmode="decimal" value="{{ it.percent|default:0|floatformat:"-2" }}" aria-label="เปอร์เซ็นต์" />
+            <input class="field !px-3 !py-2 text-right" name="fixed_{{ pile.pk }}" inputmode="decimal" value="{{ it.fixed|default:0|floatformat:"-2" }}" aria-label="จำนวนคงที่" />
+          </div>
+        {% endfor %}
+        <p class="text-right text-xs text-slate-400">ช่องซ้าย = % ของเงินเดือน · ช่องขวา = บาทคงที่</p>
+        <div class="flex gap-2">
+          <button class="btn" type="submit">บันทึกแผน</button>
+          <button class="btn-danger" type="submit" name="action" value="delete" onclick="return confirm('ลบแผนนี้?')">ลบ</button>
+        </div>
+      </form>
+    {% endfor %}
+    <form method="post" class="card space-y-3">
+      {% csrf_token %}<input type="hidden" name="action" value="add" />
+      <h2 class="text-lg font-bold">+ เพิ่มแผนใหม่</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="label">เริ่มเดือน (YYYY-MM)</label><input class="field" name="effective_month" value="{{ default_month }}" pattern="\d{4}-(0[1-9]|1[0-2])" required /></div>
+        <div><label class="label">ชื่อแผน</label><input class="field" name="name" /></div>
+      </div>
+      <p class="text-sm text-slate-500">คัดลอกค่าจากแผนก่อนหน้าให้ แล้วปรับแก้ได้</p>
+      <button class="btn" type="submit">เพิ่มแผน</button>
+    </form>
+  </div>
+{% endblock page %}

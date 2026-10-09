@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}
+  {% block head_title %}
+    {% trans "Sign In" %}
+  {% endblock head_title %}
+{% endblock title %}
+{% block main %}
+  <div class="mt-6 mb-6 flex items-center gap-3">
+    <div class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-violet-500 text-white shadow-lg shadow-brand-500/30">
+      <svg viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 7h10M5 12h7M5 17h4"/><circle cx="17" cy="16" r="2" fill="currentColor"/></svg>
+    </div>
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-500">Money Plan</p>
+  </div>
+  <div class="card auth space-y-4">
+    {% block content %}
+    {% endblock content %}
+    {% block extra_body %}
+    {% endblock extra_body %}
+  </div>
+{% endblock main %}

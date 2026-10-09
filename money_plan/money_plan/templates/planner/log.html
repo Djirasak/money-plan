@@ -1,0 +1,42 @@
+{% extends "planner/layout.html" %}
+{% load planner_tags %}
+{% block heading %}บันทึกรายการ{% endblock heading %}
+{% block page %}
+  <form method="post" class="card space-y-4" action="{% if editing %}{% url 'planner:log_edit' editing.pk %}{% else %}{% url 'planner:log' %}{% endif %}">
+    {% csrf_token %}
+    <input type="hidden" name="m" value="{{ month }}" />
+    <h2 class="text-lg font-bold">{% if editing %}แก้ไขรายการ{% else %}เพิ่มรายการ{% endif %}</h2>
+    {% for f in form %}
+      <div>
+        <label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>
+        {{ f }}
+      </div>
+    {% endfor %}
+    <p class="text-sm text-slate-500">จ่าย: เลือก "จากกอง" · ย้าย/กวาด: เลือกทั้งสอง · ปรับยอด: เลือกอย่างใดอย่างหนึ่ง</p>
+    <button class="btn" type="submit">{% if editing %}บันทึกการแก้ไข{% else %}บันทึกรายการ{% endif %}</button>
+    {% if editing %}<a class="btn-soft" href="{% url 'planner:log' %}?m={{ month }}">ยกเลิก</a>{% endif %}
+  </form>
+
+  <h2 class="mb-3 mt-7 px-1 text-sm font-semibold tracking-wide text-slate-500">รายการ {{ month|thai_month }}</h2>
+  <div class="space-y-3">
+    {% for e in entries %}
+      <article class="card flex items-center gap-3 !p-4">
+        <div class="min-w-0 flex-1">
+          <p class="font-semibold">{{ e.get_type_display }} · {{ e.amount|baht }}</p>
+          <p class="truncate text-sm text-slate-500">
+            {{ e.date|date:"j M" }} ·
+            {% if e.from_pile %}{{ e.from_pile }}{% endif %}{% if e.from_pile and e.to_pile %} → {% endif %}{% if e.to_pile %}{{ e.to_pile }}{% endif %}
+            {% if e.note %}· {{ e.note }}{% endif %}
+          </p>
+        </div>
+        <a class="btn-soft !w-auto !px-3 !py-1.5 text-sm" href="{% url 'planner:log_edit' e.pk %}?m={{ month }}">แก้</a>
+        <form method="post" action="{% url 'planner:log_delete' e.pk %}" onsubmit="return confirm('ลบรายการนี้?')">
+          {% csrf_token %}<input type="hidden" name="m" value="{{ month }}" />
+          <button class="btn-danger" type="submit">ลบ</button>
+        </form>
+      </article>
+    {% empty %}
+      <p class="card text-center text-slate-500">ยังไม่มีรายการในเดือนนี้</p>
+    {% endfor %}
+  </div>
+{% endblock page %}

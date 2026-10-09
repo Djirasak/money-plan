@@ -1,0 +1,39 @@
+{% extends "planner/layout.html" %}
+{% load planner_tags %}
+{% block heading %}ตั้งค่า{% endblock heading %}
+{% block page %}
+  {% include "planner/_settings_tabs.html" %}
+  <form method="post" class="card space-y-4">
+    {% csrf_token %}<input type="hidden" name="action" value="general" />
+    <h2 class="text-lg font-bold">เดือนเริ่มระบบ</h2>
+    <div>
+      <label class="label">เดือนแรกของตาราง (ครอบคลุม 30 ปี) รูปแบบ YYYY-MM</label>
+      <input class="field" name="start_month" value="{{ cfg.start_month }}" pattern="\d{4}-(0[1-9]|1[0-2])" required />
+    </div>
+    <div>
+      <label class="label">ตัวคูณเงินเดือน (1 = 100%, 0.6 = 60%)</label>
+      <input class="field" name="salary_multiplier" inputmode="decimal" value="{{ cfg.salary_multiplier|floatformat:"-4" }}" required />
+    </div>
+    <button class="btn" type="submit">บันทึก</button>
+  </form>
+
+  <section class="card mt-4 space-y-4">
+    <h2 class="text-lg font-bold">เงินเดือน</h2>
+    <p class="text-sm text-slate-500">ใช้แถวล่าสุดที่เดือนไม่เกินเดือนนั้น · เพิ่มเมื่อเงินเดือนเปลี่ยน</p>
+    {% for s in salaries %}
+      <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
+        <div class="flex-1"><p class="font-semibold">{{ s.amount|baht }}</p><p class="text-sm text-slate-500">ตั้งแต่ {{ s.effective_month|thai_month }}</p></div>
+        {% if forloop.first %}<span class="rounded-full bg-gradient-to-r from-brand-500 to-violet-500 px-3 py-1 text-xs font-semibold text-white">ล่าสุด</span>{% endif %}
+        <form method="post" onsubmit="return confirm('ลบเงินเดือนนี้?')">{% csrf_token %}<input type="hidden" name="action" value="salary_delete" /><input type="hidden" name="id" value="{{ s.pk }}" /><button class="btn-danger">ลบ</button></form>
+      </div>
+    {% endfor %}
+    <form method="post" class="grid grid-cols-2 gap-3">
+      {% csrf_token %}<input type="hidden" name="action" value="salary_add" />
+      <div><label class="label">เดือนที่เริ่มใช้</label><select class="field" name="effective_month">{% for m in months %}<option value="{{ m }}" {% if m == default_month %}selected{% endif %}>{{ m|thai_month }}</option>{% endfor %}</select></div>
+      <div><label class="label">จำนวน (บาท)</label><input class="field" name="amount" inputmode="decimal" required /></div>
+      <button class="btn-soft col-span-2" type="submit">+ เพิ่มเงินเดือนใหม่</button>
+    </form>
+  </section>
+
+  <a href="{% url 'account_logout' %}" class="btn-soft mt-4">ออกจากระบบ</a>
+{% endblock page %}
