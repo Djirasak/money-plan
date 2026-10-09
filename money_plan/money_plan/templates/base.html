@@ -20,10 +20,17 @@
       <link href="{% static 'css/project.min.css' %}" rel="stylesheet" />
     {% endblock css %}
     {% block javascript %}
-      <script defer src="{% static 'js/project.min.js' %}"></script>
+      <script defer src="{% static 'js/vendor/choices.min.js' %}"></script>
+      <script defer src="{% static 'js/vendor/htmx.min.js' %}"></script>
+      <script defer src="{% static 'js/vendor/alpine.min.js' %}"></script>
+      <script defer src="{% static 'js/project.js' %}"></script>
     {% endblock javascript %}
   </head>
-  <body class="font-sans antialiased {% block bodyclass %}{% endblock bodyclass %}">
+  <body class="font-sans antialiased {% block bodyclass %}{% endblock bodyclass %}"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        data-search-placeholder="{% trans 'Search...' %}"
+        data-no-results="{% trans 'No results found' %}"
+        data-no-choices="{% trans 'No choices to choose from' %}">
     {% block body %}
       <div class="mx-auto min-h-screen w-full max-w-md px-4 pb-32 pt-6">
         {% if messages %}

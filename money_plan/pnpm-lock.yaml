@@ -11,6 +11,15 @@ importers:
       '@tailwindcss/cli':
         specifier: ^4.3.3
         version: 4.3.3
+      alpinejs:
+        specifier: ^3.17.4
+        version: 3.17.4
+      choices.js:
+        specifier: ^11.2.4
+        version: 11.2.4
+      htmx.org:
+        specifier: ^2.0.11
+        version: 2.0.11
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -214,9 +223,21 @@ packages:
     resolution: {integrity: sha512-krXjAikiaFSPaK/FkAQT5UTx3VormQaiZ5hBFlJZ9UFQGB/rwg1MZIhHAG9smMQRTdyJxP6Qt5MwMtdyU5FWrA==}
     engines: {node: '>= 20'}
 
+  '@vue/reactivity@3.5.43':
+    resolution: {integrity: sha512-G/c9GyOZNI2jVaaS6OX1EF1SSFSv7H0ERqNTl4+DTFMlZmB5eVAB53aLQNam/7NL2NPtaDD7RdVrzf8uJzMuOA==}
+
+  '@vue/shared@3.5.43':
+    resolution: {integrity: sha512-uksS7YGMR5NZyr4JNq0Rp+QyLns0ueaz20KwzIPW9R0LH1Vnt4E+XUM29PNseEbf1www2gOuhuDi5AKOIXag9Q==}
+
+  alpinejs@3.17.4:
+    resolution: {integrity: sha512-N2gsr+58XVUt7OAPKnUGiKPDtkd+xbSGTae8C8IJxeRdkkhBJPIautkJ+qcwb7lcjJ/QK3/CPVIbN20JPvtK7A==}
+
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
+
+  choices.js@11.2.4:
+    resolution: {integrity: sha512-3ESJ42LC1cFPIK2sRxa+Y1zEM5vpeOL/FrZHh6dqqqTHf23FStbjKhxP+eMC0F3O0xRUkhQmOOtUxIi83RxhTg==}
 
   detect-libc@1.0.3:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
@@ -235,8 +256,15 @@ packages:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
 
+  fuse.js@7.5.0:
+    resolution: {integrity: sha512-sQtrEfA+ez/3G0cCZecF70oqpCRttCexYUG4mUrtWL49ULUzUyxokt5kyqwtKzj1270RaKih+hcP3qLcumccow==}
+    engines: {node: '>=10'}
+
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  htmx.org@2.0.11:
+    resolution: {integrity: sha512-Thx/WtpeOQqSrqBCw/A1cwGJGg4UrVa3+sW0GmrM3p4gJgO89ecH4qtbnyzDDWFvBTqjnIMCgELTNt636dtamA==}
 
   is-extglob@2.1.1:
     resolution: {integrity: sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ==}
@@ -516,9 +544,23 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.3.3
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.3
 
+  '@vue/reactivity@3.5.43':
+    dependencies:
+      '@vue/shared': 3.5.43
+
+  '@vue/shared@3.5.43': {}
+
+  alpinejs@3.17.4:
+    dependencies:
+      '@vue/reactivity': 3.5.43
+
   braces@3.0.3:
     dependencies:
       fill-range: 7.1.1
+
+  choices.js@11.2.4:
+    dependencies:
+      fuse.js: 7.5.0
 
   detect-libc@1.0.3: {}
 
@@ -533,7 +575,11 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
 
+  fuse.js@7.5.0: {}
+
   graceful-fs@4.2.11: {}
+
+  htmx.org@2.0.11: {}
 
   is-extglob@2.1.1: {}
 

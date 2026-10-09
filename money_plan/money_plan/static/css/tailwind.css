@@ -1,6 +1,8 @@
 @import "tailwindcss";
+@import "choices.js/public/assets/styles/choices.css";
 
 @source "../../templates";
+@source "../js";
 
 @theme {
   --font-sans: "Noto Sans Thai", "Sarabun", ui-sans-serif, system-ui, sans-serif;
@@ -16,6 +18,12 @@
   body {
     background: #f6f7fb;
     color: var(--color-ink);
+  }
+}
+
+@layer base {
+  button:disabled {
+    @apply cursor-not-allowed opacity-70;
   }
 }
 
@@ -57,4 +65,86 @@
   .auth-fields input[type="radio"] {
     @apply size-4 accent-brand-600;
   }
+}
+
+@layer components {
+  .icon-btn {
+    @apply grid size-12 place-items-center rounded-2xl bg-brand-50 text-brand-600 active:scale-95;
+  }
+  .icon-btn-primary {
+    @apply grid size-12 place-items-center rounded-2xl bg-gradient-to-r from-brand-500 to-violet-500 text-white shadow-lg shadow-brand-500/30 active:scale-95;
+  }
+}
+
+@theme {
+  --animate-float: float 4s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-12px) rotate(2deg); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float {
+    animation: none;
+  }
+}
+
+/* Alpine: hide elements until it has initialised */
+[x-cloak] {
+  display: none !important;
+}
+
+/* Choices.js dropdowns, styled like .field */
+.choices {
+  @apply mb-0 text-base;
+}
+.choices__inner {
+  @apply min-h-0 rounded-2xl border-0 bg-slate-100/80 px-4 py-3 text-ink;
+}
+.choices.is-focused .choices__inner,
+.choices.is-open .choices__inner {
+  @apply bg-brand-50 ring-2 ring-brand-500/40;
+}
+.choices.is-open .choices__inner {
+  @apply rounded-b-2xl;
+}
+.choices__list--single {
+  @apply p-0;
+}
+.choices[data-type*="select-one"] .choices__inner {
+  @apply pb-3;
+}
+.choices[data-type*="select-one"]::after {
+  @apply right-4 border-slate-500;
+}
+.choices__list--dropdown,
+.choices__list[aria-expanded] {
+  @apply z-20 mt-2 overflow-hidden rounded-2xl border-0 bg-white shadow-[0_16px_40px_rgba(60,60,120,0.18)];
+}
+.is-open .choices__list--dropdown {
+  @apply rounded-2xl border-0;
+}
+.choices__list--dropdown .choices__item {
+  @apply px-4 py-2.5 text-base;
+}
+.choices__list--dropdown .choices__item--selectable.is-highlighted,
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+  @apply bg-brand-50 text-brand-700;
+}
+.choices__list--dropdown .choices__item--selectable.is-selected {
+  @apply font-semibold text-brand-600;
+}
+.choices[data-type*="select-one"] .choices__input {
+  @apply m-2 w-[calc(100%-1rem)] rounded-xl border-0 bg-slate-100 px-3 py-2 text-base outline-none;
+}
+.header-month .choices {
+  @apply w-36;
+}
+.header-month .choices__inner {
+  @apply bg-white py-3 pr-9 text-sm font-semibold shadow-sm;
+}
+.header-month .choices__list--dropdown {
+  @apply right-0 w-56;
 }
