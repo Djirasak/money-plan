@@ -22,7 +22,7 @@ jobs:
           package_json_file: money_plan/package.json
       - uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version-file: money_plan/package.json
           cache: pnpm
           cache-dependency-path: money_plan/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
@@ -39,7 +39,7 @@ jobs:
           package_json_file: money_plan/package.json
       - uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version-file: money_plan/package.json
           cache: pnpm
           cache-dependency-path: money_plan/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
@@ -56,7 +56,7 @@ jobs:
           package_json_file: money_plan/package.json
       - uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version-file: money_plan/package.json
           cache: pnpm
           cache-dependency-path: money_plan/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0
       - run: uvx ruff@0.16.10 check .
       - run: uvx ruff@0.16.10 format --check .
 
@@ -96,7 +96,7 @@ jobs:
       DJANGO_SETTINGS_MODULE: config.settings.test
     steps:
       - uses: actions/checkout@v6
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
           cache-dependency-glob: money_plan/uv.lock
