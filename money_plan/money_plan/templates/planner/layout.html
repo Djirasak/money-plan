@@ -10,10 +10,9 @@
       <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Money Plan</p>
       <h1 class="truncate text-lg font-semibold leading-tight">{% block heading %}{% endblock heading %}</h1>
     </div>
-    <button type="button" class="btn" data-variant="outline" data-size="icon" aria-label="{% trans 'Sign out' %}"
-            onclick="document.getElementById('logout-modal').showModal()">
-      {% icon "log-out" "size-4" %}
-    </button>
+    <a class="btn" data-variant="outline" data-size="icon" href="{% url 'users:detail' request.user.username %}" aria-label="{% trans 'My account' %}" title="{% trans 'My account' %}">
+      {% icon "user" "size-4" %}
+    </a>
   </header>
   {% if months %}
     <div class="month-bar mb-5 flex items-center justify-center gap-2">
@@ -37,23 +36,6 @@
     </div>
   {% endif %}
   {% block page %}{% endblock page %}
-  <dialog id="logout-modal" class="dialog w-full sm:max-w-[400px]" aria-labelledby="logout-title"
-          onclick="if (event.target === this) this.close()">
-    <div>
-      <header>
-        <h2 id="logout-title">{% trans "Sign out?" %}</h2>
-        <p>{% trans "You will need to sign in again to continue." %}</p>
-      </header>
-      <footer>
-        <button type="button" class="btn" data-variant="outline" data-close-dialog>{% trans "Cancel" %}</button>
-        <form method="post" action="{% url 'account_logout' %}" class="contents">
-          {% csrf_token %}
-          <button type="submit" class="btn" data-loading-text="{% trans 'Signing out...' %}">{% trans "Sign out" %}</button>
-        </form>
-      </footer>
-      {% include "planner/_dialog_close.html" %}
-    </div>
-  </dialog>
   <nav class="app-nav" aria-label="{% trans 'Main' %}">
     {% for key, label, url, glyph in nav %}
       <a href="{{ url }}{% if month and key != 'settings' %}?m={{ month }}{% endif %}" {% if key == active %}aria-current="page"{% endif %}>

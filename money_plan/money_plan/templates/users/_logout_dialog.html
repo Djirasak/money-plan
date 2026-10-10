@@ -1,0 +1,18 @@
+{% load i18n planner_tags %}
+  <dialog id="logout-modal" class="dialog w-full sm:max-w-[400px]" aria-labelledby="logout-title"
+          onclick="if (event.target === this) this.close()">
+    <div>
+      <header>
+        <h2 id="logout-title">{% trans "Sign out?" %}</h2>
+        <p>{% trans "You will need to sign in again to continue." %}</p>
+      </header>
+      <footer>
+        <button type="button" class="btn" data-variant="outline" data-close-dialog>{% trans "Cancel" %}</button>
+        <form method="post" action="{% url 'account_logout' %}" class="contents">
+          {% csrf_token %}
+          <button type="submit" class="btn" data-loading-text="{% trans 'Signing out...' %}">{% trans "Sign out" %}</button>
+        </form>
+      </footer>
+      {% include "planner/_dialog_close.html" %}
+    </div>
+  </dialog>

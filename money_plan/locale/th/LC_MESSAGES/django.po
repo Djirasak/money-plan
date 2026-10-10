@@ -621,3 +621,15 @@ msgstr "+%(a)s เดือนนี้"
 
 msgid "Spent %(used)s of %(budget)s"
 msgstr "ใช้ไป %(used)s จาก %(budget)s"
+
+msgid "My account"
+msgstr "บัญชีของฉัน"
+
+msgid "My info"
+msgstr "ข้อมูลของฉัน"
+
+msgid "Email"
+msgstr "อีเมล"
+
+msgid "Two-factor authentication"
+msgstr "ยืนยันตัวตนสองขั้นตอน"

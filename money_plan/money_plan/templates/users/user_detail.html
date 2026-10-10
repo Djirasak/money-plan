@@ -2,9 +2,19 @@
 {% load i18n planner_tags %}
 
 {% block title %}
-  User: {{ object.username }}
+  {% trans "My account" %}
 {% endblock title %}
 {% block content %}
+  <header class="mb-5 flex items-center gap-3">
+    <div class="brand-tile">{% icon "wallet" "size-5" %}</div>
+    <div class="min-w-0 flex-1">
+      <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Money Plan</p>
+      <h1 class="truncate text-lg font-semibold leading-tight">{% trans "My account" %}</h1>
+    </div>
+    <a class="btn" data-variant="outline" data-size="icon" href="{% url 'planner:summary' %}" aria-label="{% trans 'Back to summary' %}" title="{% trans 'Back to summary' %}">
+      {% icon "arrow-left" "size-4" %}
+    </a>
+  </header>
   <div class="card" data-size="sm">
     <header class="px-4">
       <h2 class="text-base font-semibold">{{ object.username }}</h2>
@@ -12,11 +22,14 @@
     </header>
     {% if object == request.user %}
       <section class="flex flex-col gap-2 px-4">
-        <a class="btn" href="{% url 'users:update' %}">My Info</a>
-        <a class="btn" data-variant="outline" href="{% url 'account_email' %}">E-Mail</a>
-        <a class="btn" data-variant="outline" href="{% url 'mfa_index' %}">MFA</a>
-        <a class="btn" data-variant="ghost" href="{% url 'planner:summary' %}">{% icon "arrow-left" "size-4" %}{% trans "Back to summary" %}</a>
+        <a class="btn justify-start" data-variant="outline" href="{% url 'users:update' %}">{% icon "user" "size-4" %}{% trans "My info" %}</a>
+        <a class="btn justify-start" data-variant="outline" href="{% url 'account_email' %}">{% icon "mail" "size-4" %}{% trans "Email" %}</a>
+        <a class="btn justify-start" data-variant="outline" href="{% url 'mfa_index' %}">{% icon "shield-check" "size-4" %}{% trans "Two-factor authentication" %}</a>
       </section>
+      <footer class="px-4">
+        <button type="button" class="btn w-full text-destructive" data-variant="outline" data-open-dialog="logout-modal">{% icon "log-out" "size-4" %}{% trans "Sign out" %}</button>
+      </footer>
     {% endif %}
   </div>
+  {% if object == request.user %}{% include "users/_logout_dialog.html" %}{% endif %}
 {% endblock content %}
