@@ -185,22 +185,16 @@ input[type="color"].input {
   background-color: var(--pc);
 }
 .pile-kv {
-  @apply mt-2.5 grid grid-cols-3 text-xs;
+  @apply mt-2.5 flex flex-col gap-1 text-xs;
 }
 .pile-kv > div {
-  @apply min-w-0 px-3;
-}
-.pile-kv > div:first-child {
-  @apply pl-0;
-}
-.pile-kv > div + div {
-  @apply border-l;
+  @apply flex min-w-0 items-baseline justify-between gap-2 border-t pt-1;
 }
 .pile-kv dt {
   @apply truncate text-[11px] leading-tight text-muted-foreground;
 }
 .pile-kv dd {
-  @apply mt-0.5 text-sm font-semibold tabular-nums;
+  @apply shrink-0 text-xs font-semibold tabular-nums;
 }
 
 /* ---- Log entries: red = money out, green = money in, blue = only moved between piles ---- */

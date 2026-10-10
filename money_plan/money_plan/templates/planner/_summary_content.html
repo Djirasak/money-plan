@@ -13,12 +13,12 @@
   </section>
 
   <h2 class="mb-2 mt-6 px-1 text-xs font-medium text-muted-foreground">{% trans "Monthly budget" %}</h2>
-  <div class="flex flex-col gap-2.5">
+  <div class="grid grid-cols-2 items-start gap-2.5">
     {% for c in cards %}
       {% with p=c.pile pm=c.pm %}
         <article class="card pile-summary" data-size="sm" style="--pc:{{ p.color }}">
-          <header class="px-4">
-            <div class="flex items-end justify-between gap-3">
+          <header class="px-3">
+            <div class="flex flex-col gap-1.5">
               <div class="min-w-0">
                 <h3 class="flex items-center gap-2 text-sm font-semibold"><span class="size-2.5 shrink-0 rounded-full" style="background:{{ p.color }}" aria-hidden="true"></span><span class="truncate">{{ p.name }}</span></h3>
                 {% if p.kind != 'fund' %}
@@ -29,13 +29,13 @@
                   </p>
                 {% endif %}
               </div>
-              <div class="text-right">
+              <div>
                 <p class="text-[11px] leading-tight text-muted-foreground">{% if p.kind == 'fund' %}{% trans "Saved so far" %}{% else %}{% trans "Left" %}{% endif %}</p>
-                <p class="text-xl font-semibold leading-tight tracking-tight tabular-nums">{{ pm.before|baht }}</p>
+                <p class="text-xl font-semibold leading-none tracking-tight tabular-nums">{{ pm.before|baht }}</p>
               </div>
             </div>
           </header>
-          <section class="px-4">
+          <section class="px-3">
             {% if p.kind == 'fund' %}
               {% with prog=c.progress|pct %}
                 <div class="pile-bar"><div style="width:{{ prog }}%"></div></div>
