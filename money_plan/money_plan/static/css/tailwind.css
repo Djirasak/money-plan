@@ -181,6 +181,10 @@
 .choices__list--single {
   @apply p-0;
 }
+/* Choices adds 7.5px under the item for its own padding model; we size the item instead */
+.choices[data-type*="select-one"] .choices__inner {
+  @apply pb-0;
+}
 /* the item fills the control, so the whole 48px box is the touch target */
 .choices__list--single .choices__item {
   @apply flex min-h-12 items-center px-4 py-3;
@@ -217,13 +221,13 @@
   @apply m-2 w-[calc(100%-1rem)] rounded-xl border-0 bg-field px-3 py-2 text-base outline-none;
 }
 .month-bar .choices {
-  @apply w-full;
+  @apply w-44;
 }
 .month-bar .choices__inner {
   @apply bg-surface pr-9 text-sm font-semibold shadow-sm;
 }
 .month-bar .choices__list--single .choices__item {
-  @apply justify-center;
+  @apply min-h-10 justify-center py-2;
 }
 .month-bar .choices__list--dropdown {
   @apply left-0 right-0 w-full;

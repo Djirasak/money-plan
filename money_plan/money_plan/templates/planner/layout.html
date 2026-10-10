@@ -16,24 +16,28 @@
     </button>
   </header>
   {% if months %}
-    <div class="month-bar mb-5 flex items-center gap-2">
+    <div class="month-bar mb-5 flex items-center justify-center gap-2">
       {% if prev_month %}
-        <a href="?m={{ prev_month }}" aria-label="{% trans 'Previous month' %}" class="icon-btn !size-11 !rounded-full !bg-surface shadow-sm">
+        <a href="?m={{ prev_month }}" aria-label="{% trans 'Previous month' %}" class="icon-btn !size-10 !rounded-full !bg-surface shadow-sm">
           {% icon "chevron-left" "size-5" %}
         </a>
-      {% else %}<span class="size-11"></span>{% endif %}
-      <form method="get" class="min-w-0 flex-1">
+      {% else %}
+        <span aria-hidden="true" class="icon-btn !size-10 !rounded-full !bg-surface opacity-40 shadow-sm">{% icon "chevron-left" "size-5" %}</span>
+      {% endif %}
+      <form method="get" class="w-44 shrink-0">
         {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
         <select name="m" onchange="this.form.submit()" aria-label="{% trans 'Month' %}"
-                class="w-full rounded-2xl border-0 bg-surface py-3 pl-4 pr-8 text-center text-sm font-semibold shadow-sm">
+                class="w-full rounded-2xl border-0 bg-surface py-2 pl-4 pr-8 text-center text-sm font-semibold shadow-sm">
           {% for m in months %}<option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m|month_label }}</option>{% endfor %}
         </select>
       </form>
       {% if next_month %}
-        <a href="?m={{ next_month }}" aria-label="{% trans 'Next month' %}" class="icon-btn !size-11 !rounded-full !bg-surface shadow-sm">
+        <a href="?m={{ next_month }}" aria-label="{% trans 'Next month' %}" class="icon-btn !size-10 !rounded-full !bg-surface shadow-sm">
           {% icon "chevron-right" "size-5" %}
         </a>
-      {% else %}<span class="size-11"></span>{% endif %}
+      {% else %}
+        <span aria-hidden="true" class="icon-btn !size-10 !rounded-full !bg-surface opacity-40 shadow-sm">{% icon "chevron-right" "size-5" %}</span>
+      {% endif %}
     </div>
   {% endif %}
   {% block page %}{% endblock page %}
