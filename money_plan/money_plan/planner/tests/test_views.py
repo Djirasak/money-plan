@@ -524,3 +524,30 @@ def test_log_loads_25_then_10_at_a_time(client_in, user):
     html = client_in.get(url, {"m": month, "offset": 35}, headers={"HX-Request": "true"}).content.decode()
     assert html.count('class="item entry') == 5
     assert "Load more" not in html and "ไม่มีรายการเพิ่มแล้ว" in html and "<html" not in html
+
+
+def test_clear_all_needs_the_typed_word(client_in, user):
+    before = (Pile.objects.filter(user=user).count(), Salary.objects.filter(user=user).count())
+    assert before[0] and before[1]
+    client_in.post(reverse("planner:settings"), {"action": "clear_all", "confirm": "nope"})
+    after = (Pile.objects.filter(user=user).count(), Salary.objects.filter(user=user).count())
+    assert after == before
+
+
+def test_clear_all_deletes_everything_but_the_user(client_in, user):
+    pile = Pile.objects.filter(user=user).first()
+    LogEntry.objects.create(user=user, date=f"{user.planner_settings.start_month}-05", type="spend", from_pile=pile, amount=5)
+    resp = client_in.post(reverse("planner:settings"), {"action": "clear_all", "confirm": " ลบทั้งหมด "})
+    assert resp.status_code == 302
+    assert not Pile.objects.filter(user=user).exists()
+    assert not LogEntry.objects.filter(user=user).exists()
+    assert not PlanPeriod.objects.filter(user=user).exists()
+    assert not Salary.objects.filter(user=user).exists()
+    assert type(user).objects.filter(pk=user.pk).exists()
+    # the app still opens afterwards (starter piles are seeded again on the next visit)
+    assert client_in.get(reverse("planner:summary")).status_code == 200
+
+
+def test_clear_all_dialog_is_on_general_settings(client_in):
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    assert 'id="clear-all"' in html and 'data-open-dialog="clear-all"' in html

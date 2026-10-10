@@ -85,4 +85,33 @@
       </div>
     </section>
   </section>
+
+  <section class="card mt-6" data-size="sm" aria-labelledby="danger-heading">
+    <header class="px-4">
+      <h2 class="text-sm font-medium text-destructive" id="danger-heading">{% trans "Danger zone" %}</h2>
+      <p class="text-xs text-muted-foreground">{% trans "Delete all your piles, plans, salaries and entries. Your account stays." %}</p>
+    </header>
+    <section class="px-4">
+      <button type="button" class="btn w-full text-destructive" data-variant="outline" data-open-dialog="clear-all">{% icon "trash-2" "size-4" %}{% trans "Clear all data" %}</button>
+    </section>
+  </section>
+
+  <dialog id="clear-all" class="dialog w-full sm:max-w-[400px]" aria-labelledby="clear-all-title">
+    <form method="post" class="overflow-y-auto" x-data="{ typed: '', phrase: '{{ clear_phrase|escapejs }}' }">
+      {% csrf_token %}<input type="hidden" name="action" value="clear_all" />
+      <header>
+        <h2 id="clear-all-title">{% trans "Clear all data?" %}</h2>
+        <p>{% trans "This deletes every pile, plan, salary and entry and cannot be undone. Your account is kept." %}</p>
+      </header>
+      <section class="grid gap-2">
+        <label class="label" for="clear-confirm">{% blocktrans with word=clear_phrase %}Type <strong>{{ word }}</strong> to confirm{% endblocktrans %}</label>
+        <input class="input" id="clear-confirm" name="confirm" autocomplete="off" autocapitalize="off" spellcheck="false" x-model="typed" />
+      </section>
+      <footer>
+        <button type="button" class="btn" data-variant="outline" data-close-dialog>{% trans "Cancel" %}</button>
+        <button type="submit" class="btn" data-variant="destructive" :disabled="typed.trim().toLowerCase() !== phrase.toLowerCase()" data-loading-text="{% trans 'Clear all data' %}">{% trans "Clear all data" %}</button>
+      </footer>
+      {% include "planner/_dialog_close.html" %}
+    </form>
+  </dialog>
 {% endblock page %}

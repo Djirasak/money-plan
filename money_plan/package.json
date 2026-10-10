@@ -11,14 +11,22 @@
     "icons": "node bin/sync-icons.mjs"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/cli": "^4.3.3",
+    "@vitest/coverage-v8": "^5.0.3",
     "alpinejs": "^3.17.4",
     "basecoat-css": "^1.0.2",
     "esbuild": "^0.28.2",
+    "eslint": "^10.12.0",
+    "globals": "^17.13.0",
     "htmx.org": "^2.0.11",
+    "jsdom": "^30.1.2",
     "lucide-static": "^1.55.0",
     "sortablejs": "^1.15.7",
-    "tailwindcss": "^4.3.3"
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard": "^40.0.0",
+    "tailwindcss": "^4.3.3",
+    "vitest": "^5.0.3"
   },
   "packageManager": "pnpm@10.30.2"
 }

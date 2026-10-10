@@ -720,3 +720,30 @@ msgstr "เปลี่ยนชื่อ"
 
 msgid "Save name"
 msgstr "บันทึกชื่อ"
+
+msgid "DELETE"
+msgstr "ลบทั้งหมด"
+
+msgid "Danger zone"
+msgstr "โซนอันตราย"
+
+msgid "Delete all your piles, plans, salaries and entries. Your account stays."
+msgstr "ลบกอง แผน เงินเดือน และรายการบันทึกทั้งหมดของคุณ บัญชีผู้ใช้ยังอยู่"
+
+msgid "Clear all data"
+msgstr "ล้างข้อมูลทั้งหมด"
+
+msgid "Clear all data?"
+msgstr "ล้างข้อมูลทั้งหมด?"
+
+msgid "This deletes every pile, plan, salary and entry and cannot be undone. Your account is kept."
+msgstr "ข้อมูลทุกกอง ทุกแผน เงินเดือน และรายการบันทึกจะถูกลบและกู้คืนไม่ได้ บัญชีผู้ใช้ยังอยู่"
+
+msgid "Type <strong>%(word)s</strong> to confirm"
+msgstr "พิมพ์ <strong>%(word)s</strong> เพื่อยืนยัน"
+
+msgid "Type the word to confirm, nothing was deleted"
+msgstr "พิมพ์คำยืนยันให้ถูกต้อง ยังไม่มีอะไรถูกลบ"
+
+msgid "All your data was cleared"
+msgstr "ล้างข้อมูลทั้งหมดแล้ว"

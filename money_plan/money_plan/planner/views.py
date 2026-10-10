@@ -26,6 +26,7 @@ from .mixins import ActionPostMixin
 from .mixins import PlannerMixin
 from .mixins import month_from_post
 from .models import LogEntry
+from .models import PlannerSettings
 from .models import PlanItem
 from .models import PlanPeriod
 from .models import Pile
@@ -165,6 +166,9 @@ class LogDeleteView(LoginRequiredMixin, View):
 # --- settings --------------------------------------------------------------
 
 
+CLEAR_PHRASE = _("DELETE")  # typed to confirm; translated so a Thai keyboard can do it
+
+
 class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
     template_name = "planner/settings_general.html"
     active = "settings"
@@ -178,6 +182,7 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
             "salary_percent": (self.cfg.salary_multiplier * 100).normalize(),
             "salaries": Salary.objects.filter(user=self.request.user),
             "default_month": services.current_month(),
+            "clear_phrase": str(CLEAR_PHRASE),
             "salary_dialogs": self._salary_dialogs(),
         }
 
@@ -238,6 +243,23 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
 
     def do_salary_delete(self, request):
         Salary.objects.filter(user=request.user, pk=request.POST.get("id")).delete()
+
+    def do_clear_all(self, request):
+        """Wipe this user's planner data (the account itself stays), after a typed confirmation."""
+        phrase = str(CLEAR_PHRASE)
+        if request.POST.get("confirm", "").strip().casefold() != phrase.casefold():
+            messages.error(request, _("Type the word to confirm, nothing was deleted"))
+            return None
+        user = request.user
+        with transaction.atomic():
+            # entries first: they protect the piles they point at
+            LogEntry.objects.filter(user=user).delete()
+            PlanPeriod.objects.filter(user=user).delete()  # takes its plan items with it
+            Pile.objects.filter(user=user).delete()
+            Salary.objects.filter(user=user).delete()
+            PlannerSettings.objects.filter(user=user).delete()
+        messages.success(request, _("All your data was cleared"))
+        return None
 
     def do_general(self, request):
         cfg = self.cfg
