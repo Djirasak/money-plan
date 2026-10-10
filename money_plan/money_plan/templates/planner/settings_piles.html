@@ -1,25 +1,35 @@
 {% extends "planner/layout.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% load planner_tags %}
 {% block heading %}{% trans "Piles" %}{% endblock heading %}
+{% block javascript %}
+  {{ block.super }}
+  <script defer src="{% static 'js/vendor/sortable.min.js' %}"></script>
+{% endblock javascript %}
 {% block page %}
   {% include "planner/_settings_tabs.html" %}
-  <ul class="flex flex-col gap-3">
+  {% trans "Moved {name} to position {pos} of {total}" as moved_text %}
+  <p class="mb-3 px-1 text-sm text-muted">{% trans "Press and hold a card, then drag it to change the order." %}</p>
+  <div class="sr-only" role="status" aria-live="polite" id="reorder-status"></div>
+  <ul class="flex flex-col gap-3" data-sortable data-reorder-url="{% url 'planner:piles_reorder' %}" data-moved="{{ moved_text }}">
     {% for pile, form in forms %}
-      <li class="card flex items-center gap-3 !p-4">
-        <span class="size-4 shrink-0 rounded-full" style="background:{{ pile.color }}" aria-hidden="true"></span>
+      <li class="card pile-card flex items-center gap-3 !p-4" data-sort-id="{{ pile.pk }}" data-sort-name="{{ pile.name }}"
+          style="background-image: linear-gradient(100deg, {{ pile.color|tint:26 }} 0%, var(--surface) 72%)">
+        <button type="button" class="-ml-2 grid size-10 shrink-0 cursor-grab place-items-center rounded-full text-muted hover:text-brand-fg" data-reorder-handle
+                aria-label="{% blocktrans with name=pile.name %}Reorder pile: {{ name }}. Press the up or down arrow key to move it.{% endblocktrans %}" title="{% trans 'Reorder' %}">
+          {% icon "grip-vertical" "size-5" %}
+        </button>
         <div class="min-w-0 flex-1">
           <p class="truncate font-bold">{{ pile.name }}</p>
-          <p class="mt-0.5 flex flex-wrap gap-x-2 text-sm text-muted [&>span:not(:first-child)]:before:me-2 [&>span:not(:first-child)]:before:content-['·']">
-            <span>{{ pile.get_kind_display }}</span>
+          <p class="mt-0.5 text-sm text-muted">
+            {{ pile.get_kind_display }}
             {% if pile.kind == "budget" %}
-              <span>
-                {% if pile.mode == "sweep" %}{% blocktrans with name=pile.overflow_to.name|default:"—" %}Sweeps to {{ name }}{% endblocktrans %}
-                {% elif pile.cap %}{% blocktrans with cap=pile.cap|baht %}Rollover up to {{ cap }}{% endblocktrans %}
-                {% else %}{% trans "Rollover, unlimited" %}{% endif %}
-              </span>
+              &middot;
+              {% if pile.mode == "sweep" %}{% blocktrans with name=pile.overflow_to.name|default:"—" %}Sweeps to {{ name }}{% endblocktrans %}
+              {% elif pile.cap %}{% blocktrans with cap=pile.cap|baht %}Rollover up to {{ cap }}{% endblocktrans %}
+              {% else %}{% trans "Rollover, unlimited" %}{% endif %}
             {% endif %}
-            {% if pile.has_target %}<span>{% blocktrans with target=pile|target_label %}Target: {{ target }}{% endblocktrans %}</span>{% endif %}
+            {% if pile.has_target %}&middot; {% blocktrans with target=pile|target_label %}Target: {{ target }}{% endblocktrans %}{% endif %}
           </p>
         </div>
         <button type="button" class="icon-btn" data-open-dialog="pile-edit-{{ pile.pk }}"
@@ -32,7 +42,7 @@
         </button>
       </li>
     {% endfor %}
-    <li>
+    <li data-no-sort>
       <button type="button" class="flex w-full items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-brand-fg/40 px-4 py-4 font-semibold text-brand-fg hover:bg-brand-tint" data-open-dialog="pile-new">
         {% icon "plus" "size-5" %}{% trans "Add pile" %}
       </button>

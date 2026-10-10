@@ -4,7 +4,9 @@ from decimal import InvalidOperation
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import ProtectedError
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -259,6 +261,23 @@ class SettingsPilesView(ActionPostMixin, PlannerMixin, TemplateView):
             )
         else:
             messages.success(request, _("Pile deleted"))
+
+
+class PileReorderView(LoginRequiredMixin, View):
+    """Save a new pile order: POST ids=<pk>&ids=<pk>... in the order they should appear."""
+
+    http_method_names = ["post"]
+
+    @transaction.atomic
+    def post(self, request):
+        wanted = [int(pk) for pk in request.POST.getlist("ids") if pk.isdigit()]
+        mine = set(request.user.piles.values_list("pk", flat=True))
+        ids = [pk for pk in dict.fromkeys(wanted) if pk in mine]  # unique, own piles only
+        # the piles that were not listed keep their relative order, after the listed ones
+        rest = [pk for pk in request.user.piles.values_list("pk", flat=True) if pk not in ids]
+        for position, pk in enumerate([*ids, *rest]):
+            Pile.objects.filter(pk=pk, user=request.user).update(order=position)
+        return JsonResponse({"order": [*ids, *rest]})
 
 
 class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):

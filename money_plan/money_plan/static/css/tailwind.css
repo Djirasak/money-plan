@@ -267,3 +267,19 @@ input[type="color"].field::-moz-color-swatch {
   border: 0;
   border-radius: 0.75rem;
 }
+
+/* Drag to reorder (SortableJS classes) */
+.pile-card {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.sortable-ghost {
+  opacity: 0.45;
+}
+.sortable-chosen {
+  @apply shadow-2xl ring-2 ring-brand-fg/40;
+}
+.sortable-drag {
+  cursor: grabbing;
+}

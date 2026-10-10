@@ -166,7 +166,10 @@ def test_piles_are_cards_with_edit_and_delete_buttons(client_in, user):
 
 def test_order_is_gone_from_the_forms_and_new_piles_go_last(client_in, user):
     html = client_in.get(reverse("planner:piles")).content.decode()
-    assert "-order" not in html and "ลำดับ" not in html
+    import re
+
+    assert not re.search(r'name="[^"]*-order"', html)  # no order field in any form
+    assert ">ลำดับ</label>" not in html
     forms = page_forms(client_in, "planner:piles")
     new = next(f for f in forms if "new-name" in f)
     client_in.post(reverse("planner:piles"), new | {"new-name": "Trip", "new-target_mode": "none"})
@@ -201,3 +204,41 @@ def test_invalid_new_pile_reopens_the_create_dialog(client_in, user):
 def test_cards_summarise_each_pile(client_in):
     html = client_in.get(reverse("planner:piles")).content.decode()
     assert "ทบได้ไม่เกิน ฿20,000" in html  # starter "free" pile has a 20,000 cap
+
+
+def test_reorder_saves_the_new_order(client_in, user):
+    piles = list(Pile.objects.filter(user=user))
+    new_order = [piles[2].pk, piles[0].pk, piles[1].pk]
+    resp = client_in.post(reverse("planner:piles_reorder"), {"ids": new_order})
+    assert resp.status_code == 200
+    assert list(Pile.objects.filter(user=user).values_list("pk", flat=True)) == new_order
+    html = client_in.get(reverse("planner:piles")).content.decode()
+    assert html.index(f'data-sort-id="{new_order[0]}"') < html.index(f'data-sort-id="{new_order[2]}"')
+
+
+def test_reorder_ignores_other_users_piles_and_keeps_unlisted_ones(client_in, user, django_user_model):
+    other = django_user_model.objects.create_user("other3", password="x")  # noqa: S106
+    foreign = Pile.objects.create(user=other, name="theirs", order=0)
+    mine = list(Pile.objects.filter(user=user))
+    client_in.post(reverse("planner:piles_reorder"), {"ids": [foreign.pk, mine[1].pk, 999999, mine[1].pk]})
+    foreign.refresh_from_db()
+    assert foreign.order == 0  # untouched
+    ordered = list(Pile.objects.filter(user=user).values_list("pk", flat=True))
+    assert ordered[0] == mine[1].pk  # listed first, duplicates and junk ignored
+    assert set(ordered) == {p.pk for p in mine}  # nobody was lost
+
+
+def test_reorder_requires_login_and_post(client_in):
+    from django.test import Client
+
+    assert Client().post(reverse("planner:piles_reorder")).status_code == 302
+    assert client_in.get(reverse("planner:piles_reorder")).status_code == 405
+
+
+def test_cards_are_sortable_and_coloured_by_gradient_not_a_dot(client_in):
+    html = client_in.get(reverse("planner:piles")).content.decode()
+    assert "data-sortable" in html and "data-reorder-url" in html
+    assert html.count("data-reorder-handle") == 3  # keyboard-accessible grip per card
+    assert "linear-gradient(100deg" in html  # faded colour background
+    assert "size-4 shrink-0 rounded-full" not in html  # the old dot is gone
+    assert "js/vendor/sortable.min.js" in html

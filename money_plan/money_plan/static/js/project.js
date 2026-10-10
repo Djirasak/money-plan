@@ -188,3 +188,70 @@ window.addEventListener('pageshow', (event) => {
     if (id) document.getElementById(id)?.showModal();
   });
 })();
+
+/*
+ * Reorder lists: press and hold a card (touch) or just drag it (mouse). Each item needs
+ * data-sort-id / data-sort-name; the list needs data-sortable + data-reorder-url + data-moved.
+ * The grip button is the keyboard alternative: focus it and press ArrowUp / ArrowDown.
+ */
+(() => {
+  const csrf = () => {
+    try {
+      return JSON.parse(document.body.getAttribute('hx-headers') || '{}')['X-CSRFToken'] || '';
+    } catch (e) {
+      return '';
+    }
+  };
+
+  const save = (list) => {
+    const body = new URLSearchParams();
+    for (const item of list.querySelectorAll('[data-sort-id]')) body.append('ids', item.dataset.sortId);
+    return fetch(list.dataset.reorderUrl, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf(), 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+  };
+
+  const announce = (list, item) => {
+    const items = [...list.querySelectorAll('[data-sort-id]')];
+    const text = (list.dataset.moved || '')
+      .replace('{name}', item.dataset.sortName)
+      .replace('{pos}', String(items.indexOf(item) + 1))
+      .replace('{total}', String(items.length));
+    const region = document.getElementById('reorder-status');
+    if (region) region.textContent = text;
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    for (const list of document.querySelectorAll('[data-sortable]')) {
+      if (window.Sortable) {
+        window.Sortable.create(list, {
+          draggable: '[data-sort-id]',
+          filter: 'button:not([data-reorder-handle]), a, [data-no-sort]',
+          preventOnFilter: false,
+          delay: 250, // press and hold...
+          delayOnTouchOnly: true, // ...on touch screens only, so scrolling still works
+          touchStartThreshold: 6,
+          animation: 160,
+          onEnd: (event) => {
+            if (event.oldIndex !== event.newIndex) save(list);
+          },
+        });
+      }
+      list.addEventListener('keydown', (event) => {
+        const handle = event.target.closest('[data-reorder-handle]');
+        if (!handle || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+        event.preventDefault();
+        const item = handle.closest('[data-sort-id]');
+        const sibling = event.key === 'ArrowUp' ? item.previousElementSibling : item.nextElementSibling;
+        if (!sibling || !sibling.matches('[data-sort-id]')) return;
+        if (event.key === 'ArrowUp') list.insertBefore(item, sibling);
+        else list.insertBefore(sibling, item);
+        handle.focus();
+        announce(list, item);
+        save(list);
+      });
+    }
+  });
+})();

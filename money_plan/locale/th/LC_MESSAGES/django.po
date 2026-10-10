@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 19:11+0700\n"
+"POT-Creation-Date: 2026-10-10 19:20+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -493,6 +493,20 @@ msgstr "สว่าง"
 
 msgid "Dark"
 msgstr "มืด"
+
+#, python-brace-format
+msgid "Moved {name} to position {pos} of {total}"
+msgstr "ย้าย {name} ไปลำดับที่ {pos} จาก {total}"
+
+msgid "Press and hold a card, then drag it to change the order."
+msgstr "กดการ์ดค้างไว้ แล้วลากเพื่อเปลี่ยนลำดับ"
+
+#, python-format
+msgid "Reorder pile: %(name)s. Press the up or down arrow key to move it."
+msgstr "จัดลำดับกอง: %(name)s กดปุ่มลูกศรขึ้นหรือลงเพื่อย้าย"
+
+msgid "Reorder"
+msgstr "จัดลำดับ"
 
 #, python-format
 msgid "Target: %(target)s"
