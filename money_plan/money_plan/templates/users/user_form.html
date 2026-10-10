@@ -4,19 +4,20 @@
   {{ user.username }}
 {% endblock title %}
 {% block content %}
-  <form class="card space-y-4" method="post" action="{% url 'users:update' %}">
-    <h1 class="text-2xl font-bold">{{ user.username }}</h1>
+  <form class="card" data-size="sm" method="post" action="{% url 'users:update' %}">
     {% csrf_token %}
-    {% load allauth %}
-    <div class="auth auth-fields space-y-4">
+    <header class="px-4"><h1 class="text-base font-semibold">{{ user.username }}</h1></header>
+    <section class="auth-fields flex flex-col gap-4 px-4">
       {% for field in form %}
-        <div>
+        <div class="grid gap-2">
           <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
           {{ field }}
-          {% for error in field.errors %}<p class="mt-1 text-sm text-danger">{{ error }}</p>{% endfor %}
+          {% for error in field.errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}
         </div>
       {% endfor %}
-    </div>
-    <button type="submit" class="btn">Update</button>
+    </section>
+    <footer class="justify-end px-4">
+      <button type="submit" class="btn">Update</button>
+    </footer>
   </form>
 {% endblock content %}

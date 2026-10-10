@@ -3,40 +3,48 @@
 {% load planner_tags %}
 {% block heading %}{% trans "Save entry" %}{% endblock heading %}
 {% block page %}
-  <form method="post" class="card space-y-4" action="{% if editing %}{% url 'planner:log_edit' editing.pk %}{% else %}{% url 'planner:log' %}{% endif %}">
+  <form method="post" class="card" data-size="sm" action="{% if editing %}{% url 'planner:log_edit' editing.pk %}{% else %}{% url 'planner:log' %}{% endif %}">
     {% csrf_token %}
     <input type="hidden" name="m" value="{{ month }}" />
-    <h2 class="text-lg font-bold">{% if editing %}{% trans "Edit entry" %}{% else %}{% trans "Add entry" %}{% endif %}</h2>
-    {% for f in form %}
-      <div>
-        <label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>
-        {{ f }}
-      </div>
-    {% endfor %}
-    <p class="text-sm text-muted">{% trans 'Spend: pick "From pile" · Transfer/Sweep: pick both · Adjust: pick one' %}</p>
-    {% if editing %}{% url 'planner:log' as new_url %}{% include "planner/_actions.html" with add_href=new_url|add:"?m="|add:month save_label=_("Save changes") %}{% else %}{% include "planner/_actions.html" with save_label=_("Save entry") %}{% endif %}
+    <header class="px-4"><h2 class="text-sm font-medium">{% if editing %}{% trans "Edit entry" %}{% else %}{% trans "Add entry" %}{% endif %}</h2></header>
+    <section class="grid gap-4 px-4">
+      {% for f in form %}{% include "planner/_field.html" with f=f %}{% endfor %}
+      <p class="text-xs text-muted-foreground">{% trans 'Spend: pick "From pile" · Transfer/Sweep: pick both · Adjust: pick one' %}</p>
+    </section>
+    <footer class="justify-end gap-2 px-4">
+      {% if editing %}<a class="btn" data-variant="outline" href="{% url 'planner:log' %}?m={{ month }}">{% trans "Cancel" %}</a>{% endif %}
+      <button type="submit" class="btn" data-loading-text="{% if editing %}{% trans 'Save changes' %}{% else %}{% trans 'Save entry' %}{% endif %}">{% icon "save" "size-4" %}{% if editing %}{% trans "Save changes" %}{% else %}{% trans "Save entry" %}{% endif %}</button>
+    </footer>
   </form>
 
-  <h2 class="mb-3 mt-7 px-1 text-sm font-semibold tracking-wide text-muted">{% blocktrans with m=month|month_label %}Entries {{ m }}{% endblocktrans %}</h2>
-  <div class="space-y-3">
+  <h2 class="mb-2 mt-6 px-1 text-xs font-medium text-muted-foreground">{% blocktrans with m=month|month_label %}Entries {{ m }}{% endblocktrans %}</h2>
+  <ul class="flex flex-col gap-2">
     {% for e in entries %}
-      <article class="card flex items-center gap-3 !p-4">
-        <div class="min-w-0 flex-1">
-          <p class="font-semibold">{{ e.get_type_display }} · {{ e.amount|baht }}</p>
-          <p class="truncate text-sm text-muted">
+      <li class="item" data-variant="outline">
+        <section>
+          <h3>{{ e.get_type_display }} · {{ e.amount|baht }}</h3>
+          <p>
             {{ e.date|date:"j F" }} ·
-            {% if e.from_pile %}{{ e.from_pile }}{% endif %}{% if e.from_pile and e.to_pile %} {% icon "arrow-right" "size-3.5 inline-block align-[-2px]" %} {% endif %}{% if e.to_pile %}{{ e.to_pile }}{% endif %}
+            {% if e.from_pile %}{{ e.from_pile }}{% endif %}{% if e.from_pile and e.to_pile %} {% icon "arrow-right" "size-3 inline-block align-[-1px]" %} {% endif %}{% if e.to_pile %}{{ e.to_pile }}{% endif %}
             {% if e.note %}· {{ e.note }}{% endif %}
           </p>
-        </div>
-        <a class="btn-soft !w-auto !px-3 !py-1.5 text-sm" href="{% url 'planner:log_edit' e.pk %}?m={{ month }}">{% trans "Edit" %}</a>
-        <form method="post" action="{% url 'planner:log_delete' e.pk %}" onsubmit="return confirm('{% trans "Delete this entry?" as t %}{{ t|escapejs }}')">
-          {% csrf_token %}<input type="hidden" name="m" value="{{ month }}" />
-          <button class="btn-danger" type="submit">{% trans "Delete" %}</button>
-        </form>
-      </article>
+        </section>
+        <aside class="gap-1">
+          <a class="btn" data-variant="ghost" data-size="icon-sm" href="{% url 'planner:log_edit' e.pk %}?m={{ month }}" aria-label="{% trans 'Edit entry' %}" title="{% trans 'Edit' %}">
+            {% icon "square-pen" "size-4" %}
+          </a>
+          <button type="button" class="btn text-destructive" data-variant="ghost" data-size="icon-sm" data-confirm-delete data-delete-id="{{ e.pk }}"
+                  data-delete-url="{% url 'planner:log_delete' e.pk %}"
+                  data-delete-name="{{ e.get_type_display }} · {{ e.amount|baht }} · {{ e.date|date:'j F' }}"
+                  aria-label="{% trans 'Delete' %}" title="{% trans 'Delete' %}">
+            {% icon "trash-2" "size-4" %}
+          </button>
+        </aside>
+      </li>
     {% empty %}
-      <p class="card text-center text-muted">{% trans "No entries this month yet" %}</p>
+      <li class="rounded-md border border-dashed p-6 text-center text-muted-foreground">{% trans "No entries this month yet" %}</li>
     {% endfor %}
-  </div>
+  </ul>
+  {% trans "Delete this entry?" as confirm_title %}
+  {% include "planner/_confirm_dialog.html" with action="delete" title=confirm_title note="" month=month %}
 {% endblock page %}

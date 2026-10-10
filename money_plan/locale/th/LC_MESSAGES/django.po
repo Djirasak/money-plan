@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 19:41+0700\n"
+"POT-Creation-Date: 2026-10-10 19:56+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -208,6 +208,12 @@ msgstr "ลบไม่ได้: กองนี้ถูกใช้ในร�
 msgid "Pile deleted"
 msgstr "ลบกองแล้ว"
 
+msgid "Always, from the start month"
+msgstr "ใช้เสมอ ตั้งแต่เดือนที่เริ่ม"
+
+msgid "Only while a pile's balance matches"
+msgstr "ใช้เมื่อยอดของกองใดกองหนึ่งตรงเงื่อนไข"
+
 msgid "Plan added"
 msgstr "เพิ่มแผนแล้ว"
 
@@ -265,20 +271,8 @@ msgstr "ลองใหม่"
 msgid "Sign In"
 msgstr "เข้าสู่ระบบ"
 
-msgid "Search..."
-msgstr "ค้นหา..."
-
-msgid "No results found"
-msgstr "ไม่พบผลลัพธ์"
-
-msgid "No choices to choose from"
-msgstr "ไม่มีตัวเลือก"
-
 msgid "Notifications"
 msgstr "การแจ้งเตือน"
-
-msgid "Dismiss"
-msgstr "ปิด"
 
 msgid "Loading..."
 msgstr "กำลังโหลด..."
@@ -286,17 +280,14 @@ msgstr "กำลังโหลด..."
 msgid "Go back"
 msgstr "ย้อนกลับ"
 
-msgid "Add new"
-msgstr "เพิ่มใหม่"
-
-msgid "Save"
-msgstr "บันทึก"
+msgid "Cancel"
+msgstr "ยกเลิก"
 
 msgid "Delete"
 msgstr "ลบ"
 
-msgid "Cancel"
-msgstr "ยกเลิก"
+msgid "Close"
+msgstr "ปิด"
 
 msgid "Month"
 msgstr "เดือน"
@@ -304,8 +295,8 @@ msgstr "เดือน"
 msgid "Year"
 msgstr "ปี"
 
-msgid "Close"
-msgstr "ปิด"
+msgid "Save"
+msgstr "บันทึก"
 
 #, python-format
 msgid "The target follows your salary: it changes whenever your salary changes. Example: 60%% x 6 months = 6 months of 60%% of your salary."
@@ -313,12 +304,6 @@ msgstr "เป้าหมายจะเปลี่ยนตามเงิน
 
 msgid "When to use this plan"
 msgstr "เมื่อไหร่ที่ใช้แผนนี้"
-
-msgid "Always, from the start month"
-msgstr "ใช้เสมอ ตั้งแต่เดือนที่เริ่ม"
-
-msgid "Only while a pile's balance matches"
-msgstr "ใช้เมื่อยอดของกองใดกองหนึ่งตรงเงื่อนไข"
 
 msgid "Pile"
 msgstr "กอง"
@@ -426,6 +411,9 @@ msgstr "คุณต้องเข้าสู่ระบบใหม่อี
 msgid "Signing out..."
 msgstr "กำลังออกจากระบบ..."
 
+msgid "Main"
+msgstr "เมนูหลัก"
+
 msgid "Save entry"
 msgstr "บันทึกรายการ"
 
@@ -448,11 +436,11 @@ msgstr "รายการ %(m)s"
 msgid "Edit"
 msgstr "แก้"
 
-msgid "Delete this entry?"
-msgstr "ลบรายการนี้?"
-
 msgid "No entries this month yet"
 msgstr "ยังไม่มีรายการในเดือนนี้"
+
+msgid "Delete this entry?"
+msgstr "ลบรายการนี้?"
 
 msgid "Your plan"
 msgstr "แผนของคุณ"
@@ -511,15 +499,6 @@ msgstr "สว่าง"
 msgid "Dark"
 msgstr "มืด"
 
-msgid "Minimal style"
-msgstr "สไตล์มินิมอล"
-
-msgid "Classic"
-msgstr "คลาสสิก"
-
-msgid "Minimal"
-msgstr "มินิมอล"
-
 #, python-brace-format
 msgid "Moved {name} to position {pos} of {total}"
 msgstr "ย้าย {name} ไปลำดับที่ {pos} จาก {total}"
@@ -565,9 +544,6 @@ msgstr "แต่ละแผนใช้ตั้งแต่เดือนท
 msgid "Total %(total)s"
 msgstr "รวม %(total)s"
 
-msgid "Delete this plan?"
-msgstr "ลบแผนนี้?"
-
 msgid "Plan name (optional)"
 msgstr "ชื่อแผน (ไม่บังคับ)"
 
@@ -600,6 +576,9 @@ msgstr "คัดลอกค่าจากแผนก่อนหน้าใ
 
 msgid "Add plan"
 msgstr "เพิ่มแผน"
+
+msgid "Delete this plan?"
+msgstr "ลบแผนนี้?"
 
 msgid "Monthly summary"
 msgstr "สรุปรายเดือน"

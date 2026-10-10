@@ -11,5 +11,5 @@
 {% block text %}{% trans "This page was open for too long. Refresh it and try again." %}{% endblock text %}
 {% block actions %}
   <button type="button" class="btn" onclick="location.reload()">{% trans "Refresh page" %}</button>
-  <a href="{% url 'planner:summary' %}" class="btn-soft">{% trans "Back to home" %}</a>
+  <a href="{% url 'planner:summary' %}" class="btn" data-variant="outline">{% trans "Back to home" %}</a>
 {% endblock actions %}

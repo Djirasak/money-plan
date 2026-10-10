@@ -2,25 +2,18 @@
 {# Target: none | a fixed amount | a share of salary x months. Fields come from the PileForm. #}
 <div class="flex flex-col gap-3"
      x-data="{ mode: '{{ form.target_mode.value|default:'none' }}' }">
-  <div>
-    <label class="label" for="{{ form.target_mode.id_for_label }}">{{ form.target_mode.label }}</label>
-    <div @change="mode = $event.target.value">{{ form.target_mode }}</div>
+  <div class="grid gap-2" @change="if ($event.detail && $event.target.id.endsWith('target_mode')) mode = $event.detail.value">
+    <label class="label" id="{{ form.target_mode.id_for_label }}-label" for="{{ form.target_mode.id_for_label }}">{{ form.target_mode.label }}</label>
+    {{ form.target_mode }}
   </div>
   <div x-show="mode === 'fixed'" x-cloak>
-    <label class="label" for="{{ form.target.id_for_label }}">{{ form.target.label }}</label>
-    {{ form.target }}
+    {% include "planner/_field.html" with f=form.target %}
   </div>
   <div x-show="mode === 'salary'" x-cloak class="flex flex-col gap-2">
     <div class="grid grid-cols-2 gap-2">
-      <div>
-        <label class="label" for="{{ form.target_percent.id_for_label }}">{{ form.target_percent.label }}</label>
-        {{ form.target_percent }}
-      </div>
-      <div>
-        <label class="label" for="{{ form.target_months.id_for_label }}">{{ form.target_months.label }}</label>
-        {{ form.target_months }}
-      </div>
+      {% include "planner/_field.html" with f=form.target_percent %}
+      {% include "planner/_field.html" with f=form.target_months %}
     </div>
-    <p class="text-sm text-muted">{% trans "The target follows your salary: it changes whenever your salary changes. Example: 60% x 6 months = 6 months of 60% of your salary." %}</p>
+    <p class="text-xs text-muted-foreground">{% trans "The target follows your salary: it changes whenever your salary changes. Example: 60% x 6 months = 6 months of 60% of your salary." %}</p>
   </div>
 </div>

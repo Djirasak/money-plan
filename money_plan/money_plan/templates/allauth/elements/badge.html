@@ -1,5 +1,5 @@
 {% load allauth %}
 
-<span class="rounded-full px-3 py-1 text-xs font-semibold {% if 'success' in attrs.tags %}bg-success-soft text-success{% elif 'warning' in attrs.tags %}bg-warn-soft text-warn{% elif 'danger' in attrs.tags %}bg-danger-soft text-danger{% else %}bg-brand-tint text-brand-fg{% endif %}">
+<span class="badge" {% if 'danger' in attrs.tags %}data-variant="destructive"{% elif 'secondary' in attrs.tags %}data-variant="secondary"{% endif %}>
   {% slot %}{% endslot %}
 </span>

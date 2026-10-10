@@ -7,16 +7,18 @@
   {% endblock head_title %}
 {% endblock title %}
 {% block main %}
-  <div class="mt-6 mb-6 flex items-center gap-3">
-    <div class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-violet-500 text-white shadow-lg shadow-brand-500/30">
-      {% icon "wallet" "size-6" %}
+  <div class="mb-6 flex items-center gap-3">
+    <div class="brand-tile">
+      {% icon "wallet" "size-5" %}
     </div>
-    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-fg">Money Plan</p>
+    <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Money Plan</p>
   </div>
-  <div class="card auth space-y-4">
-    {% block content %}
-    {% endblock content %}
-    {% block extra_body %}
-    {% endblock extra_body %}
+  <div class="card auth" data-size="sm">
+    <section class="flex flex-col gap-4 px-4">
+      {% block content %}
+      {% endblock content %}
+      {% block extra_body %}
+      {% endblock extra_body %}
+    </section>
   </div>
 {% endblock main %}

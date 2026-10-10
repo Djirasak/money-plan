@@ -71,7 +71,7 @@ def test_language_toggle_round_trip(client_in):
 
 def test_vendor_scripts_loaded_on_every_page(client_in):
     html = client_in.get(reverse("planner:summary")).content.decode()
-    for name in ("choices", "htmx", "alpine"):
+    for name in ("basecoat", "htmx", "alpine"):
         assert f"js/vendor/{name}.min.js" in html
     assert "X-CSRFToken" in html
 
@@ -98,11 +98,11 @@ def test_stored_months_stay_gregorian_whatever_the_display_language(client_in, u
 def test_month_picker_shows_buddhist_years_in_thai_but_posts_gregorian(client_in, user):
     year = int(user.planner_settings.start_month[:4])
     html = client_in.get(reverse("planner:settings")).content.decode()
-    assert f'<option value="{year}" selected>{year + 543}</option>' in html
+    assert f'data-value="{year}" aria-selected="true">{year + 543}</div>' in html
     assert "ตุลาคม" in html  # full month names
     client_in.post(reverse("set_language"), {"language": "en", "next": "/settings/"})
     html = client_in.get(reverse("planner:settings")).content.decode()
-    assert f'<option value="{year}" selected>{year}</option>' in html
+    assert f'data-value="{year}" aria-selected="true">{year}</div>' in html
 
 
 def test_target_label_reads_naturally():

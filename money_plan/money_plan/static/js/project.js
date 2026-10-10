@@ -59,81 +59,13 @@
 })();
 
 /*
- * Choices.js: nicer <select> dropdowns. Opt out with data-choices="off".
- * Selects with many options (e.g. months) get a search box. The original
- * <select> keeps working and still fires "change".
+ * Basecoat selects: submit the surrounding form when a select marked data-auto-submit changes
+ * (Basecoat dispatches a bubbling "change" CustomEvent on the .select root).
  */
-(() => {
-  // Building the dropdown DOM for long lists is slow, so do it when idle.
-  const BIG_LIST = 24;
-  const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 50));
-
-  /*
-   * Keep the dropdown list on screen. It floats (position: fixed) at the control, so a
-   * scrolling dialog or an overflow:hidden card can never clip it, and it opens upwards
-   * when there is more room above than below.
-   */
-  const float = (el, choices) => {
-    const container = choices.containerOuter.element;
-    const list = () => container.querySelector('.choices__list--dropdown');
-    const place = () => {
-      const menu = list();
-      if (!menu) return;
-      const box = container.getBoundingClientRect();
-      const below = window.innerHeight - box.bottom - 12;
-      const above = box.top - 12;
-      const up = below < 200 && above > below;
-      const room = Math.max(120, up ? above : below);
-      menu.style.position = 'fixed';
-      menu.style.left = `${box.left}px`;
-      menu.style.width = `${box.width}px`;
-      menu.style.marginTop = '0';
-      menu.style.top = up ? 'auto' : `${box.bottom + 6}px`;
-      menu.style.bottom = up ? `${window.innerHeight - box.top + 6}px` : 'auto';
-      const items = menu.querySelector('.choices__list[role="listbox"]');
-      const search = menu.querySelector('.choices__input');
-      if (items) items.style.maxHeight = `${Math.min(300, room - (search ? 64 : 12))}px`;
-    };
-    const watch = () => {
-      place();
-      window.addEventListener('scroll', place, true);
-      window.addEventListener('resize', place);
-    };
-    const unwatch = () => {
-      window.removeEventListener('scroll', place, true);
-      window.removeEventListener('resize', place);
-    };
-    el.addEventListener('showDropdown', watch);
-    el.addEventListener('hideDropdown', unwatch);
-  };
-
-  const enhance = (el) => {
-    const { searchPlaceholder, noResults, noChoices } = document.body.dataset;
-    const choices = new Choices(el, {
-      searchEnabled: el.options.length > 12,
-      shouldSort: false,
-      itemSelectText: '',
-      allowHTML: false,
-      searchPlaceholderValue: searchPlaceholder,
-      noResultsText: noResults,
-      noChoicesText: noChoices,
-    });
-    float(el, choices);
-  };
-
-  const init = (root = document) => {
-    if (!window.Choices) return;
-    for (const el of root.querySelectorAll('select:not([data-choices="off"])')) {
-      if (el.dataset.choicesReady || el.multiple) continue;
-      el.dataset.choicesReady = 'true';
-      if (el.options.length > BIG_LIST) idle(() => enhance(el));
-      else enhance(el);
-    }
-  };
-
-  document.addEventListener('DOMContentLoaded', () => init());
-  document.addEventListener('htmx:afterSwap', (event) => init(event.target));
-})();
+document.addEventListener('change', (event) => {
+  const select = event.target instanceof Element && event.target.closest('.select[data-auto-submit]');
+  if (select) select.closest('form')?.requestSubmit();
+});
 
 /*
  * Busy overlay: a grey screen with a spinner. Forms marked data-busy show it on
@@ -170,25 +102,27 @@ window.addEventListener('pageshow', (event) => {
 });
 
 /*
- * Light/dark theme. The initial theme is applied by an inline script in <head>;
- * this wires the toggle button(s), remembers the choice and keeps ARIA in sync.
+ * Light/dark theme (Basecoat/shadcn convention: class "dark" on <html>). The initial theme is
+ * applied by an inline script in <head>; this wires the toggle button(s), remembers the choice
+ * and keeps ARIA in sync.
  */
 (() => {
   const root = document.documentElement;
   const sync = () => {
-    const dark = root.dataset.theme === 'dark';
+    const dark = root.classList.contains('dark');
     for (const button of document.querySelectorAll('[data-theme-toggle]')) {
       button.setAttribute('aria-checked', String(dark));
     }
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0d0e1b' : '#f6f7fb');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0a0a0a' : '#ffffff');
   };
   document.addEventListener('click', (event) => {
     const button = event.target.closest('[data-theme-toggle]');
     if (!button) return;
     const since = Busy.show(); // brief feedback so the switch never feels like a glitch
-    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    const dark = !root.classList.contains('dark');
+    root.classList.toggle('dark', dark);
     try {
-      localStorage.setItem('theme', root.dataset.theme);
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
     } catch (e) { /* storage blocked: the choice just won't persist */ }
     sync();
     Busy.hide(since, 220);
@@ -217,6 +151,9 @@ window.addEventListener('pageshow', (event) => {
     if (del) {
       const dialog = document.getElementById('confirm-delete');
       dialog.querySelector('[data-delete-field]').value = del.dataset.deleteId;
+      const form = dialog.querySelector('form');
+      if (del.dataset.deleteUrl) form.setAttribute('action', del.dataset.deleteUrl);
+      else form.removeAttribute('action');
       dialog.querySelector('[data-delete-label]').textContent = del.dataset.deleteName;
       dialog.showModal();
       return;
@@ -295,28 +232,4 @@ window.addEventListener('pageshow', (event) => {
       });
     }
   });
-})();
-
-/*
- * Visual style toggle: "classic" (default) or "minimal" (shadcn tokens, <html data-ui="shadcn">).
- */
-(() => {
-  const root = document.documentElement;
-  const sync = () => {
-    const minimal = root.dataset.ui === 'shadcn';
-    for (const button of document.querySelectorAll('[data-ui-toggle]')) {
-      button.setAttribute('aria-checked', String(minimal));
-    }
-  };
-  document.addEventListener('click', (event) => {
-    if (!event.target.closest('[data-ui-toggle]')) return;
-    const minimal = root.dataset.ui !== 'shadcn';
-    if (minimal) root.dataset.ui = 'shadcn';
-    else delete root.dataset.ui;
-    try {
-      localStorage.setItem('ui', minimal ? 'shadcn' : 'classic');
-    } catch (e) { /* storage blocked: the choice just won't persist */ }
-    sync();
-  });
-  sync();
 })();

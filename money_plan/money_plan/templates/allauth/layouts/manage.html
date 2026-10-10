@@ -6,8 +6,10 @@
 {% endblock title %}
 
 {% block main %}
-  <div class="card auth space-y-4">
-    {% block content %}
-    {% endblock content %}
+  <div class="card auth" data-size="sm">
+    <section class="flex flex-col gap-4 px-4">
+      {% block content %}
+      {% endblock content %}
+    </section>
   </div>
 {% endblock main %}

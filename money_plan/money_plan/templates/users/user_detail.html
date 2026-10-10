@@ -1,23 +1,22 @@
 {% extends "base.html" %}
-{% load planner_tags %}
-{% load i18n %}
+{% load i18n planner_tags %}
 
 {% block title %}
   User: {{ object.username }}
 {% endblock title %}
 {% block content %}
-  <div class="card space-y-4">
-    <div>
-      <h2 class="text-2xl font-bold">{{ object.username }}</h2>
-      {% if object.name %}<p class="text-muted">{{ object.name }}</p>{% endif %}
-    </div>
+  <div class="card" data-size="sm">
+    <header class="px-4">
+      <h2 class="text-base font-semibold">{{ object.username }}</h2>
+      {% if object.name %}<p class="text-sm text-muted-foreground">{{ object.name }}</p>{% endif %}
+    </header>
     {% if object == request.user %}
-      <div class="space-y-2">
+      <section class="flex flex-col gap-2 px-4">
         <a class="btn" href="{% url 'users:update' %}">My Info</a>
-        <a class="btn-soft" href="{% url 'account_email' %}">E-Mail</a>
-        <a class="btn-soft" href="{% url 'mfa_index' %}">MFA</a>
-        <a class="btn-soft" href="{% url 'planner:summary' %}">{% icon "arrow-left" "size-4" %}{% trans "Back to summary" %}</a>
-      </div>
+        <a class="btn" data-variant="outline" href="{% url 'account_email' %}">E-Mail</a>
+        <a class="btn" data-variant="outline" href="{% url 'mfa_index' %}">MFA</a>
+        <a class="btn" data-variant="ghost" href="{% url 'planner:summary' %}">{% icon "arrow-left" "size-4" %}{% trans "Back to summary" %}</a>
+      </section>
     {% endif %}
   </div>
 {% endblock content %}

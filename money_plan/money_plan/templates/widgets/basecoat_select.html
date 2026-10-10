@@ -1,0 +1,19 @@
+{% load i18n planner_tags %}
+{% comment %}Django widget template: a Basecoat select that posts through its hidden input.{% endcomment %}
+{% with field_id=widget.attrs.id|default:widget.name %}
+<div class="select w-full" id="{{ field_id }}">
+  <button type="button" class="btn w-full justify-between font-normal" data-variant="outline" id="{{ field_id }}-trigger" aria-haspopup="listbox"
+          aria-expanded="false" aria-controls="{{ field_id }}-listbox" aria-labelledby="{{ field_id }}-label {{ field_id }}-trigger">
+    <span class="truncate">{% for group_name, group_choices, group_index in widget.optgroups %}{% for option in group_choices %}{% if option.selected %}{{ option.label }}{% endif %}{% endfor %}{% endfor %}</span>
+    {% icon "chevron-down" "size-4 shrink-0 opacity-80" %}
+  </button>
+  <div id="{{ field_id }}-popover" data-popover aria-hidden="true">
+    <div role="listbox" id="{{ field_id }}-listbox" aria-orientation="vertical" aria-labelledby="{{ field_id }}-trigger">
+      {% for group_name, group_choices, group_index in widget.optgroups %}{% for option in group_choices %}
+        <div role="option" data-value="{{ option.value }}" {% if option.selected %}aria-selected="true"{% endif %}>{{ option.label }}</div>
+      {% endfor %}{% endfor %}
+    </div>
+  </div>
+  <input type="hidden" name="{{ widget.name }}" value="{% for group_name, group_choices, group_index in widget.optgroups %}{% for option in group_choices %}{% if option.selected %}{{ option.value }}{% endif %}{% endfor %}{% endfor %}" />
+</div>
+{% endwith %}

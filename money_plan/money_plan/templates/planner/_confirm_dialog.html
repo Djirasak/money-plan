@@ -1,16 +1,19 @@
-{% load i18n %}
+{% load i18n planner_tags %}
 {# Shared "are you sure" dialog. Buttons with data-confirm-delete data-delete-id data-delete-name fill and open it. #}
-<dialog id="confirm-delete" class="modal !max-w-sm" aria-labelledby="confirm-delete-title">
-  <form method="post" class="flex flex-col gap-4">
+<dialog id="confirm-delete" class="dialog w-full sm:max-w-[400px]" aria-labelledby="confirm-delete-title">
+  <form method="post">
     {% csrf_token %}
     <input type="hidden" name="action" value="{{ action }}" />
     <input type="hidden" name="id" value="" data-delete-field />
-    <h2 class="text-xl font-bold" id="confirm-delete-title">{{ title }}</h2>
-    <p class="text-muted"><strong data-delete-label></strong></p>
-    {% if note %}<p class="text-sm text-muted">{{ note }}</p>{% endif %}
-    <div class="flex flex-col gap-2">
-      <button type="submit" class="btn btn-delete !from-rose-700 !to-rose-700" data-loading-text="{% trans 'Delete' %}">{% trans "Delete" %}</button>
-      <button type="button" class="btn-soft" data-close-dialog>{% trans "Cancel" %}</button>
-    </div>
+    {% if month %}<input type="hidden" name="m" value="{{ month }}" />{% endif %}
+    <header>
+      <h2 id="confirm-delete-title">{{ title }}</h2>
+      <p><strong data-delete-label></strong>{% if note %}<span class="mt-1 block">{{ note }}</span>{% endif %}</p>
+    </header>
+    <footer>
+      <button type="button" class="btn" data-variant="outline" data-close-dialog>{% trans "Cancel" %}</button>
+      <button type="submit" class="btn" data-variant="destructive" data-loading-text="{% trans 'Delete' %}">{% trans "Delete" %}</button>
+    </footer>
+    {% include "planner/_dialog_close.html" %}
   </form>
 </dialog>

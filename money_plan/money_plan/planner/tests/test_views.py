@@ -125,20 +125,16 @@ def test_every_page_renders(client_in, name):
     assert client_in.get(reverse(name)).status_code == 200
 
 
-@pytest.mark.parametrize("name", ["planner:plan"])
-def test_action_bar_has_add_left_and_save_right(client_in, name):
-    html = client_in.get(reverse(name)).content.decode()
-    assert html.index('aria-label="เพิ่มใหม่"') < html.index('aria-label="บันทึก')
-
-
-def test_edit_page_renders_with_add_link(client_in, user):
+def test_edit_page_renders_with_cancel_and_the_entry_values(client_in, user):
     spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
     entry = LogEntry.objects.create(
         user=user, date=date(2027, 1, 1), type="spend", from_pile=spend, amount=5,
     )
     resp = client_in.get(reverse("planner:log_edit", args=[entry.pk]))
     assert resp.status_code == 200
-    assert b'aria-label="\xe0\xb9\x80\xe0\xb8\x9e\xe0\xb8\xb4\xe0\xb9\x88\xe0\xb8\xa1\xe0\xb9\x83\xe0\xb8\xab\xe0\xb8\xa1\xe0\xb9\x88"' in resp.content
+    html = resp.content.decode()
+    assert f'action="/log/{entry.pk}/edit/"' in html
+    assert "ยกเลิก" in html  # a Cancel button replaces the old "+" link
 
 
 def test_month_bar_navigation(client_in, user):

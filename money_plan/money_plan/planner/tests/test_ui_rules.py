@@ -63,10 +63,10 @@ def test_bottom_nav_uses_icons_not_glyphs(client_in):
 
 def test_dark_mode_toggle_and_no_flash_script(client_in):
     html = client_in.get(reverse("planner:settings")).content.decode()
-    assert 'data-theme-toggle role="switch" aria-checked="false"' in html
+    assert "data-theme-toggle" in html and 'role="switch" aria-checked="false"' in html
     assert 'aria-label="โหมดมืด"' in html
-    # the saved/system theme is applied by an inline script in <head>, before the CSS paints
-    assert html.index("dataset.theme") < html.index("project.min.css")
+    # the saved/system theme sets the shadcn "dark" class before the CSS paints
+    assert html.index("classList.toggle('dark'") < html.index("project.min.css")
     assert 'id="busy-overlay"' in html and 'role="status"' in html
 
 
@@ -87,14 +87,14 @@ def test_messages_are_toasts_with_the_right_roles(client_in, user):
     pile = Pile.objects.get(user=user, name="เงินสำรอง")
     prefix = f"p{pile.pk}"
     bad = {"action": "save", "id": pile.pk, f"{prefix}-name": pile.name, f"{prefix}-color": "#10b981",
-           f"{prefix}-kind": "fund", f"{prefix}-mode": "rollover", f"{prefix}-order": 3,
+           f"{prefix}-kind": "fund", f"{prefix}-mode": "rollover",
            f"{prefix}-target_mode": "salary"}  # percent and months missing
     html = client_in.post(reverse("planner:piles"), bad, follow=True).content.decode()
-    assert 'role="alert"' in html  # errors are announced assertively
-    assert "กรอกเปอร์เซ็นต์ของเงินเดือน" in html
-    toast = html[html.index('aria-label="การแจ้งเตือน"') :]
-    assert "fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+6rem)]" in html and "กรอกจำนวนเดือน" in toast
-    assert 'class="mb-3 space-y-2"' not in html  # the old inline banner is gone
+    toaster = html[html.index('id="toaster"') :]
+    assert 'class="toast" role="alert"' in toaster  # errors are announced assertively
+    assert 'data-category="error"' in toaster and 'data-duration="9000"' in toaster
+    assert "กรอกเปอร์เซ็นต์ของเงินเดือน" in toaster and "กรอกจำนวนเดือน" in toaster
+    assert 'class="mb-3 space-y-2"' not in html  # no inline banner at the top
     ok = client_in.post(reverse("planner:log_delete", args=[999999]), follow=True)
     assert ok.status_code == 404
 
@@ -105,17 +105,3 @@ def test_placeholders_read_as_examples_not_values(client_in):
     assert 'placeholder="60"' not in html and 'placeholder="6"' not in html
 
 
-def test_style_toggle_and_early_style_script(client_in):
-    html = client_in.get(reverse("planner:settings")).content.decode()
-    assert "data-ui-toggle" in html and 'aria-label="สไตล์มินิมอล"' in html
-    assert "dataset.ui = 'shadcn'" in html  # applied before first paint, from ?ui= or storage
-    assert html.index("dataset.ui") < html.index("project.min.css")
-
-
-def test_minimal_style_is_only_variables_and_overrides():
-    css = (ROOT / "static/css/tailwind.css").read_text()
-    block = css[css.index('[data-ui="shadcn"] {') :]
-    # nothing in the minimal block may restyle the default (classic) look
-    selectors = re.findall(r"^([^\s@/}{][^{]*)\{", block, re.MULTILINE)
-    allowed = ('[data-ui="shadcn"]', ".style-")
-    assert all(s.strip().startswith(allowed) for s in selectors), selectors

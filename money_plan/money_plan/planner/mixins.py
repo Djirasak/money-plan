@@ -4,6 +4,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from . import services
+from .templatetags.planner_tags import month_label
 
 NAV = [
     ("summary", _("Summary"), "/", "layout-dashboard"),
@@ -44,6 +45,7 @@ class PlannerMixin(LoginRequiredMixin):
             ctx |= {
                 "month": self.month,
                 "months": self.months,
+                "month_options": [(m, month_label(m)) for m in self.months],
                 "prev_month": self.months[i - 1] if i > 0 else None,
                 "next_month": self.months[i + 1] if i < len(self.months) - 1 else None,
             }

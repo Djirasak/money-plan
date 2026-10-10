@@ -1,6 +1,7 @@
-{% load i18n %}
+{% load i18n planner_tags %}
 {# "Use this plan always, or only while a pile's balance meets a condition." #}
 {# Needs: piles, and the page must include {{ pile_targets|json_script:"pile-targets" }} once. #}
+{% with fid=field_id|stringformat:"s" %}
 <fieldset class="flex flex-col gap-3"
           x-data="{
             on: {% if mode %}true{% else %}false{% endif %},
@@ -8,38 +9,29 @@
             useTarget: {% if use_target %}true{% else %}false{% endif %},
             targets: JSON.parse(document.getElementById('pile-targets').textContent),
             get target() { return this.targets[this.pile] ?? null },
-            pick(event) { this.pile = event.target.value; this.useTarget = this.target !== null },
+            pick(value) { this.pile = value; this.useTarget = this.target !== null },
             init() { if (!{% if mode %}true{% else %}false{% endif %}) this.useTarget = this.target !== null },
           }">
-  <legend class="label">{% trans "When to use this plan" %}</legend>
-  {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
-  <select class="field" name="condition_mode" id="cond{{ field_id }}_mode" aria-label="{% trans 'When to use this plan' %}"
-          @change="on = $event.target.value === 'on'">
-    <option value="" {% if not mode %}selected{% endif %}>{% trans "Always, from the start month" %}</option>
-    <option value="on" {% if mode %}selected{% endif %}>{% trans "Only while a pile's balance matches" %}</option>
-  </select>
+  <legend class="label mb-2">{% trans "When to use this plan" %}</legend>
+  <div @change="if ($event.detail && $event.target.id.endsWith('_mode')) on = $event.detail.value === 'on'">
+    {% include "planner/_select.html" with name="condition_mode" field_id="cond"|add:fid|add:"_mode" options=mode_options selected=mode_selected label=_("When to use this plan") %}
+  </div>
   <div x-show="on" x-cloak class="flex flex-col gap-2">
-    <div class="grid grid-cols-2 gap-2">
-      {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
-      <select class="field" name="condition_pile" id="cond{{ field_id }}_pile" aria-label="{% trans 'Pile' %}" @change="pick($event)">
-        {% for pile in piles %}<option value="{{ pile.pk }}" {% if pile.pk == pile_id %}selected{% endif %}>{{ pile.name }}</option>{% endfor %}
-      </select>
-      {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
-      <select class="field" name="condition_op" id="cond{{ field_id }}_op" aria-label="{% trans 'Comparison' %}">
-        <option value="gte" {% if op == 'gte' %}selected{% endif %}>{% trans "has at least" %}</option>
-        <option value="lt" {% if op == 'lt' %}selected{% endif %}>{% trans "is below" %}</option>
-      </select>
+    <div class="grid grid-cols-2 gap-2" @change="if ($event.detail && $event.target.id.endsWith('_pile')) pick($event.detail.value)">
+      {% include "planner/_select.html" with name="condition_pile" field_id="cond"|add:fid|add:"_pile" options=pile_options selected=pile_selected label=_("Pile") %}
+      {% include "planner/_select.html" with name="condition_op" field_id="cond"|add:fid|add:"_op" options=op_options selected=op label=_("Comparison") %}
     </div>
-    <label class="flex items-center gap-3 rounded-2xl bg-brand-tint px-4 py-3 font-medium text-brand-fg" x-show="target !== null" x-cloak>
-      <input type="checkbox" class="size-5 accent-brand-600" name="condition_use_target" x-model="useTarget" />
+    <label class="flex items-center gap-3 rounded-md border bg-muted/50 px-3 py-2.5 text-sm font-medium" x-show="target !== null" x-cloak>
+      <input type="checkbox" class="size-4 accent-primary" name="condition_use_target" x-model="useTarget" />
       <span>{% trans "Use the target of this pile" %}: <strong x-text="target ?? ''"></strong></span>
     </label>
     <div class="relative" x-show="!(useTarget && target !== null)">
-      <input class="field !pl-9" name="condition_amount" id="cond{{ field_id }}_amount" inputmode="decimal"
+      <input class="input !ps-8" name="condition_amount" id="cond{{ fid }}_amount" inputmode="decimal"
              value="{{ amount|default_if_none:''|floatformat:'-2' }}" placeholder="{% trans "e.g." %} 100000" aria-label="{% trans 'Amount (THB)' %}"
              :disabled="useTarget && target !== null" />
-      <span class="pointer-events-none absolute inset-y-0 left-4 grid place-items-center text-muted" aria-hidden="true">฿</span>
+      <span class="pointer-events-none absolute inset-y-0 start-3 grid place-items-center text-muted-foreground" aria-hidden="true">฿</span>
     </div>
-    <p class="text-sm text-muted">{% trans "Checked at the start of each month. If the condition is not met, the next older plan is used." %}</p>
+    <p class="text-xs text-muted-foreground">{% trans "Checked at the start of each month. If the condition is not met, the next older plan is used." %}</p>
   </div>
 </fieldset>
+{% endwith %}

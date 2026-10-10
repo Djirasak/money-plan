@@ -1,153 +1,20 @@
 @import "tailwindcss";
-@import "choices.js/public/assets/styles/choices.css";
+@import "basecoat-css";
 
 @source "../../templates";
 @source "../js";
 
+/*
+ * Components come from Basecoat UI (the shadcn/ui design system in plain HTML + Tailwind):
+ * .btn .card .input .select .dialog .toast .badge .item .tabs ... and its shadcn tokens
+ * (--background, --card, --primary, --muted, ...). Only app-specific pieces live below.
+ */
 @theme {
   --font-sans: "Noto Sans Thai", "Sarabun", ui-sans-serif, system-ui, sans-serif;
-  --color-brand-50: #eef0ff;
-  --color-brand-100: #e0e3ff;
-  --color-brand-500: #5b5bf0;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  /* semantic colours: the values live in :root / [data-theme="dark"] below */
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-field: var(--field);
-  --color-skeleton: var(--skeleton);
-  --color-brand-tint: var(--brand-tint);
-  --color-brand-tint-2: var(--brand-tint-2);
-  --color-brand-fg: var(--brand-fg);
-  --color-danger: var(--danger);
-  --color-danger-soft: var(--danger-soft);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
-}
-
-:root {
-  color-scheme: light;
-  --bg: #f6f7fb;
-  --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --field: #f1f5f9;
-  --skeleton: #e2e8f0;
-  --ink: #1b1b3a;
-  --muted: #475569;
-  --brand-tint: #eef0ff;
-  --brand-tint-2: #e0e3ff;
-  --brand-fg: #4338ca;
-  --danger: #be123c;
-  --danger-soft: #fff1f2;
-  --success: #047857;
-  --success-soft: #d1fae5;
-  --warn: #92400e;
-  --warn-soft: #fef3c7;
-}
-
-[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #0d0e1b;
-  --surface: #181a2e;
-  --surface-2: #212341;
-  --field: #2a2c4c;
-  --skeleton: #2a2c4c;
-  --ink: #eceef9;
-  --muted: #b3b7d4;
-  --brand-tint: #272a5a;
-  --brand-tint-2: #353a7a;
-  --brand-fg: #c4c7ff;
-  --danger: #ffa3b8;
-  --danger-soft: #3f1c2c;
-  --success: #6ee7b7;
-  --success-soft: #11382c;
-  --warn: #fcd34d;
-  --warn-soft: #3b2f10;
-}
-
-@layer base {
-  html {
-    /* keep focused elements clear of the floating bottom nav (WCAG 2.4.11) */
-    scroll-padding-bottom: 7rem;
-  }
-  :focus-visible {
-    @apply outline-2 outline-offset-2 outline-brand-fg;
-  }
-  ::placeholder {
-    @apply text-muted opacity-100;
-  }
-  body {
-    background: var(--bg);
-    color: var(--color-ink);
-  }
-}
-
-@layer base {
-  button:disabled {
-    @apply cursor-not-allowed opacity-70;
-  }
-}
-
-@layer components {
-  .card {
-    @apply rounded-3xl bg-surface p-5 shadow-[0_8px_30px_rgba(60,60,120,0.06)];
-  }
-  .label {
-    @apply mb-1 block text-sm text-muted;
-  }
-  .field,
-  .auth-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
-  .auth-fields select,
-  .auth-fields textarea {
-    @apply w-full rounded-2xl border-0 bg-field px-4 py-3 text-base text-ink outline-none ring-0 focus:bg-brand-tint focus:ring-2 focus:ring-brand-500/40;
-  }
-  .btn {
-    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-violet-600 px-4 py-3.5 font-semibold text-white shadow-lg shadow-brand-500/30 hover:from-brand-700 hover:to-violet-700 active:scale-[0.99];
-  }
-  .btn-soft {
-    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-tint px-4 py-3 font-semibold text-brand-fg hover:bg-brand-tint-2 active:scale-[0.99];
-  }
-  .btn-danger {
-    @apply inline-flex min-h-11 items-center justify-center rounded-xl bg-danger-soft px-3 py-1.5 text-sm font-medium text-danger hover:opacity-80;
-  }
-}
-
-@layer components {
-  .auth h1 {
-    @apply text-2xl font-bold;
-  }
-  .auth a:not(.btn):not(.btn-soft):not(.btn-danger) {
-    @apply font-semibold text-brand-fg;
-  }
-  .auth p {
-    @apply text-muted;
-  }
-  .auth-fields input[type="checkbox"],
-  .auth-fields input[type="radio"] {
-    @apply size-4 accent-brand-600;
-  }
-}
-
-@layer components {
-  .icon-btn {
-    @apply grid size-12 place-items-center rounded-2xl bg-brand-tint text-brand-fg hover:bg-brand-tint-2 active:scale-95;
-  }
-  .pref-btn {
-    @apply flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-2xl bg-brand-tint px-3 py-2 font-semibold text-brand-fg hover:bg-brand-tint-2 active:scale-[0.98];
-  }
-  .modal {
-    @apply m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-3xl bg-surface p-6 text-ink shadow-2xl backdrop:bg-slate-900/45 backdrop:backdrop-blur-sm;
-  }
-  .icon-btn-primary {
-    @apply grid size-12 place-items-center rounded-2xl bg-gradient-to-r from-brand-600 to-violet-600 text-white shadow-lg shadow-brand-500/30 hover:from-brand-700 hover:to-violet-700 active:scale-95;
-  }
-}
-
-@theme {
   --animate-float: float 4s ease-in-out infinite;
 
   @keyframes float {
@@ -156,10 +23,100 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-float {
-    animation: none;
+/* Our purple on top of Basecoat's shadcn tokens (primary, accent, ring, ...) */
+:root {
+  --background: #f6f7fb;
+  --foreground: #1b1b3a;
+  --card: #ffffff;
+  --card-foreground: #1b1b3a;
+  --popover: #ffffff;
+  --popover-foreground: #1b1b3a;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #eef0ff;
+  --secondary-foreground: #4338ca;
+  --muted: #f1f2f9;
+  --muted-foreground: #5a5f73;
+  --accent: #e9eaff;
+  --accent-foreground: #3730a3;
+  --border: #e3e5f1;
+  --input: #d6d9ec;
+  --ring: #6366f1;
+  --brand-from: #4f46e5;
+  --brand-to: #7c3aed;
+  --success: oklch(0.527 0.154 150);
+  --success-soft: oklch(0.982 0.018 155);
+  --warn: oklch(0.476 0.114 61);
+  --warn-soft: oklch(0.987 0.026 102);
+}
+.dark {
+  --background: #0d0e1b;
+  --foreground: #eceef9;
+  --card: #15172a;
+  --card-foreground: #eceef9;
+  --popover: #1a1c33;
+  --popover-foreground: #eceef9;
+  --primary: #5b54f0;
+  --primary-foreground: #ffffff;
+  --secondary: #24264a;
+  --secondary-foreground: #c7c9ff;
+  --muted: #1c1e38;
+  --muted-foreground: #b4b6c8;
+  --accent: #2a2c5e;
+  --accent-foreground: #c7c9ff;
+  --border: #2a2d4a;
+  --input: #34375a;
+  --ring: #7c7cf5;
+  --success: oklch(0.871 0.15 154);
+  --success-soft: oklch(0.266 0.065 153);
+  --warn: oklch(0.905 0.182 98);
+  --warn-soft: oklch(0.286 0.066 53);
+}
+
+@layer base {
+  html {
+    /* keep focused elements clear of the floating bottom nav (WCAG 2.4.11) */
+    scroll-padding-bottom: 7rem;
   }
+  body {
+    @apply text-sm antialiased;
+  }
+  ::placeholder {
+    @apply text-muted-foreground opacity-100;
+  }
+  button:disabled {
+    @apply cursor-not-allowed;
+  }
+}
+
+/* allauth pages: headings, paragraphs, links and form spacing */
+.auth h1 {
+  @apply text-lg font-semibold tracking-tight;
+}
+.auth p {
+  @apply text-sm text-muted-foreground;
+}
+.auth form {
+  @apply flex flex-col gap-4;
+}
+.auth a:not(.btn) {
+  @apply font-medium text-foreground underline underline-offset-4 hover:text-primary;
+}
+
+/* Inputs rendered by third-party forms (allauth, users) cannot carry the .input class,
+   so they get the same look through their container. */
+.auth-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]),
+.auth-fields textarea {
+  @apply h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30;
+}
+.auth-fields input[type="checkbox"],
+.auth-fields input[type="radio"] {
+  @apply size-4 accent-primary;
+}
+
+/* The colour picker needs a taller box than a text input */
+input[type="color"].input {
+  @apply h-9 cursor-pointer p-1;
 }
 
 /* Alpine: hide elements until it has initialised */
@@ -167,108 +124,55 @@
   display: none !important;
 }
 
-/* Choices.js dropdowns, styled like .field */
-.choices {
-  @apply mb-0 text-base;
+/* ---- App shell ---------------------------------------------------------------------------- */
+.app-nav {
+  @apply fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] z-10 mx-auto flex w-[calc(100%-2rem)] max-w-md gap-1 rounded-xl border bg-card/95 p-1.5 shadow-lg backdrop-blur;
 }
-.choices__inner {
-  @apply min-h-0 rounded-2xl border-0 bg-field p-0 text-ink;
+.app-nav a {
+  @apply flex flex-1 flex-col items-center gap-0.5 rounded-lg py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground;
 }
-.choices.is-focused .choices__inner,
-.choices.is-open .choices__inner {
-  @apply bg-brand-tint ring-2 ring-brand-500/40;
+.app-nav a[aria-current="page"] {
+  @apply bg-accent text-accent-foreground;
 }
-.choices.is-open .choices__inner {
-  @apply rounded-b-2xl;
-}
-.choices__list--single {
-  @apply p-0;
-}
-/* Choices adds 7.5px under the item for its own padding model; we size the item instead */
-.choices[data-type*="select-one"] .choices__inner {
-  @apply pb-0;
-}
-/* the item fills the control, so the whole 48px box is the touch target */
-.choices__list--single .choices__item {
-  @apply flex min-h-12 items-center px-4 py-3;
-}
-/* Replace the CSS-triangle arrow with a clean chevron */
-.choices[data-type*="select-one"]::after,
-.choices[data-type*="select-one"].is-open::after {
-  @apply right-4 size-4 border-0;
-  margin-top: -0.5rem;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
-  transition: transform 0.2s;
-}
-.choices[data-type*="select-one"].is-open::after {
-  transform: rotate(180deg);
-}
-.choices__list--dropdown,
-.choices__list[aria-expanded] {
-  @apply z-20 mt-2 overflow-hidden rounded-2xl border-0 bg-surface shadow-[0_16px_40px_rgba(60,60,120,0.18)];
-}
-.is-open .choices__list--dropdown {
-  @apply rounded-2xl border-0;
-}
-.choices__list--dropdown .choices__item {
-  @apply px-4 py-2.5 text-base;
-}
-.choices__list--dropdown .choices__item--selectable.is-highlighted,
-.choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
-  @apply bg-brand-tint text-brand-fg;
-}
-.choices__list--dropdown .choices__item--selectable.is-selected {
-  @apply font-semibold text-brand-fg;
-}
-.choices[data-type*="select-one"] .choices__input {
-  @apply m-2 w-[calc(100%-1rem)] rounded-xl border-0 bg-field px-3 py-2 text-base outline-none;
-}
-.month-bar .choices {
-  @apply w-48;
-}
-.month-bar .choices__inner {
-  @apply bg-surface pr-9 text-sm font-semibold shadow-sm;
-}
-.month-bar .choices__list--single .choices__item {
-  @apply min-h-10 justify-center py-2;
-}
-.month-bar .choices__list--dropdown {
-  @apply left-0 right-0 w-full;
+.toaster {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 6rem) !important;
 }
 
-/* the empty "—" option must stay readable (Choices dims placeholders to 50%) */
-.choices__placeholder {
-  @apply text-muted opacity-100;
+/* Settings sub-navigation (pages, not panels, so plain links in a tab-like bar) */
+.subnav {
+  @apply mb-4 grid grid-cols-3 gap-1 rounded-lg bg-muted p-[3px] text-sm font-medium;
+}
+.subnav a {
+  @apply rounded-md py-1.5 text-center text-muted-foreground transition-colors hover:text-foreground;
+}
+.subnav a[aria-current="page"] {
+  @apply bg-background text-foreground shadow-sm;
 }
 
-/* Light/dark toggle shows the icon + label of the CURRENT mode */
-.theme-icon-dark {
-  display: none;
+/* ---- Summary ------------------------------------------------------------------------------ */
+.hero {
+  @apply relative overflow-hidden rounded-xl p-5 text-white shadow-sm;
+  background-image: linear-gradient(135deg, #3730a3 0%, #6d28d9 55%, #a21caf 100%);
 }
-[data-theme="dark"] .theme-icon-dark {
-  display: inline-flex;
+/* primary buttons and the logo tile keep the old purple gradient */
+.btn:not([data-variant]),
+.btn[data-variant="primary"],
+.brand-tile {
+  background-image: linear-gradient(90deg, var(--brand-from), var(--brand-to));
+  color: #fff;
 }
-[data-theme="dark"] .theme-icon-light {
-  display: none;
+.btn:not([data-variant]):hover,
+.btn[data-variant="primary"]:hover {
+  filter: brightness(1.08);
 }
-
-/* the colour picker was collapsing to a thin line inside .field */
-input[type="color"].field {
-  @apply h-12 cursor-pointer p-1.5;
+.brand-tile {
+  @apply grid size-9 shrink-0 place-items-center rounded-lg shadow-sm;
 }
-input[type="color"].field::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-input[type="color"].field::-webkit-color-swatch {
-  border: 0;
-  border-radius: 0.75rem;
-}
-input[type="color"].field::-moz-color-swatch {
-  border: 0;
-  border-radius: 0.75rem;
+.stat {
+  @apply rounded-lg p-3;
 }
 
-/* Drag to reorder (SortableJS classes) */
+/* ---- Piles: faded colour behind each card, drag to reorder ------------------------------- */
 .pile-card {
   touch-action: pan-y;
   user-select: none;
@@ -278,176 +182,25 @@ input[type="color"].field::-moz-color-swatch {
   opacity: 0.45;
 }
 .sortable-chosen {
-  @apply shadow-2xl ring-2 ring-brand-fg/40;
+  @apply shadow-xl ring-2 ring-ring/60;
 }
 .sortable-drag {
   cursor: grabbing;
 }
 
-/* ------------------------------------------------------------------------------------------
- * "Minimal" style: shadcn/ui design tokens (zinc theme) on the same markup.
- * Opt in with <html data-ui="shadcn"> (?ui=shadcn, or the Style button in Settings).
- * Only variables and a few component overrides live here, so removing this block (or never
- * setting data-ui) gives back the classic look untouched.
- * ------------------------------------------------------------------------------------------ */
-[data-ui="shadcn"] {
-  --radius: 0.5rem;
-  --radius-xl: 0.5rem;
-  --radius-2xl: 0.625rem;
-  --radius-3xl: 0.75rem;
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --field: #ffffff;
-  --skeleton: #e4e4e7;
-  --border: #e4e4e7;
-  --ink: #09090b;
-  --muted: #52525b;
-  --primary: #18181b;
-  --on-primary: #fafafa;
-  --brand-tint: #f4f4f5;
-  --brand-tint-2: #e4e4e7;
-  --brand-fg: #18181b;
-  --danger: #b91c1c;
-  --danger-soft: #fef2f2;
-  --success: #15803d;
-  --success-soft: #f0fdf4;
-  --warn: #a16207;
-  --warn-soft: #fefce8;
-  /* every brand-coloured utility (buttons, tabs, badges, gradients) collapses to the primary */
-  --color-brand-50: #f4f4f5;
-  --color-brand-100: #e4e4e7;
-  --color-brand-500: #18181b;
-  --color-brand-600: #18181b;
-  --color-brand-700: #27272a;
-  --color-violet-500: #18181b;
-  --color-violet-600: #18181b;
-  --color-violet-700: #27272a;
-  --color-fuchsia-400: #52525b;
-  --color-fuchsia-500: #18181b;
-  --color-fuchsia-700: #27272a;
-}
-[data-ui="shadcn"][data-theme="dark"] {
-  --bg: #09090b;
-  --surface: #0f0f12;
-  --surface-2: #18181b;
-  --field: #09090b;
-  --skeleton: #27272a;
-  --border: #27272a;
-  --ink: #fafafa;
-  --muted: #a1a1aa;
-  --primary: #e4e4e7;
-  --on-primary: #18181b;
-  --brand-tint: #27272a;
-  --brand-tint-2: #3f3f46;
-  --brand-fg: #fafafa;
-  --danger: #fca5a5;
-  --danger-soft: #3b1212;
-  --success: #86efac;
-  --success-soft: #0f2e1a;
-  --warn: #fde047;
-  --warn-soft: #33290a;
-  --color-brand-50: #27272a;
-  --color-brand-100: #3f3f46;
-  --color-brand-500: #e4e4e7;
-  --color-brand-600: #e4e4e7;
-  --color-brand-700: #d4d4d8;
-  --color-violet-500: #e4e4e7;
-  --color-violet-600: #e4e4e7;
-  --color-violet-700: #d4d4d8;
-  --color-fuchsia-400: #a1a1aa;
-  --color-fuchsia-500: #e4e4e7;
-  --color-fuchsia-700: #d4d4d8;
-  /* text that sat on the (now light) primary colour must turn dark */
-  --color-white: #18181b;
-}
-[data-ui="shadcn"][data-theme="dark"] .btn-delete {
-  color: #fff;
-}
-[data-ui="shadcn"] body {
-  letter-spacing: -0.005em;
-}
-[data-ui="shadcn"] .card,
-[data-ui="shadcn"] .modal,
-[data-ui="shadcn"] [data-nav] {
-  border: 1px solid var(--border);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
-}
-[data-ui="shadcn"] .modal {
-  box-shadow: 0 10px 38px -10px rgb(0 0 0 / 0.35);
-}
-[data-ui="shadcn"] .field,
-[data-ui="shadcn"] .choices__inner,
-[data-ui="shadcn"] .auth-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
-  border: 1px solid var(--border);
-  background: var(--field);
-}
-[data-ui="shadcn"] .field:focus,
-[data-ui="shadcn"] .choices.is-focused .choices__inner,
-[data-ui="shadcn"] .choices.is-open .choices__inner {
-  background: var(--field);
-  border-color: var(--ink);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 12%, transparent);
-}
-[data-ui="shadcn"] .btn,
-[data-ui="shadcn"] .icon-btn-primary {
-  background-image: none;
-  background-color: var(--primary);
-  color: var(--on-primary);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
-}
-[data-ui="shadcn"] .btn:hover,
-[data-ui="shadcn"] .icon-btn-primary:hover {
-  background-color: color-mix(in srgb, var(--primary) 88%, transparent);
-}
-[data-ui="shadcn"] .btn.btn-delete {
-  background-color: #b91c1c;
-  color: #fff;
-}
-[data-ui="shadcn"] .btn-soft,
-[data-ui="shadcn"] .icon-btn,
-[data-ui="shadcn"] .pref-btn {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--ink);
-}
-[data-ui="shadcn"] .btn-soft:hover,
-[data-ui="shadcn"] .icon-btn:hover,
-[data-ui="shadcn"] .pref-btn:hover {
-  background: var(--brand-tint);
-}
-/* the hero: a plain primary-coloured card instead of the purple gradient */
-[data-ui="shadcn"] .hero {
-  border-radius: var(--radius-3xl);
-  background-image: none;
-  background-color: var(--primary);
-  color: var(--on-primary);
-  box-shadow: none;
-}
-[data-ui="shadcn"] .hero * {
-  color: inherit;
-}
-[data-ui="shadcn"] .hero > div:first-child {
+/* ---- Light/dark toggle shows the icon + label of the CURRENT mode -------------------------- */
+.theme-icon-dark {
   display: none;
 }
-/* tabs / nav use small radii and an accent for the active item */
-[data-ui="shadcn"] [data-nav],
-[data-ui="shadcn"] [data-nav] a {
-  border-radius: var(--radius-3xl);
-}
-[data-ui="shadcn"] [data-nav] a[class*="bg-brand-tint"] {
-  background: var(--brand-tint);
-}
-[data-ui="shadcn"] .animate-float {
-  animation: none;
-}
-/* Style toggle button shows the current style */
-.style-minimal {
-  display: none;
-}
-[data-ui="shadcn"] .style-minimal {
+.dark .theme-icon-dark {
   display: inline-flex;
 }
-[data-ui="shadcn"] .style-classic {
+.dark .theme-icon-light {
   display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float {
+    animation: none;
+  }
 }

@@ -1,6 +1,6 @@
 {# One labelled form field with its inline errors. Pass f=<bound field>. #}
-<div>
-  <label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>
+<div class="grid gap-2">
+  <label class="label" id="{{ f.id_for_label }}-label" for="{{ f.id_for_label }}">{{ f.label }}</label>
   {{ f }}
-  {% for error in f.errors %}<p class="mt-1 text-sm font-medium text-danger">{{ error }}</p>{% endfor %}
+  {% for error in f.errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}
 </div>

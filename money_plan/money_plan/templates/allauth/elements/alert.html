@@ -1,5 +1,5 @@
 {% load allauth %}
 
-<div class="rounded-2xl bg-danger-soft px-4 py-3 text-sm font-medium text-danger">
-  {% slot message %}{% endslot %}
+<div class="alert" data-variant="destructive" role="alert">
+  <section>{% slot message %}{% endslot %}</section>
 </div>

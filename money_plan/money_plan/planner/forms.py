@@ -1,4 +1,6 @@
 from django import forms
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.db.models import Max
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
@@ -10,7 +12,22 @@ from .models import Salary
 from .models import MAX_SALARIES
 from .models import month_validator
 
-FIELD = {"class": "field"}
+FIELD = {"class": "input"}
+
+
+class BasecoatSelect(forms.Select):
+    """A Basecoat (shadcn-style) listbox that submits through a hidden input."""
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        options = [o for _, group, _ in context["widget"]["optgroups"] for o in group]
+        if options and not any(o["selected"] for o in options):
+            options[0]["selected"] = True  # what a browser <select> would do
+        return context
+
+    def render(self, name, value, attrs=None, renderer=None):  # noqa: ARG002
+        context = self.get_context(name, value, attrs)
+        return mark_safe(render_to_string("widgets/basecoat_select.html", context))  # noqa: S308
 
 
 def example(value: str):
@@ -24,9 +41,9 @@ class LogEntryForm(forms.ModelForm):
         fields = ["date", "type", "from_pile", "to_pile", "amount", "note"]
         widgets = {
             "date": forms.DateInput(attrs=FIELD | {"type": "date"}, format="%Y-%m-%d"),
-            "type": forms.Select(attrs=FIELD),
-            "from_pile": forms.Select(attrs=FIELD),
-            "to_pile": forms.Select(attrs=FIELD),
+            "type": BasecoatSelect(),
+            "from_pile": BasecoatSelect(),
+            "to_pile": BasecoatSelect(),
             "amount": forms.NumberInput(
                 attrs=FIELD | {"inputmode": "decimal", "step": "0.01", "placeholder": example("120")},
             ),
@@ -88,10 +105,10 @@ class PileForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs=FIELD),
             "color": forms.TextInput(attrs=FIELD | {"type": "color"}),
-            "kind": forms.Select(attrs=FIELD),
-            "mode": forms.Select(attrs=FIELD),
+            "kind": BasecoatSelect(),
+            "mode": BasecoatSelect(),
             "cap": forms.NumberInput(attrs=FIELD | {"placeholder": _("Unlimited")}),
-            "overflow_to": forms.Select(attrs=FIELD),
+            "overflow_to": BasecoatSelect(),
             "target": forms.NumberInput(attrs=FIELD | {"placeholder": example("100000")}),
             "target_percent": forms.NumberInput(attrs=FIELD | {"placeholder": example("60"), "step": "0.01"}),
             "target_months": forms.NumberInput(attrs=FIELD | {"placeholder": example("6"), "min": "1", "max": "120"}),
@@ -116,7 +133,7 @@ class PileForm(forms.ModelForm):
     target_mode = forms.ChoiceField(
         choices=TARGET_MODES,
         label=_("Target"),
-        widget=forms.Select(attrs=FIELD),
+        widget=BasecoatSelect(),
     )
 
     def __init__(self, *args, user, **kwargs):

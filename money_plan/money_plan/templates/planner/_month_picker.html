@@ -1,14 +1,9 @@
 {% load i18n %}
-<div role="group" aria-labelledby="{{ field_id }}_label">
+<div role="group" aria-labelledby="{{ field_id }}_label" class="grid gap-2">
   <span class="label" id="{{ field_id }}_label">{{ label }}</span>
-  <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,6.5rem)] gap-2">
-    {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
-    <select class="field" id="{{ field_id }}_month" name="{{ name }}_month" aria-label="{% trans 'Month' %}">
-      {% for n, label in months %}<option value="{{ n }}" {% if n == sel_month %}selected{% endif %}>{{ label }}</option>{% endfor %}
-    </select>
-    {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
-    <select class="field" id="{{ field_id }}_year" name="{{ name }}_year" aria-label="{% trans 'Year' %}">
-      {% for y, shown in years %}<option value="{{ y }}" {% if y == sel_year %}selected{% endif %}>{{ shown }}</option>{% endfor %}
-    </select>
+  <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,7rem)] gap-2">
+    {% trans "Month" as month_label %}{% trans "Year" as year_label %}
+    {% include "planner/_select.html" with name=name|add:"_month" field_id=field_id|add:"_month" options=months selected=sel_month label=month_label %}
+    {% include "planner/_select.html" with name=name|add:"_year" field_id=field_id|add:"_year" options=years selected=sel_year label=year_label %}
   </div>
 </div>

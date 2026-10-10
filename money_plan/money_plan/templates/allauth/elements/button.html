@@ -6,6 +6,6 @@
   {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
   {% if attrs.name %}name="{{ attrs.name }}"{% endif %}
   {% if attrs.type %}type="{{ attrs.type }}"{% endif %}
-  class="{% if 'danger' in attrs.tags %}btn-danger{% elif 'secondary' in attrs.tags %}btn-soft{% else %}btn{% endif %}">
+  class="btn w-full" {% if 'danger' in attrs.tags %}data-variant="destructive"{% elif 'secondary' in attrs.tags %}data-variant="outline"{% endif %}>
   {% slot %}{% endslot %}
 </{% if attrs.href %}a{% else %}button{% endif %}>

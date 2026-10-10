@@ -10,18 +10,14 @@
       {% endblock title %}
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f6f7fb" />
+    <meta name="theme-color" content="#ffffff" />
     {# Apply the saved/system theme before first paint to avoid a light flash in dark mode. #}
     <script>
       (() => {
         try {
           let theme = localStorage.getItem('theme');
           if (!theme) theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          document.documentElement.dataset.theme = theme;
-          // visual style: ?ui=shadcn (minimal) or ?ui=classic, remembered for next time
-          const asked = new URLSearchParams(location.search).get('ui');
-          if (asked) localStorage.setItem('ui', asked);
-          if (localStorage.getItem('ui') === 'shadcn') document.documentElement.dataset.ui = 'shadcn';
+          document.documentElement.classList.toggle('dark', theme === 'dark');
         } catch (e) { /* storage blocked: keep the light default */ }
       })();
     </script>
@@ -34,19 +30,16 @@
       <link href="{% static 'css/project.min.css' %}" rel="stylesheet" />
     {% endblock css %}
     {% block javascript %}
-      <script defer src="{% static 'js/vendor/choices.min.js' %}"></script>
+      <script defer src="{% static 'js/vendor/basecoat.min.js' %}"></script>
       <script defer src="{% static 'js/vendor/htmx.min.js' %}"></script>
       <script defer src="{% static 'js/vendor/alpine.min.js' %}"></script>
       <script defer src="{% static 'js/project.min.js' %}"></script>
     {% endblock javascript %}
   </head>
-  <body class="font-sans antialiased {% block bodyclass %}{% endblock bodyclass %}"
-        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-        data-search-placeholder="{% trans 'Search...' %}"
-        data-no-results="{% trans 'No results found' %}"
-        data-no-choices="{% trans 'No choices to choose from' %}">
+  <body class="font-sans {% block bodyclass %}{% endblock bodyclass %}"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% block body %}
-      <div class="mx-auto min-h-screen w-full max-w-md px-4 pb-32 pt-[calc(env(safe-area-inset-top,0px)+2.75rem)]">
+      <div class="mx-auto min-h-screen w-full max-w-md px-4 pb-32 pt-[calc(env(safe-area-inset-top,0px)+2.5rem)]">
         {% block main %}
           {% block content %}
           {% endblock content %}
@@ -55,31 +48,24 @@
     {% endblock body %}
     {% block modal %}
     {% endblock modal %}
-    {# Messages are toasts at the bottom, above the floating nav; they dismiss themselves. #}
-    {% if messages %}
-      <div class="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+6rem)] z-40 mx-auto flex w-full max-w-md flex-col gap-2 px-4"
-           role="region" aria-label="{% trans 'Notifications' %}">
-        {% for message in messages %}
-          <div x-data="{ open: true }"
-               x-init="setTimeout(() => open = false, {% if message.tags == 'error' %}9000{% else %}5000{% endif %})"
-               x-show="open" x-transition.opacity.duration.200ms
-               role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}"
-               class="pointer-events-auto flex items-start gap-3 rounded-2xl px-4 py-3 text-sm font-medium shadow-lg ring-1 {% if message.tags == 'error' %}bg-danger-soft text-danger ring-danger/25{% elif message.tags == 'success' %}bg-success-soft text-success ring-success/25{% else %}bg-brand-tint text-brand-fg ring-brand-fg/25{% endif %}">
-            {% if message.tags == 'error' %}{% icon "circle-alert" "mt-0.5 size-5 shrink-0" %}{% elif message.tags == 'success' %}{% icon "circle-check" "mt-0.5 size-5 shrink-0" %}{% else %}{% icon "info" "mt-0.5 size-5 shrink-0" %}{% endif %}
-            <p class="min-w-0 flex-1 leading-snug">{{ message }}</p>
-            <button type="button" @click="open = false" aria-label="{% trans 'Dismiss' %}" class="-m-2 grid size-10 shrink-0 place-items-center rounded-full hover:opacity-70">
-              {% icon "x" "size-5" %}
-            </button>
+    {# Django messages become Basecoat toasts (bottom, above the floating nav). #}
+    <div id="toaster" class="toaster" data-align="center" role="region" aria-label="{% trans 'Notifications' %}">
+      {% for message in messages %}
+        <div class="toast" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" aria-atomic="true" aria-hidden="false"
+             data-category="{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}"
+             data-duration="{% if message.tags == 'error' %}9000{% else %}5000{% endif %}">
+          <div class="toast-content">
+            <section><h2>{{ message }}</h2></section>
           </div>
-        {% endfor %}
-      </div>
-    {% endif %}
+        </div>
+      {% endfor %}
+    </div>
     {# Grey screen + spinner while a toggle round-trips to the server, so the page never feels frozen. #}
     <div id="busy-overlay" hidden role="status" aria-live="polite"
-         class="fixed inset-0 z-50 grid place-items-center bg-slate-900/45 backdrop-blur-[2px]">
+         class="fixed inset-0 z-[60] grid place-items-center bg-background/60 backdrop-blur-[2px]">
       <span class="sr-only">{% trans "Loading..." %}</span>
-      <div class="grid size-20 place-items-center rounded-3xl bg-surface/90 text-brand-fg shadow-2xl">
-        <svg class="size-9 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      <div class="grid size-16 place-items-center rounded-xl border bg-card text-foreground shadow-lg">
+        <svg class="size-7 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
       </div>
     </div>
     {% block inline_javascript %}

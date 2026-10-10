@@ -1,7 +1,7 @@
 {% load allauth %}
 
 {% if attrs.type == "textarea" %}
-  <div>
+  <div class="grid gap-2">
     <label class="label" for="{{ attrs.id }}">{% slot label %}{% endslot %}</label>
     <textarea {% if attrs.required %}required{% endif %}
               {% if attrs.rows %}rows="{{ attrs.rows }}"{% endif %}
@@ -10,7 +10,7 @@
               {% if attrs.name %}name="{{ attrs.name }}"{% endif %}
               {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
               {% if attrs.placeholder %}placeholder="{{ attrs.placeholder }}"{% endif %}
-              class="field">{% slot value %}{% endslot %}</textarea>
+              class="textarea">{% slot value %}{% endslot %}</textarea>
   </div>
 {% elif attrs.type == "radio" or attrs.type == "checkbox" %}
   <div class="flex items-center gap-2">
@@ -22,11 +22,11 @@
            {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
            value="{{ attrs.value|default_if_none:"" }}"
            type="{{ attrs.type }}"
-           class="size-4 accent-brand-600" />
-    <label for="{{ attrs.id }}">{% slot label %}{% endslot %}</label>
+           class="input" />
+    <label class="label" for="{{ attrs.id }}">{% slot label %}{% endslot %}</label>
   </div>
 {% else %}
-  <div>
+  <div class="grid gap-2">
     <label class="label" for="{{ attrs.id }}">{% slot label %}{% endslot %}</label>
     <input {% if attrs.required %}required{% endif %}
            {% if attrs.disabled %}disabled{% endif %}
@@ -37,9 +37,9 @@
            {% if attrs.autocomplete %}autocomplete="{{ attrs.autocomplete }}"{% endif %}
            value="{{ attrs.value|default_if_none:"" }}"
            type="{{ attrs.type }}"
-           class="field" />
+           class="input" />
   </div>
 {% endif %}
 {% if slots.help_text %}
-  <p class="mt-1 text-xs text-muted">{% slot help_text %}{% endslot %}</p>
+  <p class="text-xs text-muted-foreground">{% slot help_text %}{% endslot %}</p>
 {% endif %}

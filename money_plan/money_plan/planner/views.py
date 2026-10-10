@@ -344,6 +344,13 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
             "periods": periods,
             "piles": piles,
             "pile_targets": {p.pk: target_label(p) for p in piles if p.has_target},
+            # options shared by every condition form on the page
+            "mode_options": [
+                ("", _("Always, from the start month")),
+                ("on", _("Only while a pile's balance matches")),
+            ],
+            "pile_options": [(p.pk, p.name) for p in piles],
+            "op_options": PlanPeriod.OP_CHOICES,
             "default_month": services.current_month(),
         }
 

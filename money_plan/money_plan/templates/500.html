@@ -11,5 +11,5 @@
 {% block text %}{% trans "Something went wrong on our side and it has been logged. Try refreshing; if it keeps happening, come back a little later." %}{% endblock text %}
 {% block actions %}
   <button type="button" class="btn" onclick="location.reload()">{% trans "Try again" %}</button>
-  <a href="/" class="btn-soft">{% trans "Back to home" %}</a>
+  <a href="/" class="btn" data-variant="outline">{% trans "Back to home" %}</a>
 {% endblock actions %}

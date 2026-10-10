@@ -1,19 +1,23 @@
 {% load allauth %}
 
-<div class="auth-fields space-y-4">
+<div class="auth-fields flex flex-col gap-4">
   {% for field in attrs.form %}
     {% if field.is_hidden %}
       {{ field }}
     {% else %}
-      <div class="{% if field.field.widget.input_type == 'checkbox' %}flex flex-row-reverse items-center justify-end gap-2{% endif %}">
-        <label class="label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required and field.field.widget.input_type != 'checkbox' %}<span class="text-danger"> *</span>{% endif %}</label>
-        {{ field }}
-        {% if field.help_text %}<p class="mt-1 text-xs text-muted">{{ field.help_text|safe }}</p>{% endif %}
-        {% for error in field.errors %}<p class="mt-1 text-sm text-danger">{{ error }}</p>{% endfor %}
+      <div class="grid gap-2">
+        {% if field.field.widget.input_type == 'checkbox' %}
+          <label class="flex items-center gap-2 text-sm font-medium">{{ field }} {{ field.label }}</label>
+        {% else %}
+          <label class="label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="text-destructive"> *</span>{% endif %}</label>
+          {{ field }}
+        {% endif %}
+        {% if field.help_text %}<p class="text-xs text-muted-foreground">{{ field.help_text|safe }}</p>{% endif %}
+        {% for error in field.errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}
       </div>
     {% endif %}
   {% endfor %}
   {% for error in attrs.form.non_field_errors %}
-    <p class="rounded-2xl bg-danger-soft px-4 py-3 text-sm font-medium text-danger">{{ error }}</p>
+    <p class="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">{{ error }}</p>
   {% endfor %}
 </div>
