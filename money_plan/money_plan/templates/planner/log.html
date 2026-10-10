@@ -3,26 +3,35 @@
 {% load planner_tags %}
 {% block heading %}{% trans "Save entry" %}{% endblock heading %}
 {% block page %}
-  <form method="post" class="card" data-size="sm" action="{% if editing %}{% url 'planner:log_edit' editing.pk %}{% else %}{% url 'planner:log' %}{% endif %}">
-    {% csrf_token %}
-    <input type="hidden" name="m" value="{{ month }}" />
-    <header class="px-4"><h2 class="text-sm font-medium">{% if editing %}{% trans "Edit entry" %}{% else %}{% trans "Add entry" %}{% endif %}</h2></header>
-    <section class="grid gap-4 px-4">
-      {% for f in form %}{% include "planner/_field.html" with f=f %}{% endfor %}
-      <p class="text-xs text-muted-foreground">{% trans 'Spend: pick "From pile" · Transfer/Sweep: pick both · Adjust: pick one' %}</p>
-    </section>
-    <footer class="justify-end gap-2 px-4">
-      {% if editing %}<a class="btn" data-variant="outline" href="{% url 'planner:log' %}?m={{ month }}">{% trans "Cancel" %}</a>{% endif %}
-      <button type="submit" class="btn" data-loading-text="{% if editing %}{% trans 'Save changes' %}{% else %}{% trans 'Save entry' %}{% endif %}">{% icon "save" "size-4" %}{% if editing %}{% trans "Save changes" %}{% else %}{% trans "Save entry" %}{% endif %}</button>
-    </footer>
-  </form>
+  <button type="button" class="btn w-full" data-open-dialog="entry-dialog">{% icon "plus" "size-4" %}{% trans "Add entry" %}</button>
+
+  <dialog id="entry-dialog" class="dialog w-full sm:max-w-[420px]" aria-labelledby="entry-title"
+          {% if editing or form.errors %}data-auto-open{% endif %}
+          {% if editing %}data-return-url="{% url 'planner:log' %}?m={{ month }}"{% endif %}>
+    <form method="post" class="overflow-y-auto" action="{% if editing %}{% url 'planner:log_edit' editing.pk %}{% else %}{% url 'planner:log' %}{% endif %}">
+      {% csrf_token %}
+      <input type="hidden" name="m" value="{{ month }}" />
+      <header><h2 id="entry-title">{% if editing %}{% trans "Edit entry" %}{% else %}{% trans "Add entry" %}{% endif %}</h2></header>
+      <section class="grid gap-4">
+        {% for f in form %}{% include "planner/_field.html" with f=f %}{% endfor %}
+        {% for error in form.non_field_errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}
+        <p class="text-xs text-muted-foreground">{% trans 'Spend: pick "From pile" · Transfer/Sweep: pick both · Adjust: pick one' %}</p>
+      </section>
+      <footer>
+        <button type="button" class="btn" data-variant="outline" data-close-dialog>{% trans "Cancel" %}</button>
+        <button type="submit" class="btn" data-loading-text="{% if editing %}{% trans 'Save changes' %}{% else %}{% trans 'Save entry' %}{% endif %}">{% icon "save" "size-4" %}{% if editing %}{% trans "Save changes" %}{% else %}{% trans "Save entry" %}{% endif %}</button>
+      </footer>
+      {% include "planner/_dialog_close.html" %}
+    </form>
+  </dialog>
 
   <h2 class="mb-2 mt-6 px-1 text-xs font-medium text-muted-foreground">{% blocktrans with m=month|month_label %}Entries {{ m }}{% endblocktrans %}</h2>
   <ul class="flex flex-col gap-2">
     {% for e in entries %}
-      <li class="item" data-variant="outline">
+      <li class="item entry entry-{{ e.tone }}" data-variant="outline">
+        <span class="entry-icon" aria-hidden="true">{% if e.tone == "out" %}{% icon "arrow-up-right" "size-4" %}{% elif e.tone == "in" %}{% icon "arrow-down-left" "size-4" %}{% else %}{% icon "arrow-left-right" "size-4" %}{% endif %}</span>
         <section>
-          <h3>{{ e.get_type_display }} · {{ e.amount|baht }}</h3>
+          <h3>{{ e.get_type_display }} · <span class="entry-amount">{% if e.tone == "out" %}-{% elif e.tone == "in" %}+{% endif %}{{ e.amount|baht }}</span></h3>
           <p>
             {{ e.date|date:"j F" }} ·
             {% if e.from_pile %}{{ e.from_pile }}{% endif %}{% if e.from_pile and e.to_pile %} {% icon "arrow-right" "size-3 inline-block align-[-1px]" %} {% endif %}{% if e.to_pile %}{{ e.to_pile }}{% endif %}

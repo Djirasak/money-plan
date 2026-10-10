@@ -272,6 +272,15 @@ class LogEntry(models.Model):
     def month(self) -> str:
         return f"{self.date:%Y-%m}"
 
+    @property
+    def tone(self) -> str:
+        """``out`` money leaves you, ``in`` money comes in, ``move`` only changes piles."""
+        if self.type in (self.TRANSFER, self.SWEEP):
+            return "move"
+        if self.type == self.ADJUST and self.to_pile_id and not self.from_pile_id:
+            return "in"
+        return "out"
+
     def to_engine(self) -> engine.Entry:
         return engine.Entry(
             date=self.date,

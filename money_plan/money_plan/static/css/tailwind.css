@@ -172,6 +172,24 @@ input[type="color"].input {
   @apply rounded-lg p-3;
 }
 
+/* ---- Log entries: red = money out, green = money in, blue = only moved between piles ---- */
+:root {
+  --tone-out: #b91c1c; --tone-out-bg: #fef2f2;
+  --tone-in: #15803d; --tone-in-bg: #f0fdf4;
+  --tone-move: #1d4ed8; --tone-move-bg: #eff6ff;
+}
+.dark {
+  --tone-out: #fca5a5; --tone-out-bg: #3b1518;
+  --tone-in: #86efac; --tone-in-bg: #11301e;
+  --tone-move: #93c5fd; --tone-move-bg: #14264a;
+}
+.entry { border-left-width: 4px; border-left-color: var(--tone); background-color: var(--tone-bg); }
+.entry-out { --tone: var(--tone-out); --tone-bg: var(--tone-out-bg); }
+.entry-in { --tone: var(--tone-in); --tone-bg: var(--tone-in-bg); }
+.entry-move { --tone: var(--tone-move); --tone-bg: var(--tone-move-bg); }
+.entry-icon { color: var(--tone); @apply grid size-8 shrink-0 place-items-center rounded-full; background-color: color-mix(in srgb, var(--tone) 15%, transparent); }
+.entry-amount { color: var(--tone); }
+
 /* ---- Piles: faded colour behind each card, drag to reorder ------------------------------- */
 .pile-card {
   touch-action: pan-y;

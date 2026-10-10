@@ -484,3 +484,22 @@ def test_cannot_edit_another_users_salary(client_in, django_user_model):
     assert resp.status_code == 404
     theirs.refresh_from_db()
     assert theirs.amount == 1
+
+
+def test_log_entry_tone_colours(client_in, user):
+    a, b = Pile.objects.filter(user=user)[:2]
+    month = user.planner_settings.start_month
+
+    def make(kind, src, dst):
+        return LogEntry.objects.create(
+            user=user, date=f"{month}-05", type=kind, from_pile=src, to_pile=dst, amount=10,
+        )
+
+    assert make("spend", a, None).tone == "out"
+    assert make("adjust", None, a).tone == "in"
+    assert make("adjust", a, None).tone == "out"
+    assert make("transfer", a, b).tone == "move"
+    assert make("sweep", a, b).tone == "move"
+    html = client_in.get(reverse("planner:log"), {"m": month}).content.decode()
+    assert "entry-out" in html and "entry-in" in html and "entry-move" in html
+    assert 'id="entry-dialog"' in html and "data-auto-open" not in html

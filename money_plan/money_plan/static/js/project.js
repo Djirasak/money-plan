@@ -164,6 +164,10 @@ window.addEventListener('pageshow', (event) => {
     const id = document.querySelector('[data-auto-open-id]')?.dataset.autoOpenId;
     if (id) document.getElementById(id)?.showModal();
     for (const dialog of document.querySelectorAll('dialog[data-auto-open]')) dialog.showModal();
+    // an edit dialog lives on its own URL: closing it returns to the list
+    for (const dialog of document.querySelectorAll('dialog[data-return-url]')) {
+      dialog.addEventListener('close', () => { location.href = dialog.dataset.returnUrl; });
+    }
   });
 })();
 
