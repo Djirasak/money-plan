@@ -15,21 +15,71 @@
       {% icon "arrow-left" "size-4" %}
     </a>
   </header>
+
   <div class="card" data-size="sm">
-    <header class="px-4">
-      <h2 class="text-base font-semibold">{{ object.username }}</h2>
-      {% if object.name %}<p class="text-sm text-muted-foreground">{{ object.name }}</p>{% endif %}
+    <header class="flex flex-col items-center gap-3 px-4 text-center">
+      {# Profile photo: layout only for now, uploading is not available yet. #}
+      <div class="relative">
+        <div class="avatar-lg" aria-hidden="true">{{ object.username|slice:":1"|upper }}</div>
+        <button type="button" class="btn absolute -bottom-1 -right-1 rounded-full" data-variant="outline" data-size="icon-sm" disabled aria-disabled="true"
+                aria-label="{% trans 'Change profile photo (coming soon)' %}" title="{% trans 'Coming soon' %}">
+          {% icon "camera" "size-4" %}
+        </button>
+      </div>
+      <div class="min-w-0">
+        <h2 class="truncate text-base font-semibold">{{ object.name|default:object.username }}</h2>
+        <p class="text-xs text-muted-foreground">{% trans "Profile photo: coming soon" %}</p>
+      </div>
     </header>
-    {% if object == request.user %}
-      <section class="flex flex-col gap-2 px-4">
-        <a class="btn justify-start" data-variant="outline" href="{% url 'users:update' %}">{% icon "user" "size-4" %}{% trans "My info" %}</a>
-        <a class="btn justify-start" data-variant="outline" href="{% url 'account_email' %}">{% icon "mail" "size-4" %}{% trans "Email" %}</a>
-        <a class="btn justify-start" data-variant="outline" href="{% url 'mfa_index' %}">{% icon "shield-check" "size-4" %}{% trans "Two-factor authentication" %}</a>
-      </section>
-      <footer class="px-4">
-        <button type="button" class="btn w-full text-destructive" data-variant="outline" data-open-dialog="logout-modal">{% icon "log-out" "size-4" %}{% trans "Sign out" %}</button>
-      </footer>
-    {% endif %}
   </div>
-  {% if object == request.user %}{% include "users/_logout_dialog.html" %}{% endif %}
+
+  {% if object == request.user %}
+    <ul class="mt-4 flex flex-col gap-2">
+      <li class="item" data-variant="outline">
+        <section>
+          <p class="text-xs text-muted-foreground">{% trans "Username" %}</p>
+          <h3 class="truncate text-sm font-semibold">{{ object.username }}</h3>
+        </section>
+        <aside><button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-open-dialog="account-username" aria-label="{% trans 'Edit username' %}" title="{% trans 'Edit' %}">{% icon "square-pen" "size-4" %}</button></aside>
+      </li>
+      <li class="item" data-variant="outline">
+        <section>
+          <p class="text-xs text-muted-foreground">{% trans "Email" %}</p>
+          <h3 class="truncate text-sm font-semibold">{{ object.email|default:"—" }}</h3>
+        </section>
+        <aside><button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-open-dialog="account-email" aria-label="{% trans 'Edit email' %}" title="{% trans 'Edit' %}">{% icon "square-pen" "size-4" %}</button></aside>
+      </li>
+      <li class="item" data-variant="outline">
+        <section>
+          <p class="text-xs text-muted-foreground">{% trans "Password" %}</p>
+          <h3 class="text-sm font-semibold tracking-widest">••••••••</h3>
+        </section>
+        <aside><button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-open-dialog="account-password" aria-label="{% trans 'Change password' %}" title="{% trans 'Change' %}">{% icon "square-pen" "size-4" %}</button></aside>
+      </li>
+      <li class="item" data-variant="outline">
+        <section>
+          <p class="text-xs text-muted-foreground">{% trans "Name" %}</p>
+          <h3 class="truncate text-sm font-semibold">{{ object.name|default:"—" }}</h3>
+        </section>
+        <aside><button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-open-dialog="account-name" aria-label="{% trans 'Edit name' %}" title="{% trans 'Edit' %}">{% icon "square-pen" "size-4" %}</button></aside>
+      </li>
+      <li>
+        <button type="button" class="btn w-full text-destructive" data-variant="outline" data-open-dialog="logout-modal">{% icon "log-out" "size-4" %}{% trans "Sign out" %}</button>
+      </li>
+    </ul>
+
+    {% trans "Change username" as t_user %}{% trans "Save username" as s_user %}
+    {% url 'users:change_username' as a_user %}
+    {% include "users/_account_dialog.html" with dialog_id="account-username" title=t_user form=username_form action=a_user submit=s_user %}
+    {% trans "Change name" as t_name %}{% trans "Save name" as s_name %}
+    {% url 'users:change_name' as a_name %}
+    {% include "users/_account_dialog.html" with dialog_id="account-name" title=t_name form=name_form action=a_name submit=s_name %}
+    {% trans "Change email" as t_mail %}{% trans "Save email" as s_mail %}
+    {% url 'users:change_email' as a_mail %}
+    {% include "users/_account_dialog.html" with dialog_id="account-email" title=t_mail form=email_form action=a_mail submit=s_mail %}
+    {% trans "Change password" as t_pw %}{% trans "Save password" as s_pw %}{% trans "Use at least 8 characters. You stay signed in on this device." as h_pw %}
+    {% url 'users:change_password' as a_pw %}
+    {% include "users/_account_dialog.html" with dialog_id="account-password" title=t_pw form=password_form action=a_pw submit=s_pw hint=h_pw %}
+    {% include "users/_logout_dialog.html" %}
+  {% endif %}
 {% endblock content %}

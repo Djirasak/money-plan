@@ -1,0 +1,18 @@
+{% load i18n planner_tags %}
+{# Edit one account field in a dialog. Needs: dialog_id, title, form, action, submit, hint(optional). Opens itself when open_dialog matches. #}
+<dialog id="{{ dialog_id }}" class="dialog w-full sm:max-w-[400px]" aria-labelledby="{{ dialog_id }}-title" {% if open_dialog == dialog_id %}data-auto-open{% endif %}>
+  <form method="post" action="{{ action }}" class="overflow-y-auto">
+    {% csrf_token %}
+    <header><h2 id="{{ dialog_id }}-title">{{ title }}</h2></header>
+    <section class="grid gap-4">
+      {% for f in form %}{% include "planner/_field.html" with f=f %}{% endfor %}
+      {% for error in form.non_field_errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}
+      {% if hint %}<p class="text-xs text-muted-foreground">{{ hint }}</p>{% endif %}
+    </section>
+    <footer>
+      <button type="button" class="btn" data-variant="outline" data-close-dialog>{% trans "Cancel" %}</button>
+      <button type="submit" class="btn" data-loading-text="{{ submit }}">{{ submit }}</button>
+    </footer>
+    {% include "planner/_dialog_close.html" %}
+  </form>
+</dialog>

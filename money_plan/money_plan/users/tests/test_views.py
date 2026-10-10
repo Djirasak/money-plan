@@ -105,3 +105,92 @@ class TestUserDetailView:
         assert isinstance(response, HttpResponseRedirect)
         assert response.status_code == HTTPStatus.FOUND
         assert response.url == f"{login_url}?next=/fake-url/"
+
+
+class TestAccountChanges:
+    def test_page_has_edit_dialogs_and_logout(self, client, user: User):
+        client.force_login(user)
+        html = client.get(user.get_absolute_url()).content.decode()
+        for dialog in ("account-username", "account-email", "account-password", "logout-modal"):
+            assert f'id="{dialog}"' in html
+        assert "disabled" in html  # profile photo button is not available yet
+
+    def test_change_username(self, client, user: User):
+        client.force_login(user)
+        resp = client.post(reverse("users:change_username"), {"username": "brand_new"})
+        assert resp.status_code == HTTPStatus.FOUND
+        user.refresh_from_db()
+        assert user.username == "brand_new"
+        assert resp.url == "/users/brand_new/"
+
+    def test_username_taken_ignoring_case_reopens_dialog(self, client, user: User):
+        other = UserFactory(username="Taken_Name")
+        client.force_login(user)
+        old = user.username
+        resp = client.post(reverse("users:change_username"), {"username": other.username.lower()})
+        assert resp.status_code == HTTPStatus.OK
+        html = resp.content.decode()
+        assert "data-auto-open" in html
+        assert "ถูกใช้แล้ว" in html or "already been taken" in html
+        user.refresh_from_db()
+        assert user.username == old
+
+    def test_change_email_syncs_allauth_address(self, client, user: User):
+        from allauth.account.models import EmailAddress
+
+        client.force_login(user)
+        resp = client.post(reverse("users:change_email"), {"email": "new@example.com"})
+        assert resp.status_code == HTTPStatus.FOUND
+        user.refresh_from_db()
+        assert user.email == "new@example.com"
+        addr = EmailAddress.objects.get(user=user)
+        assert addr.email == "new@example.com"
+        assert addr.primary
+
+    def test_email_taken_is_rejected(self, client, user: User):
+        other = UserFactory(email="used@example.com")
+        client.force_login(user)
+        resp = client.post(reverse("users:change_email"), {"email": "USED@example.com"})
+        assert resp.status_code == HTTPStatus.OK
+        assert "data-auto-open" in resp.content.decode()
+        user.refresh_from_db()
+        assert user.email != other.email
+
+    def test_change_password_keeps_session(self, client, user: User):
+        user.set_password("old-pass-123!")
+        user.save()
+        client.force_login(user)
+        resp = client.post(
+            reverse("users:change_password"),
+            {"old_password": "old-pass-123!", "new_password1": "Brand-new-pass-77", "new_password2": "Brand-new-pass-77"},
+        )
+        assert resp.status_code == HTTPStatus.FOUND
+        user.refresh_from_db()
+        assert user.check_password("Brand-new-pass-77")
+        assert client.get(user.get_absolute_url()).status_code == HTTPStatus.OK  # still signed in
+
+    def test_wrong_current_password_rejected(self, client, user: User):
+        user.set_password("old-pass-123!")
+        user.save()
+        client.force_login(user)
+        resp = client.post(
+            reverse("users:change_password"),
+            {"old_password": "nope", "new_password1": "Brand-new-pass-77", "new_password2": "Brand-new-pass-77"},
+        )
+        assert resp.status_code == HTTPStatus.OK
+        user.refresh_from_db()
+        assert user.check_password("old-pass-123!")
+
+    def test_anonymous_cannot_change(self, client):
+        resp = client.post(reverse("users:change_email"), {"email": "x@example.com"})
+        assert resp.status_code == HTTPStatus.FOUND
+        assert "login" in resp.url
+
+    def test_change_name_stores_first_and_last(self, client, user: User):
+        client.force_login(user)
+        resp = client.post(reverse("users:change_name"), {"first_name": " สมชาย ", "last_name": "ใจดี"})
+        assert resp.status_code == HTTPStatus.FOUND
+        user.refresh_from_db()
+        assert (user.first_name, user.last_name, user.name) == ("สมชาย", "ใจดี", "สมชาย ใจดี")
+        html = client.get(user.get_absolute_url()).content.decode()
+        assert 'id="account-name"' in html

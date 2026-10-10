@@ -633,3 +633,90 @@ msgstr "อีเมล"
 
 msgid "Two-factor authentication"
 msgstr "ยืนยันตัวตนสองขั้นตอน"
+
+msgid "Username"
+msgstr "ชื่อผู้ใช้"
+
+msgid "This email is already used by another account."
+msgstr "อีเมลนี้ถูกใช้โดยบัญชีอื่นแล้ว"
+
+msgid "Current password"
+msgstr "รหัสผ่านปัจจุบัน"
+
+msgid "New password"
+msgstr "รหัสผ่านใหม่"
+
+msgid "Confirm new password"
+msgstr "ยืนยันรหัสผ่านใหม่"
+
+msgid "Username updated"
+msgstr "เปลี่ยนชื่อผู้ใช้แล้ว"
+
+msgid "Email updated"
+msgstr "เปลี่ยนอีเมลแล้ว"
+
+msgid "Password changed"
+msgstr "เปลี่ยนรหัสผ่านแล้ว"
+
+msgid "Change profile photo (coming soon)"
+msgstr "เปลี่ยนรูปโปรไฟล์ (เร็วๆ นี้)"
+
+msgid "Coming soon"
+msgstr "เร็วๆ นี้"
+
+msgid "Profile photo: coming soon"
+msgstr "รูปโปรไฟล์: เร็วๆ นี้"
+
+msgid "Edit username"
+msgstr "แก้ไขชื่อผู้ใช้"
+
+msgid "Edit email"
+msgstr "แก้ไขอีเมล"
+
+msgid "Password"
+msgstr "รหัสผ่าน"
+
+msgid "Change password"
+msgstr "เปลี่ยนรหัสผ่าน"
+
+msgid "Change"
+msgstr "เปลี่ยน"
+
+msgid "Name"
+msgstr "ชื่อ"
+
+msgid "Edit name"
+msgstr "แก้ไขชื่อ"
+
+msgid "Change username"
+msgstr "เปลี่ยนชื่อผู้ใช้"
+
+msgid "Save username"
+msgstr "บันทึกชื่อผู้ใช้"
+
+msgid "Change email"
+msgstr "เปลี่ยนอีเมล"
+
+msgid "Save email"
+msgstr "บันทึกอีเมล"
+
+msgid "Save password"
+msgstr "บันทึกรหัสผ่าน"
+
+msgid "Use at least 8 characters. You stay signed in on this device."
+msgstr "ใช้อย่างน้อย 8 ตัวอักษร และคุณจะยังเข้าสู่ระบบอยู่บนอุปกรณ์นี้"
+
+msgid "First name"
+msgstr "ชื่อ"
+
+msgid "Last name"
+msgstr "นามสกุล"
+
+msgid "Name updated"
+msgstr "เปลี่ยนชื่อแล้ว"
+
+msgid "Change name"
+msgstr "เปลี่ยนชื่อ"
+
+msgid "Save name"
+msgstr "บันทึกชื่อ"
