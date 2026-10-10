@@ -140,6 +140,7 @@ lint.ignore = [
   "S101",   # Use of assert detected https://docs.astral.sh/ruff/rules/assert/
   "SIM102", # sometimes it's better to nest
   "E501",   # line length is handled by the formatter
+  "EXE001", # shebang without exec bit (file modes differ between WSL and CI)
   "DJ008",  # models without __str__
   "TC002",  # runtime imports of typing-only names are fine
   "TC003",

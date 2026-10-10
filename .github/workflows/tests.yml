@@ -29,6 +29,7 @@ jobs:
       - run: pnpm lint:js
 
   css-lint:
+    needs: js-lint
     name: CSS lint
     runs-on: ubuntu-latest
     steps:
@@ -45,6 +46,7 @@ jobs:
       - run: pnpm lint:css
 
   js-test:
+    needs: css-lint
     name: JS test
     runs-on: ubuntu-latest
     steps:
@@ -61,6 +63,7 @@ jobs:
       - run: pnpm test:js:coverage
 
   ruff:
+    needs: js-test
     name: Ruff
     runs-on: ubuntu-latest
     steps:
@@ -70,6 +73,7 @@ jobs:
       - run: uvx ruff@0.16.10 format --check .
 
   pytest:
+    needs: ruff
     name: Pytest + coverage
     runs-on: ubuntu-latest
     services:
