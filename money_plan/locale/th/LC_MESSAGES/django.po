@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 19:27+0700\n"
+"POT-Creation-Date: 2026-10-10 19:41+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -510,6 +510,15 @@ msgstr "สว่าง"
 
 msgid "Dark"
 msgstr "มืด"
+
+msgid "Minimal style"
+msgstr "สไตล์มินิมอล"
+
+msgid "Classic"
+msgstr "คลาสสิก"
+
+msgid "Minimal"
+msgstr "มินิมอล"
 
 #, python-brace-format
 msgid "Moved {name} to position {pos} of {total}"

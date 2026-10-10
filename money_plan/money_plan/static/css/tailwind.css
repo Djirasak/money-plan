@@ -283,3 +283,171 @@ input[type="color"].field::-moz-color-swatch {
 .sortable-drag {
   cursor: grabbing;
 }
+
+/* ------------------------------------------------------------------------------------------
+ * "Minimal" style: shadcn/ui design tokens (zinc theme) on the same markup.
+ * Opt in with <html data-ui="shadcn"> (?ui=shadcn, or the Style button in Settings).
+ * Only variables and a few component overrides live here, so removing this block (or never
+ * setting data-ui) gives back the classic look untouched.
+ * ------------------------------------------------------------------------------------------ */
+[data-ui="shadcn"] {
+  --radius: 0.5rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+  --radius-3xl: 0.75rem;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-2: #f4f4f5;
+  --field: #ffffff;
+  --skeleton: #e4e4e7;
+  --border: #e4e4e7;
+  --ink: #09090b;
+  --muted: #52525b;
+  --primary: #18181b;
+  --on-primary: #fafafa;
+  --brand-tint: #f4f4f5;
+  --brand-tint-2: #e4e4e7;
+  --brand-fg: #18181b;
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+  --success: #15803d;
+  --success-soft: #f0fdf4;
+  --warn: #a16207;
+  --warn-soft: #fefce8;
+  /* every brand-coloured utility (buttons, tabs, badges, gradients) collapses to the primary */
+  --color-brand-50: #f4f4f5;
+  --color-brand-100: #e4e4e7;
+  --color-brand-500: #18181b;
+  --color-brand-600: #18181b;
+  --color-brand-700: #27272a;
+  --color-violet-500: #18181b;
+  --color-violet-600: #18181b;
+  --color-violet-700: #27272a;
+  --color-fuchsia-400: #52525b;
+  --color-fuchsia-500: #18181b;
+  --color-fuchsia-700: #27272a;
+}
+[data-ui="shadcn"][data-theme="dark"] {
+  --bg: #09090b;
+  --surface: #0f0f12;
+  --surface-2: #18181b;
+  --field: #09090b;
+  --skeleton: #27272a;
+  --border: #27272a;
+  --ink: #fafafa;
+  --muted: #a1a1aa;
+  --primary: #e4e4e7;
+  --on-primary: #18181b;
+  --brand-tint: #27272a;
+  --brand-tint-2: #3f3f46;
+  --brand-fg: #fafafa;
+  --danger: #fca5a5;
+  --danger-soft: #3b1212;
+  --success: #86efac;
+  --success-soft: #0f2e1a;
+  --warn: #fde047;
+  --warn-soft: #33290a;
+  --color-brand-50: #27272a;
+  --color-brand-100: #3f3f46;
+  --color-brand-500: #e4e4e7;
+  --color-brand-600: #e4e4e7;
+  --color-brand-700: #d4d4d8;
+  --color-violet-500: #e4e4e7;
+  --color-violet-600: #e4e4e7;
+  --color-violet-700: #d4d4d8;
+  --color-fuchsia-400: #a1a1aa;
+  --color-fuchsia-500: #e4e4e7;
+  --color-fuchsia-700: #d4d4d8;
+  /* text that sat on the (now light) primary colour must turn dark */
+  --color-white: #18181b;
+}
+[data-ui="shadcn"][data-theme="dark"] .btn-delete {
+  color: #fff;
+}
+[data-ui="shadcn"] body {
+  letter-spacing: -0.005em;
+}
+[data-ui="shadcn"] .card,
+[data-ui="shadcn"] .modal,
+[data-ui="shadcn"] [data-nav] {
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+[data-ui="shadcn"] .modal {
+  box-shadow: 0 10px 38px -10px rgb(0 0 0 / 0.35);
+}
+[data-ui="shadcn"] .field,
+[data-ui="shadcn"] .choices__inner,
+[data-ui="shadcn"] .auth-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+  border: 1px solid var(--border);
+  background: var(--field);
+}
+[data-ui="shadcn"] .field:focus,
+[data-ui="shadcn"] .choices.is-focused .choices__inner,
+[data-ui="shadcn"] .choices.is-open .choices__inner {
+  background: var(--field);
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+[data-ui="shadcn"] .btn,
+[data-ui="shadcn"] .icon-btn-primary {
+  background-image: none;
+  background-color: var(--primary);
+  color: var(--on-primary);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
+}
+[data-ui="shadcn"] .btn:hover,
+[data-ui="shadcn"] .icon-btn-primary:hover {
+  background-color: color-mix(in srgb, var(--primary) 88%, transparent);
+}
+[data-ui="shadcn"] .btn.btn-delete {
+  background-color: #b91c1c;
+  color: #fff;
+}
+[data-ui="shadcn"] .btn-soft,
+[data-ui="shadcn"] .icon-btn,
+[data-ui="shadcn"] .pref-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+[data-ui="shadcn"] .btn-soft:hover,
+[data-ui="shadcn"] .icon-btn:hover,
+[data-ui="shadcn"] .pref-btn:hover {
+  background: var(--brand-tint);
+}
+/* the hero: a plain primary-coloured card instead of the purple gradient */
+[data-ui="shadcn"] .hero {
+  border-radius: var(--radius-3xl);
+  background-image: none;
+  background-color: var(--primary);
+  color: var(--on-primary);
+  box-shadow: none;
+}
+[data-ui="shadcn"] .hero * {
+  color: inherit;
+}
+[data-ui="shadcn"] .hero > div:first-child {
+  display: none;
+}
+/* tabs / nav use small radii and an accent for the active item */
+[data-ui="shadcn"] [data-nav],
+[data-ui="shadcn"] [data-nav] a {
+  border-radius: var(--radius-3xl);
+}
+[data-ui="shadcn"] [data-nav] a[class*="bg-brand-tint"] {
+  background: var(--brand-tint);
+}
+[data-ui="shadcn"] .animate-float {
+  animation: none;
+}
+/* Style toggle button shows the current style */
+.style-minimal {
+  display: none;
+}
+[data-ui="shadcn"] .style-minimal {
+  display: inline-flex;
+}
+[data-ui="shadcn"] .style-classic {
+  display: none;
+}

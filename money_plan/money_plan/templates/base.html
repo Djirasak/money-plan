@@ -18,6 +18,10 @@
           let theme = localStorage.getItem('theme');
           if (!theme) theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
           document.documentElement.dataset.theme = theme;
+          // visual style: ?ui=shadcn (minimal) or ?ui=classic, remembered for next time
+          const asked = new URLSearchParams(location.search).get('ui');
+          if (asked) localStorage.setItem('ui', asked);
+          if (localStorage.getItem('ui') === 'shadcn') document.documentElement.dataset.ui = 'shadcn';
         } catch (e) { /* storage blocked: keep the light default */ }
       })();
     </script>

@@ -103,3 +103,19 @@ def test_placeholders_read_as_examples_not_values(client_in):
     html = client_in.get(reverse("planner:piles")).content.decode()
     assert 'placeholder="เช่น 60"' in html
     assert 'placeholder="60"' not in html and 'placeholder="6"' not in html
+
+
+def test_style_toggle_and_early_style_script(client_in):
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    assert "data-ui-toggle" in html and 'aria-label="สไตล์มินิมอล"' in html
+    assert "dataset.ui = 'shadcn'" in html  # applied before first paint, from ?ui= or storage
+    assert html.index("dataset.ui") < html.index("project.min.css")
+
+
+def test_minimal_style_is_only_variables_and_overrides():
+    css = (ROOT / "static/css/tailwind.css").read_text()
+    block = css[css.index('[data-ui="shadcn"] {') :]
+    # nothing in the minimal block may restyle the default (classic) look
+    selectors = re.findall(r"^([^\s@/}{][^{]*)\{", block, re.MULTILINE)
+    allowed = ('[data-ui="shadcn"]', ".style-")
+    assert all(s.strip().startswith(allowed) for s in selectors), selectors

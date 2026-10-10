@@ -296,3 +296,27 @@ window.addEventListener('pageshow', (event) => {
     }
   });
 })();
+
+/*
+ * Visual style toggle: "classic" (default) or "minimal" (shadcn tokens, <html data-ui="shadcn">).
+ */
+(() => {
+  const root = document.documentElement;
+  const sync = () => {
+    const minimal = root.dataset.ui === 'shadcn';
+    for (const button of document.querySelectorAll('[data-ui-toggle]')) {
+      button.setAttribute('aria-checked', String(minimal));
+    }
+  };
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('[data-ui-toggle]')) return;
+    const minimal = root.dataset.ui !== 'shadcn';
+    if (minimal) root.dataset.ui = 'shadcn';
+    else delete root.dataset.ui;
+    try {
+      localStorage.setItem('ui', minimal ? 'shadcn' : 'classic');
+    } catch (e) { /* storage blocked: the choice just won't persist */ }
+    sync();
+  });
+  sync();
+})();
