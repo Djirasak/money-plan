@@ -17,7 +17,7 @@ RESET  := \033[0m
 say = @printf "$(1)%b$(RESET)\n" "$(2)"
 
 .DEFAULT_GOAL := help
-.PHONY: help build up start restart stop prune logs bash rebuild-node messages manage pytest
+.PHONY: help build up start restart stop prune logs bash rebuild rebuild-node messages manage pytest
 
 # help: List all available commands.
 help:
@@ -66,6 +66,12 @@ logs:
 bash:
 	$(call say,$(CYAN),🐚 Opening shell in $(SERVICE)...)
 	@docker compose run --rm $(SERVICE) bash
+
+# rebuild: Rebuild python image and reset its .venv volume (run after changing dependencies).
+rebuild:
+	$(call say,$(YELLOW),📦 Rebuilding python image and resetting .venv...)
+	@docker compose build django
+	@docker compose up -d -V --force-recreate django celeryworker celerybeat flower
 
 # rebuild-node: Rebuild node image and reset its node_modules volume.
 rebuild-node:
