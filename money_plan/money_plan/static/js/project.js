@@ -68,9 +68,48 @@
   const BIG_LIST = 24;
   const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 50));
 
+  /*
+   * Keep the dropdown list on screen. It floats (position: fixed) at the control, so a
+   * scrolling dialog or an overflow:hidden card can never clip it, and it opens upwards
+   * when there is more room above than below.
+   */
+  const float = (el, choices) => {
+    const container = choices.containerOuter.element;
+    const list = () => container.querySelector('.choices__list--dropdown');
+    const place = () => {
+      const menu = list();
+      if (!menu) return;
+      const box = container.getBoundingClientRect();
+      const below = window.innerHeight - box.bottom - 12;
+      const above = box.top - 12;
+      const up = below < 200 && above > below;
+      const room = Math.max(120, up ? above : below);
+      menu.style.position = 'fixed';
+      menu.style.left = `${box.left}px`;
+      menu.style.width = `${box.width}px`;
+      menu.style.marginTop = '0';
+      menu.style.top = up ? 'auto' : `${box.bottom + 6}px`;
+      menu.style.bottom = up ? `${window.innerHeight - box.top + 6}px` : 'auto';
+      const items = menu.querySelector('.choices__list[role="listbox"]');
+      const search = menu.querySelector('.choices__input');
+      if (items) items.style.maxHeight = `${Math.min(300, room - (search ? 64 : 12))}px`;
+    };
+    const watch = () => {
+      place();
+      window.addEventListener('scroll', place, true);
+      window.addEventListener('resize', place);
+    };
+    const unwatch = () => {
+      window.removeEventListener('scroll', place, true);
+      window.removeEventListener('resize', place);
+    };
+    el.addEventListener('showDropdown', watch);
+    el.addEventListener('hideDropdown', unwatch);
+  };
+
   const enhance = (el) => {
     const { searchPlaceholder, noResults, noChoices } = document.body.dataset;
-    new Choices(el, {
+    const choices = new Choices(el, {
       searchEnabled: el.options.length > 12,
       shouldSort: false,
       itemSelectText: '',
@@ -79,6 +118,7 @@
       noResultsText: noResults,
       noChoicesText: noChoices,
     });
+    float(el, choices);
   };
 
   const init = (root = document) => {

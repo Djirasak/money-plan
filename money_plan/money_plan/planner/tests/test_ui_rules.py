@@ -93,7 +93,7 @@ def test_messages_are_toasts_with_the_right_roles(client_in, user):
     assert 'role="alert"' in html  # errors are announced assertively
     assert "กรอกเปอร์เซ็นต์ของเงินเดือน" in html
     toast = html[html.index('aria-label="การแจ้งเตือน"') :]
-    assert "fixed inset-x-0 bottom-24" in html and "กรอกจำนวนเดือน" in toast
+    assert "fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+6rem)]" in html and "กรอกจำนวนเดือน" in toast
     assert 'class="mb-3 space-y-2"' not in html  # the old inline banner is gone
     ok = client_in.post(reverse("planner:log_delete", args=[999999]), follow=True)
     assert ok.status_code == 404

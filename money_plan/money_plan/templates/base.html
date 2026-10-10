@@ -9,7 +9,7 @@
         Money Plan
       {% endblock title %}
     </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f6f7fb" />
     {# Apply the saved/system theme before first paint to avoid a light flash in dark mode. #}
     <script>
@@ -42,7 +42,7 @@
         data-no-results="{% trans 'No results found' %}"
         data-no-choices="{% trans 'No choices to choose from' %}">
     {% block body %}
-      <div class="mx-auto min-h-screen w-full max-w-md px-4 pb-32 pt-6">
+      <div class="mx-auto min-h-screen w-full max-w-md px-4 pb-32 pt-[calc(env(safe-area-inset-top,0px)+2.75rem)]">
         {% block main %}
           {% block content %}
           {% endblock content %}
@@ -53,7 +53,7 @@
     {% endblock modal %}
     {# Messages are toasts at the bottom, above the floating nav; they dismiss themselves. #}
     {% if messages %}
-      <div class="pointer-events-none fixed inset-x-0 bottom-24 z-40 mx-auto flex w-full max-w-md flex-col gap-2 px-4"
+      <div class="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+6rem)] z-40 mx-auto flex w-full max-w-md flex-col gap-2 px-4"
            role="region" aria-label="{% trans 'Notifications' %}">
         {% for message in messages %}
           <div x-data="{ open: true }"
