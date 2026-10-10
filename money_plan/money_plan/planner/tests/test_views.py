@@ -520,4 +520,4 @@ def test_log_loads_25_then_10_at_a_time(client_in, user):
     assert html.count('class="item entry') == 10 and "offset=35" in html
     html = client_in.get(url, {"m": month, "offset": 35}, headers={"HX-Request": "true"}).content.decode()
     assert html.count('class="item entry') == 5
-    assert "Load more" not in html and "<html" not in html
+    assert "Load more" not in html and "ไม่มีรายการเพิ่มแล้ว" in html and "<html" not in html

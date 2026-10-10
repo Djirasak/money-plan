@@ -29,4 +29,6 @@
     <button type="button" class="btn w-full" data-variant="outline" hx-get="{% url 'planner:log' %}?m={{ month }}&offset={{ next_offset }}"
             hx-trigger="click, revealed" hx-target="closest li" hx-swap="outerHTML">{% icon "chevron-down" "size-4" %}{% trans "Load more" %}</button>
   </li>
+{% elif entries %}
+  <li class="list-none py-3 text-center text-xs text-muted-foreground">{% trans "No more entries" %}</li>
 {% endif %}

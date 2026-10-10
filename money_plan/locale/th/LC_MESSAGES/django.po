@@ -609,3 +609,6 @@ msgstr "อัปเดตข้อมูลเรียบร้อยแล้
 
 msgid "Load more"
 msgstr "โหลดเพิ่ม"
+
+msgid "No more entries"
+msgstr "ไม่มีรายการเพิ่มแล้ว"
