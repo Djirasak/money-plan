@@ -3,9 +3,10 @@ from functools import lru_cache
 from pathlib import Path
 
 from django import template
-from django.utils.dates import MONTHS_3
+from django.utils.dates import MONTHS
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
 
 register = template.Library()
 
@@ -21,11 +22,19 @@ def baht(value) -> str:
     return f"{sign}฿{text}"
 
 
+BUDDHIST_ERA_OFFSET = 543
+
+
+def display_year(year: int) -> int:
+    """Thai UI shows the Buddhist Era (B.E.); everything stored and sent stays C.E."""
+    return year + BUDDHIST_ERA_OFFSET if get_language().startswith("th") else year
+
+
 @register.filter
 def month_label(value: str) -> str:
-    """'2027-01' -> 'Jan 2027'; the month name follows the active language."""
+    """'2027-01' -> 'January 2027' (en) or 'January 2570' with the Thai month name (th)."""
     year, month = value.split("-")
-    return f"{str(MONTHS_3[int(month)]).capitalize()} {year}"
+    return f"{MONTHS[int(month)]} {display_year(int(year))}"
 
 
 @register.filter

@@ -28,9 +28,9 @@ def test_english_when_language_switched(client_in):
 
 def test_month_label_follows_language():
     with translation.override("en"):
-        assert month_label("2027-01") == "Jan 2027"
+        assert month_label("2027-01") == "January 2027"
     with translation.override("th"):
-        assert month_label("2027-01") == "ม.ค. 2027"
+        assert month_label("2027-01") == "มกราคม 2570"  # Buddhist Era
 
 
 def test_no_thai_literals_left_in_code():
@@ -80,3 +80,16 @@ def test_no_fuzzy_translations():
     """msgmerge marks guessed translations fuzzy; Django silently ignores them."""
     po = Path(__file__).resolve().parents[3] / "locale/th/LC_MESSAGES/django.po"
     assert "#, fuzzy" not in po.read_text()
+
+
+def test_stored_months_stay_gregorian_whatever_the_display_language(client_in, user):
+    """Only the label changes (B.E. in Thai); values in forms, URLs and the DB stay C.E."""
+    start = user.planner_settings.start_month
+    html = client_in.get(reverse("planner:summary"), {"m": start}).content.decode()
+    year = int(start[:4])
+    assert f'value="{start}"' in html  # <option value> is C.E.
+    assert f"{year + 543}" in html  # label is B.E. in Thai
+    client_in.post(reverse("set_language"), {"language": "en", "next": "/"})
+    html = client_in.get(reverse("planner:summary"), {"m": start}).content.decode()
+    assert f"{year + 543}" not in html
+    assert f"{year}" in html

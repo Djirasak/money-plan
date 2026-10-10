@@ -221,7 +221,7 @@
   @apply m-2 w-[calc(100%-1rem)] rounded-xl border-0 bg-field px-3 py-2 text-base outline-none;
 }
 .month-bar .choices {
-  @apply w-44;
+  @apply w-48;
 }
 .month-bar .choices__inner {
   @apply bg-surface pr-9 text-sm font-semibold shadow-sm;

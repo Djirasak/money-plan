@@ -24,7 +24,7 @@
         <div class="min-w-0 flex-1">
           <p class="font-semibold">{{ e.get_type_display }} · {{ e.amount|baht }}</p>
           <p class="truncate text-sm text-muted">
-            {{ e.date|date:"j M" }} ·
+            {{ e.date|date:"j F" }} ·
             {% if e.from_pile %}{{ e.from_pile }}{% endif %}{% if e.from_pile and e.to_pile %} {% icon "arrow-right" "size-3.5 inline-block align-[-2px]" %} {% endif %}{% if e.to_pile %}{{ e.to_pile }}{% endif %}
             {% if e.note %}· {{ e.note }}{% endif %}
           </p>
