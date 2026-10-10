@@ -157,7 +157,6 @@ class PlanItem(models.Model):
     )
     pile = models.ForeignKey(Pile, on_delete=models.CASCADE, related_name="+")
     percent = models.DecimalField(max_digits=6, decimal_places=2, default=0)
-    fixed = models.DecimalField(max_digits=14, decimal_places=2, default=0)
 
     class Meta:
         constraints = [

@@ -292,7 +292,6 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
                 period=period,
                 pile=pile,
                 percent=src.percent if src else 0,
-                fixed=src.fixed if src else 0,
             )
         messages.success(request, _("Plan added"))
 
@@ -306,7 +305,6 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
                 pile=pile,
                 defaults={
                     "percent": _dec(request.POST.get(f"percent_{pile.pk}")),
-                    "fixed": _dec(request.POST.get(f"fixed_{pile.pk}")),
                 },
             )
         messages.success(request, _("Plan saved"))

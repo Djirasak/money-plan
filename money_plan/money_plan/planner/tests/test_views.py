@@ -90,11 +90,10 @@ def test_save_plan_changes_allocation_from_that_month(client_in, user):
     data = {"action": "save", "id": period.pk, "name": period.name}
     for pile in user.piles.all():
         data[f"percent_{pile.pk}"] = "50" if pile == spend else "0"
-        data[f"fixed_{pile.pk}"] = "1000" if pile == spend else "0"
     client_in.post(reverse("planner:plan"), data)
     month = user.planner_settings.start_month
     html = client_in.get(reverse("planner:summary_content"), {"m": month}).content.decode()
-    assert "฿25,000" in html  # 48,000 * 50% + 1,000
+    assert "฿24,000" in html  # 48,000 * 50%
 
 
 def test_delete_pile_in_use_is_blocked(client_in, user):

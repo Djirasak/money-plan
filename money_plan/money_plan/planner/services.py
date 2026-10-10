@@ -88,7 +88,6 @@ def compute_months(user: AbstractBaseUser, end_month: str) -> list[engine.Month]
             engine.PlanRow(
                 effective_month=period.effective_month,
                 shares={i.pile.name: i.percent / 100 for i in period.items.all()},
-                fixed={i.pile.name: i.fixed for i in period.items.all()},
             ),
         )
     entries = [e.to_engine() for e in LogEntry.objects.filter(user=user)

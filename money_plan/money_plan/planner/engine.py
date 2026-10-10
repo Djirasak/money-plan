@@ -42,12 +42,11 @@ class Salary:
 class PlanRow:
     """What each pile receives from ``effective_month`` onwards.
 
-    A pile gets ``salary * share + fixed`` every month.
+    A pile gets ``salary * share`` every month.
     """
 
     effective_month: str
     shares: dict[str, Decimal] = field(default_factory=dict)  # 0.55 = 55%
-    fixed: dict[str, Decimal] = field(default_factory=dict)  # baht
 
 
 @dataclass(frozen=True)
@@ -147,10 +146,7 @@ def compute(
 
         for pile in piles:
             pm = PileMonth(name=pile.name, carry_in=carry[pile.name])
-            pm.allocation = salary * row_plan.shares.get(
-                pile.name,
-                ZERO,
-            ) + row_plan.fixed.get(pile.name, ZERO)
+            pm.allocation = salary * row_plan.shares.get(pile.name, ZERO)
             for e in by_month.get(month, []):
                 if e.to_pile == pile.name:
                     pm.net += e.amount

@@ -133,12 +133,3 @@ def test_plan_change_applies_from_effective_month():
         D(28800),
         D(28800),
     ]
-
-
-def test_fixed_amount_allocation_on_top_of_share():
-    plan = [
-        PlanRow("2027-01", {"spend": D("0.5")}, {"spend": D(1000), "save": D(500)}),
-    ]
-    jan = run([Pile("spend"), Pile("save", kind=FUND)], plan=plan)[0]
-    assert jan.piles["spend"].allocation == D(25000)
-    assert jan.piles["save"].allocation == D(500)

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 18:23+0700\n"
+"POT-Creation-Date: 2026-10-10 18:27+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -435,9 +435,8 @@ msgstr "+ เพิ่มกองใหม่"
 msgid "Add pile"
 msgstr "เพิ่มกอง"
 
-#, python-format
-msgid "Each plan applies from its start month onwards. A pile receives salary × %% + fixed amount."
-msgstr "แต่ละแผนใช้ตั้งแต่เดือนที่กำหนดเป็นต้นไป กองได้รับ = เงินเดือน × %% + จำนวนคงที่"
+msgid "Each plan applies from its start month onwards. Split your salary between your piles by percentage."
+msgstr "แต่ละแผนใช้ตั้งแต่เดือนที่กำหนดเป็นต้นไป แบ่งเงินเดือนให้แต่ละกองเป็นเปอร์เซ็นต์"
 
 #, python-format
 msgid "Total %(total)s"
@@ -456,20 +455,13 @@ msgstr "ชื่อแผน"
 msgid "%% of salary"
 msgstr "%% ของเงินเดือน"
 
-msgid "+ Fixed amount (THB)"
-msgstr "+ บาทคงที่"
-
 #, python-format
 msgid "%(pile)s: %% of salary"
 msgstr "%(pile)s: %% ของเงินเดือน"
 
 #, python-format
-msgid "%(pile)s: fixed amount (THB)"
-msgstr "%(pile)s: บาทคงที่"
-
-#, python-format
-msgid "Each pile gets its %% of your salary, plus an optional fixed amount. Example: Reserve 10%% + ฿2,000 puts aside ฿2,000 more every month on top of 10%%."
-msgstr "แต่ละกองได้ตาม %% ของเงินเดือน บวกจำนวนเงินคงที่ (ใส่หรือไม่ใส่ก็ได้) เช่น เงินสำรอง 10%% + ฿2,000 คือแบ่งเงินเข้ากองนี้เพิ่มอีก ฿2,000 ทุกเดือนนอกเหนือจาก 10%%"
+msgid "Each pile gets this %% of your salary. Keep the total at 100%% so every baht has a place."
+msgstr "แต่ละกองได้ตามเปอร์เซ็นต์นี้ของเงินเดือน ควรรวมให้ได้ 100%% เงินจะได้ไม่ตกหล่น"
 
 msgid "Save plan"
 msgstr "บันทึกแผน"
@@ -513,5 +505,7 @@ msgstr "ชื่อผู้ใช้"
 msgid "Information successfully updated"
 msgstr "อัปเดตข้อมูลเรียบร้อยแล้ว"
 
+
+#, python-format
 
 #, python-format
