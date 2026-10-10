@@ -13,54 +13,48 @@
   </section>
 
   <h2 class="mb-2 mt-6 px-1 text-xs font-medium text-muted-foreground">{% trans "Monthly budget" %}</h2>
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-2.5">
     {% for c in cards %}
       {% with p=c.pile pm=c.pm %}
-        <article class="card" data-size="sm">
+        <article class="card pile-summary" data-size="sm" style="--pc:{{ p.color }}">
           <header class="px-4">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-2 text-sm font-medium">
-                <span class="size-2.5 rounded-full" style="background:{{ p.color }}" aria-hidden="true"></span>{{ p.name }}
+            <div class="flex items-end justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="flex items-center gap-2 text-sm font-semibold"><span class="size-2.5 shrink-0 rounded-full" style="background:{{ p.color }}" aria-hidden="true"></span><span class="truncate">{{ p.name }}</span></h3>
+                {% if p.kind != 'fund' %}
+                  <p class="mt-0.5 text-[11px] leading-tight text-muted-foreground">
+                    {% if p.mode == 'sweep' %}{% blocktrans with name=p.overflow_to.name|default:"—" %}Sweeps to {{ name }}{% endblocktrans %}
+                    {% elif p.cap %}{% blocktrans with cap=p.cap|baht %}Rollover up to {{ cap }}{% endblocktrans %}
+                    {% else %}{% trans "Rollover, unlimited" %}{% endif %}
+                  </p>
+                {% endif %}
               </div>
               <div class="text-right">
-                <p class="text-xs text-muted-foreground">{% if p.kind == 'fund' %}{% trans "Saved so far" %}{% else %}{% trans "Left" %}{% endif %}</p>
-                <p class="text-2xl font-semibold tracking-tight">{{ pm.before|baht }}</p>
+                <p class="text-[11px] leading-tight text-muted-foreground">{% if p.kind == 'fund' %}{% trans "Saved so far" %}{% else %}{% trans "Left" %}{% endif %}</p>
+                <p class="text-xl font-semibold leading-tight tracking-tight tabular-nums">{{ pm.before|baht }}</p>
               </div>
             </div>
           </header>
           <section class="px-4">
             {% if p.kind == 'fund' %}
               {% with prog=c.progress|pct %}
-                <div class="h-2 overflow-hidden rounded-full" style="background:{{ p.color|tint:18 }}">
-                  <div class="h-full rounded-full" style="width:{{ prog }}%;background:{{ p.color }}"></div>
-                </div>
-                <div class="mt-3 grid grid-cols-3 gap-2 text-xs">
-                  <div class="stat" style="background:{{ p.color|tint:12 }}"><p class="text-muted-foreground">{% blocktrans %}Target · {{ prog }}{% endblocktrans %}%</p><p class="mt-1 text-sm font-semibold">{% if pm.target is not None %}{{ pm.target|baht }}{% else %}—{% endif %}</p></div>
-                  <div class="stat" style="background:{{ p.color|tint:12 }}"><p class="text-muted-foreground">{% trans "In this month" %}</p><p class="mt-1 text-sm font-semibold">{{ c.incoming|baht }}</p></div>
-                  <div class="stat" style="background:{{ p.color|tint:12 }}"><p class="text-muted-foreground">{% trans "Remaining" %}</p><p class="mt-1 text-sm font-semibold">{% if c.remaining is not None %}{{ c.remaining|baht }}{% else %}—{% endif %}</p></div>
-                </div>
+                <div class="pile-bar"><div style="width:{{ prog }}%"></div></div>
+                <dl class="pile-kv">
+                  <div><dt>{% blocktrans %}Target · {{ prog }}{% endblocktrans %}%</dt><dd>{% if pm.target is not None %}{{ pm.target|baht }}{% else %}—{% endif %}</dd></div>
+                  <div><dt>{% trans "In this month" %}</dt><dd>{{ c.incoming|baht }}</dd></div>
+                  <div><dt>{% trans "Remaining" %}</dt><dd>{% if c.remaining is not None %}{{ c.remaining|baht }}{% else %}—{% endif %}</dd></div>
+                </dl>
               {% endwith %}
             {% else %}
-              <div class="h-2 overflow-hidden rounded-full" style="background:{{ p.color|tint:18 }}">
-                <div class="h-full rounded-full" style="width:{{ pm.used_pct|pct }}%;background:{{ p.color }}"></div>
-              </div>
-              <div class="mt-3 grid grid-cols-3 gap-2 text-xs">
-                <div class="stat" style="background:{{ p.color|tint:12 }}"><p class="text-muted-foreground">{% trans "This month's budget" %}</p><p class="mt-1 text-sm font-semibold">{{ pm.allocation|baht }}</p></div>
-                <div class="stat" style="background:{{ p.color|tint:12 }}"><p class="text-muted-foreground">{% trans "Carried in" %}</p><p class="mt-1 text-sm font-semibold">{{ pm.carry_in|baht }}</p></div>
-                <div class="stat" style="background:{{ p.color|tint:12 }}"><p class="text-muted-foreground">{% blocktrans with pct=pm.used_pct|pct %}Used · {{ pct }}{% endblocktrans %}%</p><p class="mt-1 text-sm font-semibold">{{ pm.used|baht }}</p></div>
-              </div>
-              <div class="mt-3 flex flex-wrap gap-2 text-xs font-medium">
-                {% if p.mode == 'sweep' %}
-                  <span class="badge px-2.5 py-1" data-variant="secondary">{% blocktrans with name=p.overflow_to.name|default:"—" %}Sweeps to {{ name }}{% endblocktrans %}</span>
-                {% elif p.cap %}
-                  <span class="badge px-2.5 py-1" data-variant="secondary">{% blocktrans with cap=p.cap|baht %}Rollover up to {{ cap }}{% endblocktrans %}</span>
-                {% else %}
-                  <span class="badge px-2.5 py-1" data-variant="secondary">{% trans "Rollover, unlimited" %}</span>
-                {% endif %}
-                {% if pm.overflow %}
-                  <span class="badge bg-warn-soft px-2.5 py-1 text-warn">{% blocktrans with amount=pm.overflow|baht target=pm.overflow_to %}Overflow {{ amount }} to {{ target }}{% endblocktrans %}</span>
-                {% endif %}
-              </div>
+              <div class="pile-bar"><div style="width:{{ pm.used_pct|pct }}%"></div></div>
+              <dl class="pile-kv">
+                <div><dt>{% trans "This month's budget" %}</dt><dd>{{ pm.allocation|baht }}</dd></div>
+                <div><dt>{% trans "Carried in" %}</dt><dd>{{ pm.carry_in|baht }}</dd></div>
+                <div><dt>{% blocktrans with pct=pm.used_pct|pct %}Used · {{ pct }}{% endblocktrans %}%</dt><dd>{{ pm.used|baht }}</dd></div>
+              </dl>
+              {% if pm.overflow %}
+                <p class="mt-2"><span class="badge bg-warn-soft px-2.5 py-1 text-xs font-medium text-warn">{% blocktrans with amount=pm.overflow|baht target=pm.overflow_to %}Overflow {{ amount }} to {{ target }}{% endblocktrans %}</span></p>
+              {% endif %}
             {% endif %}
           </section>
         </article>
