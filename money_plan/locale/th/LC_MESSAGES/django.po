@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 06:58+0700\n"
+"POT-Creation-Date: 2026-10-10 07:08+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -156,29 +156,29 @@ msgstr "ลบรายการแล้ว"
 msgid "Salary saved"
 msgstr "บันทึกเงินเดือนแล้ว"
 
-msgid "Settings saved"
-msgstr "บันทึกการตั้งค่าแล้ว"
-
 msgid "Invalid value"
 msgstr "ค่าที่กรอกไม่ถูกต้อง"
 
-msgid "Pile deleted"
-msgstr "ลบกองแล้ว"
-
-msgid "Cannot delete: this pile is used by log entries"
-msgstr "ลบไม่ได้: กองนี้ถูกใช้ในรายการบันทึก"
+msgid "Settings saved"
+msgstr "บันทึกการตั้งค่าแล้ว"
 
 msgid "Pile saved"
 msgstr "บันทึกกองแล้ว"
 
+msgid "Cannot delete: this pile is used by log entries"
+msgstr "ลบไม่ได้: กองนี้ถูกใช้ในรายการบันทึก"
+
+msgid "Pile deleted"
+msgstr "ลบกองแล้ว"
+
 msgid "Plan added"
 msgstr "เพิ่มแผนแล้ว"
 
-msgid "Plan deleted"
-msgstr "ลบแผนแล้ว"
-
 msgid "Plan saved"
 msgstr "บันทึกแผนแล้ว"
+
+msgid "Plan deleted"
+msgstr "ลบแผนแล้ว"
 
 msgid "Access denied (403)"
 msgstr "ไม่มีสิทธิ์เข้าถึง (403)"
@@ -255,6 +255,61 @@ msgstr "กองเงิน"
 msgid "Budget plan"
 msgstr "แผนแบ่งเงิน"
 
+msgid "Salary"
+msgstr "เงินเดือน"
+
+#, python-format
+msgid "Plan: %(name)s"
+msgstr "แผน: %(name)s"
+
+#, python-format
+msgid "Allocated %(amount)s"
+msgstr "แบ่งแล้ว %(amount)s"
+
+msgid "Set your salary first →"
+msgstr "ตั้งเงินเดือนก่อน →"
+
+msgid "Saved so far"
+msgstr "สะสมแล้ว"
+
+msgid "Left"
+msgstr "เหลือ"
+
+#, python-format
+msgid "Target · %(prog)s"
+msgstr "เป้าหมาย · %(prog)s"
+
+msgid "In this month"
+msgstr "เข้าเดือนนี้"
+
+msgid "Remaining"
+msgstr "เหลืออีก"
+
+msgid "This month's budget"
+msgstr "งบเดือนนี้"
+
+msgid "Carried in"
+msgstr "ทบมา"
+
+#, python-format
+msgid "Used · %(pct)s"
+msgstr "ใช้แล้ว · %(pct)s"
+
+#, python-format
+msgid "Sweeps to %(name)s"
+msgstr "กวาดไป %(name)s"
+
+#, python-format
+msgid "Rollover up to %(cap)s"
+msgstr "ทบได้ไม่เกิน %(cap)s"
+
+msgid "Rollover, unlimited"
+msgstr "ทบได้ไม่จำกัด"
+
+#, python-format
+msgid "Overflow %(amount)s → %(target)s"
+msgstr "ล้น %(amount)s → %(target)s"
+
 msgid "Delete"
 msgstr "ลบ"
 
@@ -322,9 +377,6 @@ msgstr "ตัวคูณเงินเดือน (1 = 100%%, 0.6 = 60%%)"
 
 msgid "Save start month"
 msgstr "บันทึกเดือนเริ่มระบบ"
-
-msgid "Salary"
-msgstr "เงินเดือน"
 
 msgid "The latest row not after a month applies to it · add one when your salary changes"
 msgstr "ใช้แถวล่าสุดที่เดือนไม่เกินเดือนนั้น · เพิ่มเมื่อเงินเดือนเปลี่ยน"
@@ -402,57 +454,8 @@ msgstr "เพิ่มแผน"
 msgid "Monthly summary"
 msgstr "สรุปรายเดือน"
 
-#, python-format
-msgid "Plan: %(name)s"
-msgstr "แผน: %(name)s"
-
-#, python-format
-msgid "Allocated %(amount)s"
-msgstr "แบ่งแล้ว %(amount)s"
-
-msgid "Set your salary first →"
-msgstr "ตั้งเงินเดือนก่อน →"
-
-msgid "Saved so far"
-msgstr "สะสมแล้ว"
-
-msgid "Left"
-msgstr "เหลือ"
-
-#, python-format
-msgid "Target · %(prog)s"
-msgstr "เป้าหมาย · %(prog)s"
-
-msgid "In this month"
-msgstr "เข้าเดือนนี้"
-
-msgid "Remaining"
-msgstr "เหลืออีก"
-
-msgid "This month's budget"
-msgstr "งบเดือนนี้"
-
-msgid "Carried in"
-msgstr "ทบมา"
-
-#, python-format
-msgid "Used · %(pct)s"
-msgstr "ใช้แล้ว · %(pct)s"
-
-#, python-format
-msgid "Sweeps to %(name)s"
-msgstr "กวาดไป %(name)s"
-
-#, python-format
-msgid "Rollover up to %(cap)s"
-msgstr "ทบได้ไม่เกิน %(cap)s"
-
-msgid "Rollover, unlimited"
-msgstr "ทบได้ไม่จำกัด"
-
-#, python-format
-msgid "Overflow %(amount)s → %(target)s"
-msgstr "ล้น %(amount)s → %(target)s"
+msgid "Loading..."
+msgstr "กำลังโหลด..."
 
 msgid "← Back to summary"
 msgstr "← กลับหน้าสรุป"

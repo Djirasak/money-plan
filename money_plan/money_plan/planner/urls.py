@@ -4,11 +4,12 @@ from . import views
 
 app_name = "planner"
 urlpatterns = [
-    path("", views.summary, name="summary"),
-    path("log/", views.log, name="log"),
-    path("log/<int:pk>/edit/", views.log, name="log_edit"),
-    path("log/<int:pk>/delete/", views.log_delete, name="log_delete"),
-    path("settings/", views.settings_general, name="settings"),
-    path("settings/piles/", views.settings_piles, name="piles"),
-    path("settings/plan/", views.settings_plan, name="plan"),
+    path("", views.SummaryView.as_view(), name="summary"),
+    path("summary/content/", views.SummaryContentView.as_view(), name="summary_content"),
+    path("log/", views.LogView.as_view(), name="log"),
+    path("log/<int:pk>/edit/", views.LogView.as_view(), name="log_edit"),
+    path("log/<int:pk>/delete/", views.LogDeleteView.as_view(), name="log_delete"),
+    path("settings/", views.SettingsGeneralView.as_view(), name="settings"),
+    path("settings/piles/", views.SettingsPilesView.as_view(), name="piles"),
+    path("settings/plan/", views.SettingsPlanView.as_view(), name="plan"),
 ]
