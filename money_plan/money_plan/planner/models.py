@@ -152,6 +152,9 @@ class PlanPeriod(models.Model):
         related_name="+",
     )
     cond_op = models.CharField(max_length=3, choices=OP_CHOICES, blank=True)
+    # compare against the pile's own target (follows it when the target changes);
+    # ``cond_amount`` keeps the value at save time as a fallback
+    cond_use_target = models.BooleanField(default=False)
     cond_amount = models.DecimalField(
         max_digits=14,
         decimal_places=2,
@@ -169,9 +172,14 @@ class PlanPeriod(models.Model):
             raise ValidationError(msg)
 
     def to_condition(self) -> engine.Condition | None:
-        if not (self.cond_op and self.cond_pile_id and self.cond_amount is not None):
+        if not (self.cond_op and self.cond_pile_id):
             return None
-        return engine.Condition(self.cond_pile.name, self.cond_op, self.cond_amount)
+        amount = self.cond_amount
+        if self.cond_use_target and self.cond_pile.target is not None:
+            amount = self.cond_pile.target
+        if amount is None:
+            return None
+        return engine.Condition(self.cond_pile.name, self.cond_op, amount)
 
 
 class PlanItem(models.Model):

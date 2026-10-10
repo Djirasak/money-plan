@@ -350,3 +350,69 @@ def test_pile_used_by_a_plan_condition_cannot_be_deleted(client_in, user):
     )
     client_in.post(reverse("planner:piles"), {"action": "delete", "id": reserve.pk})
     assert Pile.objects.filter(pk=reserve.pk).exists()
+
+
+def _condition_post(user, period, pile, **extra):
+    return _plan_post(
+        user,
+        period,
+        condition_mode="on",
+        condition_pile=pile.pk,
+        condition_op="gte",
+        **extra,
+    )
+
+
+def test_condition_can_follow_the_piles_target(client_in, user):
+    period = PlanPeriod.objects.get(user=user)
+    reserve = Pile.objects.get(user=user, name="เงินสำรอง")
+    reserve.target = Decimal(250000)
+    reserve.save()
+    client_in.post(
+        reverse("planner:plan"),
+        _condition_post(user, period, reserve, condition_use_target="on"),
+    )
+    period.refresh_from_db()
+    assert period.cond_use_target is True
+    assert period.cond_amount == Decimal(250000)  # snapshot at save time
+    # the condition follows the target when it is changed later
+    reserve.target = Decimal(300000)
+    reserve.save()
+    period.refresh_from_db()
+    assert period.to_condition().amount == Decimal(300000)
+
+
+def test_using_the_target_needs_a_pile_with_a_target(client_in, user):
+    period = PlanPeriod.objects.get(user=user)
+    reserve = Pile.objects.get(user=user, name="เงินสำรอง")
+    assert reserve.target is None
+    client_in.post(
+        reverse("planner:plan"),
+        _condition_post(user, period, reserve, condition_use_target="on"),
+    )
+    period.refresh_from_db()
+    assert period.cond_op == ""  # rejected, nothing saved
+
+
+def test_typed_amount_still_works_without_the_target(client_in, user):
+    period = PlanPeriod.objects.get(user=user)
+    reserve = Pile.objects.get(user=user, name="เงินสำรอง")
+    reserve.target = Decimal(250000)
+    reserve.save()
+    client_in.post(
+        reverse("planner:plan"),
+        _condition_post(user, period, reserve, condition_amount="999"),
+    )
+    period.refresh_from_db()
+    assert period.cond_use_target is False
+    assert period.to_condition().amount == Decimal(999)
+
+
+def test_plan_page_exposes_pile_targets_to_the_form(client_in, user):
+    reserve = Pile.objects.get(user=user, name="เงินสำรอง")
+    reserve.target = Decimal(120000)
+    reserve.save()
+    html = client_in.get(reverse("planner:plan")).content.decode()
+    assert 'id="pile-targets"' in html
+    assert f'"{reserve.pk}": "120000.00"' in html
+    assert 'name="condition_use_target"' in html

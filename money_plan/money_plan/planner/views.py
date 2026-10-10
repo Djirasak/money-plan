@@ -264,6 +264,7 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
         return ctx | {
             "periods": periods,
             "piles": piles,
+            "pile_targets": {p.pk: str(p.target) for p in piles if p.target is not None},
             "default_month": services.current_month(),
         }
 

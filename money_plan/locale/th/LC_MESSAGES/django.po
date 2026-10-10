@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 18:36+0700\n"
+"POT-Creation-Date: 2026-10-10 18:43+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -80,6 +80,9 @@ msgstr "ชื่อกองนี้มีอยู่แล้ว"
 #, python-format
 msgid "You can add at most %(max)s salaries"
 msgstr "เพิ่มเงินเดือนได้ไม่เกิน %(max)s แถว"
+
+msgid "This pile has no target. Set one on the Piles tab or enter an amount."
+msgstr "กองนี้ยังไม่ได้ตั้งเป้าหมาย ตั้งได้ที่แท็บกองเงิน หรือกรอกจำนวนเงินเอง"
 
 msgid "Choose a pile, a comparison and an amount for the condition"
 msgstr "เลือกกอง เงื่อนไข และจำนวนเงินสำหรับเงื่อนไข"
@@ -275,6 +278,9 @@ msgstr "กอง"
 
 msgid "Comparison"
 msgstr "การเปรียบเทียบ"
+
+msgid "Use the target of this pile"
+msgstr "ใช้เป้าหมายของกองนี้"
 
 msgid "Checked at the start of each month. If the condition is not met, the next older plan is used."
 msgstr "ตรวจทุกต้นเดือน ถ้าไม่ตรงเงื่อนไข จะใช้แผนที่เก่ากว่าถัดไปแทน"

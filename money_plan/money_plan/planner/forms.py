@@ -153,6 +153,7 @@ class PlanConditionForm(forms.Form):
     condition_mode = forms.ChoiceField(choices=[("", ""), ("on", "on")], required=False)
     condition_pile = forms.ModelChoiceField(queryset=Pile.objects.none(), required=False)
     condition_op = forms.ChoiceField(choices=PlanPeriod.OP_CHOICES, required=False)
+    condition_use_target = forms.BooleanField(required=False)
     condition_amount = forms.DecimalField(
         min_value=0,
         max_digits=14,
@@ -167,16 +168,26 @@ class PlanConditionForm(forms.Form):
     def clean(self):
         data = super().clean()
         if data.get("condition_mode") != "on":
-            return {"cond_pile": None, "cond_op": "", "cond_amount": None}
-        if not (
-            data.get("condition_pile")
-            and data.get("condition_op")
-            and data.get("condition_amount") is not None
-        ):
+            return {
+                "cond_pile": None,
+                "cond_op": "",
+                "cond_amount": None,
+                "cond_use_target": False,
+            }
+        pile = data.get("condition_pile")
+        use_target = bool(data.get("condition_use_target"))
+        amount = data.get("condition_amount")
+        if use_target:
+            if pile is not None and pile.target is None:
+                msg = _("This pile has no target. Set one on the Piles tab or enter an amount.")
+                raise forms.ValidationError(msg)
+            amount = pile.target if pile else None
+        if not (pile and data.get("condition_op") and amount is not None):
             msg = _("Choose a pile, a comparison and an amount for the condition")
             raise forms.ValidationError(msg)
         return {
-            "cond_pile": data["condition_pile"],
+            "cond_pile": pile,
             "cond_op": data["condition_op"],
-            "cond_amount": data["condition_amount"],
+            "cond_amount": amount,
+            "cond_use_target": use_target,
         }
