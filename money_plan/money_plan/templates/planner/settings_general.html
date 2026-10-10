@@ -22,14 +22,19 @@
     </footer>
   </form>
 
-  <section class="mt-6 flex flex-col gap-2" aria-labelledby="salary-heading">
-    <div class="px-1">
-      <h2 class="text-sm font-medium" id="salary-heading">{% trans "Salary" %}</h2>
-      <p class="text-xs text-muted-foreground">{% trans "The latest row not after a month applies to it · add one when your salary changes" %}</p>
-    </div>
-    <ul class="flex flex-col gap-2">
+  <section class="card mt-6" data-size="sm" aria-labelledby="salary-heading">
+    <header class="flex items-start justify-between gap-3 px-4">
+      <div class="min-w-0">
+        <h2 class="text-sm font-medium" id="salary-heading">{% trans "Salary" %}</h2>
+        <p class="text-xs text-muted-foreground">{% trans "The latest row not after a month applies to it · add one when your salary changes" %}</p>
+      </div>
+      <button type="button" class="btn shrink-0" data-size="icon-sm" data-open-dialog="salary-new" aria-label="{% trans 'Add salary' %}" title="{% trans 'Add salary' %}">
+        {% icon "plus" "size-4" %}
+      </button>
+    </header>
+    <ul class="flex flex-col gap-2 px-4">
       {% for s in salaries %}
-        <li class="item" data-variant="outline">
+        <li class="item" data-variant="muted">
           <section>
             <h3 class="text-base font-semibold">{{ s.amount|baht }}</h3>
             <p>{% blocktrans with m=s.effective_month|month_label %}From {{ m }}{% endblocktrans %}</p>
@@ -47,11 +52,6 @@
           </aside>
         </li>
       {% endfor %}
-      <li>
-        <button type="button" class="btn w-full border-dashed" data-variant="outline" data-open-dialog="salary-new">
-          {% icon "plus" "size-4" %}{% trans "Add salary" %}
-        </button>
-      </li>
     </ul>
   </section>
   {% for d in salary_dialogs %}{% include "planner/_salary_dialog.html" %}{% endfor %}
