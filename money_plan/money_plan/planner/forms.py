@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from .models import LogEntry
@@ -11,6 +12,11 @@ from .models import month_validator
 FIELD = {"class": "field"}
 
 
+def example(value: str):
+    """Placeholder that reads as an example ("e.g. 60"), never like a typed value."""
+    return format_lazy("{} {}", _("e.g."), value)
+
+
 class LogEntryForm(forms.ModelForm):
     class Meta:
         model = LogEntry
@@ -21,7 +27,7 @@ class LogEntryForm(forms.ModelForm):
             "from_pile": forms.Select(attrs=FIELD),
             "to_pile": forms.Select(attrs=FIELD),
             "amount": forms.NumberInput(
-                attrs=FIELD | {"inputmode": "decimal", "step": "0.01", "placeholder": "0"},
+                attrs=FIELD | {"inputmode": "decimal", "step": "0.01", "placeholder": example("120")},
             ),
             "note": forms.TextInput(attrs=FIELD),
         }
@@ -85,9 +91,9 @@ class PileForm(forms.ModelForm):
             "mode": forms.Select(attrs=FIELD),
             "cap": forms.NumberInput(attrs=FIELD | {"placeholder": _("Unlimited")}),
             "overflow_to": forms.Select(attrs=FIELD),
-            "target": forms.NumberInput(attrs=FIELD | {"placeholder": "0"}),
-            "target_percent": forms.NumberInput(attrs=FIELD | {"placeholder": "60", "step": "0.01"}),
-            "target_months": forms.NumberInput(attrs=FIELD | {"placeholder": "6", "min": "1", "max": "120"}),
+            "target": forms.NumberInput(attrs=FIELD | {"placeholder": example("100000")}),
+            "target_percent": forms.NumberInput(attrs=FIELD | {"placeholder": example("60"), "step": "0.01"}),
+            "target_months": forms.NumberInput(attrs=FIELD | {"placeholder": example("6"), "min": "1", "max": "120"}),
             "order": forms.NumberInput(attrs=FIELD),
         }
         labels = {

@@ -79,3 +79,27 @@ def test_ui_does_not_hardcode_light_only_colours():
         if found:
             offenders[str(path.relative_to(ROOT))] = found
     assert not offenders, offenders
+
+
+def test_messages_are_toasts_with_the_right_roles(client_in, user):
+    from money_plan.planner.models import Pile
+
+    pile = Pile.objects.get(user=user, name="เงินสำรอง")
+    prefix = f"p{pile.pk}"
+    bad = {"action": "save", "id": pile.pk, f"{prefix}-name": pile.name, f"{prefix}-color": "#10b981",
+           f"{prefix}-kind": "fund", f"{prefix}-mode": "rollover", f"{prefix}-order": 3,
+           f"{prefix}-target_mode": "salary"}  # percent and months missing
+    html = client_in.post(reverse("planner:piles"), bad, follow=True).content.decode()
+    assert 'role="alert"' in html  # errors are announced assertively
+    assert "กรอกเปอร์เซ็นต์ของเงินเดือน" in html
+    toast = html[html.index('aria-label="การแจ้งเตือน"') :]
+    assert "fixed inset-x-0 bottom-24" in html and "กรอกจำนวนเดือน" in toast
+    assert 'class="mb-3 space-y-2"' not in html  # the old inline banner is gone
+    ok = client_in.post(reverse("planner:log_delete", args=[999999]), follow=True)
+    assert ok.status_code == 404
+
+
+def test_placeholders_read_as_examples_not_values(client_in):
+    html = client_in.get(reverse("planner:piles")).content.decode()
+    assert 'placeholder="เช่น 60"' in html
+    assert 'placeholder="60"' not in html and 'placeholder="6"' not in html

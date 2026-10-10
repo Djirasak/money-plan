@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 18:54+0700\n"
+"POT-Creation-Date: 2026-10-10 19:04+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -13,6 +13,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "e.g."
+msgstr "เช่น"
 
 msgid "Date"
 msgstr "วันที่"
@@ -270,6 +273,12 @@ msgstr "ไม่พบผลลัพธ์"
 
 msgid "No choices to choose from"
 msgstr "ไม่มีตัวเลือก"
+
+msgid "Notifications"
+msgstr "การแจ้งเตือน"
+
+msgid "Dismiss"
+msgstr "ปิด"
 
 msgid "Loading..."
 msgstr "กำลังโหลด..."

@@ -1,4 +1,4 @@
-{% load static i18n %}<!DOCTYPE html>
+{% load static i18n planner_tags %}<!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{ LANGUAGE_CODE }}">
   <head>
@@ -43,15 +43,6 @@
         data-no-choices="{% trans 'No choices to choose from' %}">
     {% block body %}
       <div class="mx-auto min-h-screen w-full max-w-md px-4 pb-32 pt-6">
-        {% if messages %}
-          <div class="mb-3 space-y-2">
-            {% for message in messages %}
-              <div class="rounded-2xl px-4 py-3 text-sm font-medium {% if message.tags == 'error' %}bg-danger-soft text-danger{% elif message.tags == 'success' %}bg-success-soft text-success{% else %}bg-brand-tint text-brand-fg{% endif %}">
-                {{ message }}
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
         {% block main %}
           {% block content %}
           {% endblock content %}
@@ -60,6 +51,25 @@
     {% endblock body %}
     {% block modal %}
     {% endblock modal %}
+    {# Messages are toasts at the bottom, above the floating nav; they dismiss themselves. #}
+    {% if messages %}
+      <div class="pointer-events-none fixed inset-x-0 bottom-24 z-40 mx-auto flex w-full max-w-md flex-col gap-2 px-4"
+           role="region" aria-label="{% trans 'Notifications' %}">
+        {% for message in messages %}
+          <div x-data="{ open: true }"
+               x-init="setTimeout(() => open = false, {% if message.tags == 'error' %}9000{% else %}5000{% endif %})"
+               x-show="open" x-transition.opacity.duration.200ms
+               role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}"
+               class="pointer-events-auto flex items-start gap-3 rounded-2xl px-4 py-3 text-sm font-medium shadow-lg ring-1 {% if message.tags == 'error' %}bg-danger-soft text-danger ring-danger/25{% elif message.tags == 'success' %}bg-success-soft text-success ring-success/25{% else %}bg-brand-tint text-brand-fg ring-brand-fg/25{% endif %}">
+            {% if message.tags == 'error' %}{% icon "circle-alert" "mt-0.5 size-5 shrink-0" %}{% elif message.tags == 'success' %}{% icon "circle-check" "mt-0.5 size-5 shrink-0" %}{% else %}{% icon "info" "mt-0.5 size-5 shrink-0" %}{% endif %}
+            <p class="min-w-0 flex-1 leading-snug">{{ message }}</p>
+            <button type="button" @click="open = false" aria-label="{% trans 'Dismiss' %}" class="-m-2 grid size-10 shrink-0 place-items-center rounded-full hover:opacity-70">
+              {% icon "x" "size-5" %}
+            </button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
     {# Grey screen + spinner while a toggle round-trips to the server, so the page never feels frozen. #}
     <div id="busy-overlay" hidden role="status" aria-live="polite"
          class="fixed inset-0 z-50 grid place-items-center bg-slate-900/45 backdrop-blur-[2px]">
