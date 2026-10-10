@@ -50,6 +50,16 @@ class PlannerMixin(LoginRequiredMixin):
         return ctx
 
 
+def month_from_post(data, name: str) -> str:
+    """'YYYY-MM' from ``name`` or, for the month picker, ``name_year`` + ``name_month``."""
+    if data.get(name):
+        return data[name]
+    year, month = data.get(f"{name}_year", ""), data.get(f"{name}_month", "")
+    if year.isdigit() and month.isdigit():
+        return f"{int(year):04d}-{int(month):02d}"
+    return ""
+
+
 class ActionPostMixin:
     """POST dispatches on the ``action`` field to a ``do_<action>`` method."""
 

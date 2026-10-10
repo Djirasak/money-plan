@@ -20,6 +20,7 @@ from .forms import PlanPeriodForm
 from .forms import SalaryForm
 from .mixins import ActionPostMixin
 from .mixins import PlannerMixin
+from .mixins import month_from_post
 from .models import LogEntry
 from .models import PlanItem
 from .models import PlanPeriod
@@ -160,13 +161,16 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         return ctx | {
             "cfg": self.cfg,
+            "salary_percent": (self.cfg.salary_multiplier * 100).normalize(),
             "salaries": Salary.objects.filter(user=self.request.user),
             "salary_months": services.month_window(self.cfg.start_month),
             "default_month": services.current_month(),
         }
 
     def do_salary_add(self, request):
-        form = SalaryForm(request.POST, user=request.user)
+        data = request.POST.copy()
+        data["effective_month"] = month_from_post(request.POST, "effective_month")
+        form = SalaryForm(data, user=request.user)
         if not form.is_valid():
             _errors(request, form)
             return
@@ -183,10 +187,12 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
     def do_general(self, request):
         cfg = self.cfg
         try:
-            multiplier = Decimal(request.POST.get("salary_multiplier", "1"))
-            if multiplier <= 0:
+            # the form asks for a percentage (100 = whole salary); we store a multiplier
+            percent = Decimal(request.POST.get("salary_percent", "100"))
+            multiplier = percent / 100
+            if not 0 < multiplier <= 1:
                 raise InvalidOperation  # noqa: TRY301
-            cfg.start_month = request.POST.get("start_month", "")
+            cfg.start_month = month_from_post(request.POST, "start_month")
             cfg.salary_multiplier = multiplier
             cfg.full_clean()
             cfg.save()
@@ -262,7 +268,9 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
         return get_object_or_404(PlanPeriod, pk=request.POST.get("id"), user=request.user)
 
     def do_add(self, request):
-        form = PlanPeriodForm(request.POST, user=request.user)
+        data = request.POST.copy()
+        data["effective_month"] = month_from_post(request.POST, "effective_month")
+        form = PlanPeriodForm(data, user=request.user)
         if not form.is_valid():
             _errors(request, form)
             return

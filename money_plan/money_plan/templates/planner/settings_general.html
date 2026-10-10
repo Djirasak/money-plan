@@ -6,16 +6,16 @@
   {% include "planner/_settings_tabs.html" %}
   <form method="post" class="card space-y-4">
     {% csrf_token %}<input type="hidden" name="action" value="general" />
-    <h2 class="text-lg font-bold">{% trans "Start month" %}</h2>
+    <h2 class="text-lg font-bold">{% trans "Your plan" %}</h2>
+    {% trans "Plan starts from" as start_label %}
+    {% month_picker "start_month" cfg.start_month "start_month" start_label %}
+    <p class="-mt-2 text-sm text-muted">{% trans "The first month you can look at. You can plan up to 3 years ahead of today." %}</p>
     <div>
-      <label class="label" for="start_month">{% trans "First month of the table (covers 3 years ahead), format YYYY-MM" %}</label>
-      <input class="field" id="start_month" name="start_month" value="{{ cfg.start_month }}" pattern="\d{4}-(0[1-9]|1[0-2])" required />
+      <label class="label" for="salary_percent">{% trans "Part of your salary to plan with (%)" %}</label>
+      <input class="field" id="salary_percent" name="salary_percent" inputmode="decimal" value="{{ salary_percent|floatformat:"-2" }}" required />
+      <p class="mt-1 text-sm text-muted">{% trans "100 uses your whole salary. Enter 60 to plan with only 60% of it; the rest stays outside the plan." %}</p>
     </div>
-    <div>
-      <label class="label" for="salary_multiplier">{% trans "Salary multiplier (1 = 100%, 0.6 = 60%)" %}</label>
-      <input class="field" id="salary_multiplier" name="salary_multiplier" inputmode="decimal" value="{{ cfg.salary_multiplier|floatformat:"-4" }}" required />
-    </div>
-    {% include "planner/_actions.html" with save_label=_("Save start month") %}
+    {% include "planner/_actions.html" with save_label=_("Save plan settings") %}
   </form>
 
   <section class="card mt-4 space-y-4">

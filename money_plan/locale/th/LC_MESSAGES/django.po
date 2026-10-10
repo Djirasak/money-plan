@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 17:39+0700\n"
+"POT-Creation-Date: 2026-10-10 18:18+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -249,6 +249,12 @@ msgstr "เพิ่มใหม่"
 msgid "Save"
 msgstr "บันทึก"
 
+msgid "Month"
+msgstr "เดือน"
+
+msgid "Year"
+msgstr "ปี"
+
 msgid "General"
 msgstr "ทั่วไป"
 
@@ -322,9 +328,6 @@ msgstr "ออกจากระบบ"
 msgid "Previous month"
 msgstr "เดือนก่อนหน้า"
 
-msgid "Month"
-msgstr "เดือน"
-
 msgid "Next month"
 msgstr "เดือนถัดไป"
 
@@ -368,18 +371,25 @@ msgstr "ลบรายการนี้?"
 msgid "No entries this month yet"
 msgstr "ยังไม่มีรายการในเดือนนี้"
 
-msgid "Start month"
-msgstr "เดือนเริ่มระบบ"
+msgid "Your plan"
+msgstr "แผนของคุณ"
 
-msgid "First month of the table (covers 3 years ahead), format YYYY-MM"
-msgstr "เดือนแรกของตาราง (วางแผนล่วงหน้าได้ 3 ปี) รูปแบบ YYYY-MM"
+msgid "Plan starts from"
+msgstr "เริ่มวางแผนตั้งแต่"
+
+msgid "The first month you can look at. You can plan up to 3 years ahead of today."
+msgstr "เดือนแรกที่ดูได้ วางแผนล่วงหน้าได้ 3 ปีนับจากวันนี้"
 
 #, python-format
-msgid "Salary multiplier (1 = 100%%, 0.6 = 60%%)"
-msgstr "ตัวคูณเงินเดือน (1 = 100%%, 0.6 = 60%%)"
+msgid "Part of your salary to plan with (%%)"
+msgstr "สัดส่วนเงินเดือนที่ใช้วางแผน (%%)"
 
-msgid "Save start month"
-msgstr "บันทึกเดือนเริ่มระบบ"
+#, python-format
+msgid "100 uses your whole salary. Enter 60 to plan with only 60%% of it; the rest stays outside the plan."
+msgstr "100 = ใช้เงินเดือนเต็มจำนวน ใส่ 60 หากต้องการวางแผนจากเงินเดือนแค่ 60%% ส่วนที่เหลือไม่นับในแผน"
+
+msgid "Save plan settings"
+msgstr "บันทึกการตั้งค่าแผน"
 
 msgid "The latest row not after a month applies to it · add one when your salary changes"
 msgstr "ใช้แถวล่าสุดที่เดือนไม่เกินเดือนนั้น · เพิ่มเมื่อเงินเดือนเปลี่ยน"
@@ -458,8 +468,8 @@ msgstr "บันทึกแผน"
 msgid "+ Add a new plan"
 msgstr "+ เพิ่มแผนใหม่"
 
-msgid "Start month (YYYY-MM)"
-msgstr "เริ่มเดือน (YYYY-MM)"
+msgid "Start month"
+msgstr "เดือนเริ่มระบบ"
 
 msgid "Values are copied from the previous plan; adjust as needed."
 msgstr "คัดลอกค่าจากแผนก่อนหน้าให้ แล้วปรับแก้ได้"
@@ -493,3 +503,6 @@ msgstr "ชื่อผู้ใช้"
 
 msgid "Information successfully updated"
 msgstr "อัปเดตข้อมูลเรียบร้อยแล้ว"
+
+
+#, python-format

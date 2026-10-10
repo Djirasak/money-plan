@@ -6,6 +6,7 @@ from django import template
 from django.utils.dates import MONTHS
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from django.utils.translation import get_language
 
 register = template.Library()
@@ -65,3 +66,23 @@ def icon(name: str, css_class: str = "size-5") -> str:
         1,
     )
     return mark_safe(svg)  # noqa: S308 - files we ship, class is escaped
+
+
+@register.inclusion_tag("planner/_month_picker.html")
+def month_picker(name: str, value: str, field_id: str, label: str) -> dict:
+    """Month + year dropdowns that post ``<name>_month`` / ``<name>_year`` (C.E. values).
+
+    The Thai UI shows years as B.E., but the submitted value is always C.E.
+    """
+    today = timezone.localdate().year
+    year, month = (int(part) for part in (value or f"{today}-01").split("-"))
+    years = range(min(today - 5, year), max(today + 5, year) + 1)
+    return {
+        "name": name,
+        "field_id": field_id,
+        "label": label,
+        "months": [(n, MONTHS[n]) for n in range(1, 13)],
+        "years": [(y, display_year(y)) for y in years],
+        "sel_month": month,
+        "sel_year": year,
+    }

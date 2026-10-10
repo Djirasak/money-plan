@@ -29,8 +29,9 @@
       {% csrf_token %}<input type="hidden" name="action" value="add" />
       <h2 class="text-lg font-bold">{% trans "+ Add a new plan" %}</h2>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="label" for="new_period_month">{% trans "Start month (YYYY-MM)" %}</label><input class="field" id="new_period_month" name="effective_month" value="{{ default_month }}" pattern="\d{4}-(0[1-9]|1[0-2])" required /></div>
-        <div><label class="label" for="new_period_name">{% trans "Plan name" %}</label><input class="field" id="new_period_name" name="name" /></div>
+        {% trans "Start month" as start_label %}
+        <div class="col-span-2">{% month_picker "effective_month" default_month "new_period_month" start_label %}</div>
+        <div class="col-span-2"><label class="label" for="new_period_name">{% trans "Plan name" %}</label><input class="field" id="new_period_name" name="name" /></div>
       </div>
       <p class="text-sm text-muted">{% trans "Values are copied from the previous plan; adjust as needed." %}</p>
       {% include "planner/_actions.html" with save_label=_("Add plan") %}

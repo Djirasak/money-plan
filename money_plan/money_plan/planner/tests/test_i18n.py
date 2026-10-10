@@ -93,3 +93,13 @@ def test_stored_months_stay_gregorian_whatever_the_display_language(client_in, u
     html = client_in.get(reverse("planner:summary"), {"m": start}).content.decode()
     assert f"{year + 543}" not in html
     assert f"{year}" in html
+
+
+def test_month_picker_shows_buddhist_years_in_thai_but_posts_gregorian(client_in, user):
+    year = int(user.planner_settings.start_month[:4])
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    assert f'<option value="{year}" selected>{year + 543}</option>' in html
+    assert "ตุลาคม" in html  # full month names
+    client_in.post(reverse("set_language"), {"language": "en", "next": "/settings/"})
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    assert f'<option value="{year}" selected>{year}</option>' in html

@@ -170,3 +170,66 @@ def test_summary_content_requires_login(client):
     resp = client.get(reverse("planner:summary_content"))
     assert resp.status_code == 302
     assert "login" in resp.url
+
+
+def test_general_settings_use_month_picker_and_percent(client_in, user):
+    resp = client_in.post(
+        reverse("planner:settings"),
+        {
+            "action": "general",
+            "start_month_year": "2027",
+            "start_month_month": "2",
+            "salary_percent": "60",
+        },
+    )
+    assert resp.status_code == 302
+    cfg = user.planner_settings
+    cfg.refresh_from_db()
+    assert cfg.start_month == "2027-02"
+    assert cfg.salary_multiplier == Decimal("0.6")
+
+
+def test_general_settings_reject_percent_over_100(client_in, user):
+    before = user.planner_settings.salary_multiplier
+    client_in.post(
+        reverse("planner:settings"),
+        {
+            "action": "general",
+            "start_month_year": "2027",
+            "start_month_month": "2",
+            "salary_percent": "150",
+        },
+    )
+    user.planner_settings.refresh_from_db()
+    assert user.planner_settings.salary_multiplier == before
+
+
+def test_settings_page_shows_percent_and_month_picker(client_in):
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    assert 'name="start_month_month"' in html
+    assert 'name="start_month_year"' in html
+    assert 'name="salary_percent"' in html
+    assert 'value="100"' in html  # multiplier 1 is shown as 100 %
+    assert "salary_multiplier" not in html
+
+
+def test_plan_can_be_added_from_month_picker(client_in, user):
+    client_in.post(
+        reverse("planner:plan"),
+        {
+            "action": "add",
+            "effective_month_year": "2027",
+            "effective_month_month": "8",
+            "name": "Picker",
+        },
+    )
+    assert PlanPeriod.objects.filter(user=user, effective_month="2027-08").exists()
+
+
+def test_month_from_post_helper():
+    from money_plan.planner.mixins import month_from_post
+
+    assert month_from_post({"m": "2027-05"}, "m") == "2027-05"
+    assert month_from_post({"m_year": "2027", "m_month": "5"}, "m") == "2027-05"
+    assert month_from_post({"m_year": "x", "m_month": "5"}, "m") == ""
+    assert month_from_post({}, "m") == ""
