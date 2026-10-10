@@ -75,7 +75,8 @@ class PileForm(forms.ModelForm):
     class Meta:
         model = Pile
         fields = [
-            "name", "color", "kind", "mode", "cap", "overflow_to", "target", "order",
+            "name", "color", "kind", "mode", "cap", "overflow_to",
+            "target", "target_percent", "target_months", "order",
         ]  # fmt: skip
         widgets = {
             "name": forms.TextInput(attrs=FIELD),
@@ -84,7 +85,9 @@ class PileForm(forms.ModelForm):
             "mode": forms.Select(attrs=FIELD),
             "cap": forms.NumberInput(attrs=FIELD | {"placeholder": _("Unlimited")}),
             "overflow_to": forms.Select(attrs=FIELD),
-            "target": forms.NumberInput(attrs=FIELD | {"placeholder": _("None")}),
+            "target": forms.NumberInput(attrs=FIELD | {"placeholder": "0"}),
+            "target_percent": forms.NumberInput(attrs=FIELD | {"placeholder": "60", "step": "0.01"}),
+            "target_months": forms.NumberInput(attrs=FIELD | {"placeholder": "6", "min": "1", "max": "120"}),
             "order": forms.NumberInput(attrs=FIELD),
         }
         labels = {
@@ -94,9 +97,22 @@ class PileForm(forms.ModelForm):
             "mode": _("Leftover mode"),
             "cap": _("Rollover cap (empty = unlimited)"),
             "overflow_to": _("Overflow pile"),
-            "target": _("Target (savings fund)"),
+            "target": _("Target amount (THB)"),
+            "target_percent": _("Share of salary (%)"),
+            "target_months": _("Months of salary"),
             "order": _("Order"),
         }
+
+    TARGET_MODES = [
+        ("none", _("No target")),
+        ("fixed", _("A fixed amount")),
+        ("salary", _("A share of my salary x months")),
+    ]
+    target_mode = forms.ChoiceField(
+        choices=TARGET_MODES,
+        label=_("Target"),
+        widget=forms.Select(attrs=FIELD),
+    )
 
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
@@ -106,6 +122,33 @@ class PileForm(forms.ModelForm):
             qs = qs.exclude(pk=self.instance.pk)
         self.fields["overflow_to"].queryset = qs
         self.fields["overflow_to"].empty_label = "—"
+        for name in ("target", "target_percent", "target_months"):
+            self.fields[name].required = False
+        pile = self.instance
+        self.fields["target_mode"].initial = (
+            "salary" if pile.has_salary_target else "fixed" if pile.target is not None else "none"
+        )
+        self.order_fields([
+            "name", "color", "kind", "mode", "cap", "overflow_to",
+            "target_mode", "target", "target_percent", "target_months", "order",
+        ])  # fmt: skip
+
+    def clean(self):
+        data = super().clean()
+        mode = data.get("target_mode")
+        if mode == "fixed":
+            if data.get("target") is None:
+                self.add_error("target", _("Enter the target amount"))
+            data["target_percent"] = data["target_months"] = None
+        elif mode == "salary":
+            if data.get("target_percent") is None:
+                self.add_error("target_percent", _("Enter a percentage of your salary"))
+            if not data.get("target_months"):
+                self.add_error("target_months", _("Enter the number of months"))
+            data["target"] = None
+        else:
+            data["target"] = data["target_percent"] = data["target_months"] = None
+        return data
 
     def clean_name(self):
         name = self.cleaned_data["name"].strip()
@@ -178,11 +221,11 @@ class PlanConditionForm(forms.Form):
         use_target = bool(data.get("condition_use_target"))
         amount = data.get("condition_amount")
         if use_target:
-            if pile is not None and pile.target is None:
+            if pile is not None and not pile.has_target:
                 msg = _("This pile has no target. Set one on the Piles tab or enter an amount.")
                 raise forms.ValidationError(msg)
             amount = pile.target if pile else None
-        if not (pile and data.get("condition_op") and amount is not None):
+        if not (pile and data.get("condition_op") and (use_target or amount is not None)):
             msg = _("Choose a pile, a comparison and an amount for the condition")
             raise forms.ValidationError(msg)
         return {

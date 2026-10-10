@@ -33,7 +33,7 @@
                 <div class="h-full rounded-full" style="width:{{ prog }}%;background:{{ p.color }}"></div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2 text-sm">
-                <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-muted">{% blocktrans %}Target · {{ prog }}{% endblocktrans %}%</p><p class="mt-1 font-bold">{% if p.target %}{{ p.target|baht }}{% else %}—{% endif %}</p></div>
+                <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-muted">{% blocktrans %}Target · {{ prog }}{% endblocktrans %}%</p><p class="mt-1 font-bold">{% if pm.target is not None %}{{ pm.target|baht }}{% else %}—{% endif %}</p></div>
                 <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-muted">{% trans "In this month" %}</p><p class="mt-1 font-bold">{{ c.incoming|baht }}</p></div>
                 <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-muted">{% trans "Remaining" %}</p><p class="mt-1 font-bold">{% if c.remaining is not None %}{{ c.remaining|baht }}{% else %}—{% endif %}</p></div>
               </div>

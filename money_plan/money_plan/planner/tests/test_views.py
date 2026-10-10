@@ -71,8 +71,9 @@ def test_cannot_touch_other_users_entries(client_in, django_user_model):
 def test_add_pile_and_plan_period_copies_previous(client_in, user):
     client_in.post(
         reverse("planner:piles"),
-        {"action": "save", "name": "ท่องเที่ยว", "color": "#ff0000", "kind": "fund",
-         "mode": "rollover", "order": 9},
+        {"action": "save", "new-name": "ท่องเที่ยว", "new-color": "#ff0000",
+         "new-kind": "fund", "new-mode": "rollover", "new-order": 9,
+         "new-target_mode": "none"},
     )
     assert Pile.objects.filter(user=user, name="ท่องเที่ยว").exists()
     client_in.post(
@@ -379,7 +380,8 @@ def test_condition_can_follow_the_piles_target(client_in, user):
     reserve.target = Decimal(300000)
     reserve.save()
     period.refresh_from_db()
-    assert period.to_condition().amount == Decimal(300000)
+    condition = period.to_condition()
+    assert condition.use_target is True  # resolved against the pile's goal each month
 
 
 def test_using_the_target_needs_a_pile_with_a_target(client_in, user):
@@ -414,5 +416,5 @@ def test_plan_page_exposes_pile_targets_to_the_form(client_in, user):
     reserve.save()
     html = client_in.get(reverse("planner:plan")).content.decode()
     assert 'id="pile-targets"' in html
-    assert f'"{reserve.pk}": "120000.00"' in html
+    assert f'"{reserve.pk}": "\\u0e3f120,000"' in html  # json_script escapes non-ASCII
     assert 'name="condition_use_target"' in html

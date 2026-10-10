@@ -29,7 +29,16 @@ class Pile:
     mode: str = ROLLOVER  # SWEEP | ROLLOVER (budget piles only)
     cap: Decimal | None = None  # rollover cap, None = unlimited
     overflow_to: str | None = None
-    target: Decimal | None = None  # goal of a fund pile
+    target: Decimal | None = None  # fixed goal in baht
+    # ...or a goal that follows the salary: salary * percent% * months
+    target_percent: Decimal | None = None
+    target_months: int | None = None
+
+    def target_for(self, salary: Decimal) -> Decimal | None:
+        """This pile's goal for a month whose (entered) salary is ``salary``."""
+        if self.target_percent is not None and self.target_months:
+            return salary * self.target_percent / 100 * self.target_months
+        return self.target
 
 
 @dataclass(frozen=True)
@@ -49,11 +58,21 @@ class Condition:
 
     pile: str
     op: str  # GTE | LT
-    amount: Decimal
+    amount: Decimal = ZERO
+    use_target: bool = False  # compare with the pile's own goal for that month instead
 
-    def holds(self, balances: dict[str, Decimal]) -> bool:
+    def holds(
+        self,
+        balances: dict[str, Decimal],
+        targets: dict[str, Decimal | None] | None = None,
+    ) -> bool:
         value = balances.get(self.pile, ZERO)
-        return value >= self.amount if self.op == GTE else value < self.amount
+        amount = self.amount
+        if self.use_target:
+            goal = (targets or {}).get(self.pile)
+            if goal is not None:
+                amount = goal
+        return value >= amount if self.op == GTE else value < amount
 
 
 @dataclass(frozen=True)
@@ -94,6 +113,7 @@ class PileMonth:
     carry_out: Decimal = ZERO
     overflow: Decimal = ZERO
     overflow_to: str | None = None
+    target: Decimal | None = None  # this pile's goal for the month, if it has one
 
     @property
     def used_pct(self) -> Decimal:
@@ -127,6 +147,7 @@ def plan_for(
     month: str,
     plan: Iterable[PlanRow],
     balances: dict[str, Decimal] | None = None,
+    targets: dict[str, Decimal | None] | None = None,
 ) -> PlanRow | None:
     """The plan that applies in ``month``.
 
@@ -141,7 +162,10 @@ def plan_for(
         if p.effective_month <= month
     ]
     for _, _, candidate in sorted(started, key=lambda t: (t[0], t[1]), reverse=True):
-        if candidate.condition is None or candidate.condition.holds(balances or {}):
+        if candidate.condition is None or candidate.condition.holds(
+            balances or {},
+            targets,
+        ):
             return candidate
     return None
 
@@ -178,12 +202,18 @@ def compute(
     month = start_month
     while month <= end_month:
         salary = salary_for(month, salaries) * salary_multiplier
-        row_plan = plan_for(month, plan, carry) or PlanRow(month)
+        raw_salary = salary_for(month, salaries)
+        targets = {p.name: p.target_for(raw_salary) for p in piles}
+        row_plan = plan_for(month, plan, carry, targets) or PlanRow(month)
         row = Month(month=month, salary=salary, plan_key=row_plan.key)
         incoming = {n: ZERO for n in names}
 
         for pile in piles:
-            pm = PileMonth(name=pile.name, carry_in=carry[pile.name])
+            pm = PileMonth(
+                name=pile.name,
+                carry_in=carry[pile.name],
+                target=targets[pile.name],
+            )
             pm.allocation = salary * row_plan.shares.get(pile.name, ZERO)
             for e in by_month.get(month, []):
                 if e.to_pile == pile.name:

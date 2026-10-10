@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 18:43+0700\n"
+"POT-Creation-Date: 2026-10-10 18:54+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -50,9 +50,6 @@ msgstr "กองต้นทางและปลายทางต้องไ
 msgid "Unlimited"
 msgstr "ไม่จำกัด"
 
-msgid "None"
-msgstr "ไม่มี"
-
 msgid "Pile name"
 msgstr "ชื่อกอง"
 
@@ -68,11 +65,38 @@ msgstr "เพดานทบ (ว่าง = ไม่จำกัด)"
 msgid "Overflow pile"
 msgstr "กองที่ล้นไป"
 
-msgid "Target (savings fund)"
-msgstr "เป้าหมาย (กองสะสม)"
+msgid "Target amount (THB)"
+msgstr "จำนวนเป้าหมาย (บาท)"
+
+msgid "Share of salary (%)"
+msgstr "สัดส่วนของเงินเดือน (%)"
+
+msgid "Months of salary"
+msgstr "จำนวนเดือน"
 
 msgid "Order"
 msgstr "ลำดับ"
+
+msgid "No target"
+msgstr "ไม่มีเป้าหมาย"
+
+msgid "A fixed amount"
+msgstr "จำนวนเงินคงที่"
+
+msgid "A share of my salary x months"
+msgstr "สัดส่วนของเงินเดือน × จำนวนเดือน"
+
+msgid "Target"
+msgstr "เป้าหมาย"
+
+msgid "Enter the target amount"
+msgstr "กรอกจำนวนเงินเป้าหมาย"
+
+msgid "Enter a percentage of your salary"
+msgstr "กรอกเปอร์เซ็นต์ของเงินเดือน"
+
+msgid "Enter the number of months"
+msgstr "กรอกจำนวนเดือน"
 
 msgid "A pile with this name already exists"
 msgstr "ชื่อกองนี้มีอยู่แล้ว"
@@ -123,9 +147,6 @@ msgstr "ทบได้"
 msgid "Rollover cap"
 msgstr "เพดานทบ"
 
-msgid "Target"
-msgstr "เป้าหมาย"
-
 msgid "has at least"
 msgstr "มีอย่างน้อย"
 
@@ -155,6 +176,10 @@ msgstr "เงินใช้ฟรี"
 
 msgid "Build the reserve"
 msgstr "สะสมเงินสำรอง"
+
+#, python-format
+msgid "%(percent)s%% of salary x %(months)s months"
+msgstr "%(percent)s%% ของเงินเดือน × %(months)s เดือน"
 
 msgid "Entry saved"
 msgstr "บันทึกรายการแล้ว"
@@ -263,6 +288,10 @@ msgstr "เดือน"
 
 msgid "Year"
 msgstr "ปี"
+
+#, python-format
+msgid "The target follows your salary: it changes whenever your salary changes. Example: 60%% x 6 months = 6 months of 60%% of your salary."
+msgstr "เป้าหมายจะเปลี่ยนตามเงินเดือนของคุณ ทุกครั้งที่เงินเดือนเปลี่ยน เช่น 60%% × 6 เดือน = เงินเดือน 60%% เป็นเวลา 6 เดือน"
 
 msgid "When to use this plan"
 msgstr "เมื่อไหร่ที่ใช้แผนนี้"

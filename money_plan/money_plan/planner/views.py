@@ -14,6 +14,7 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from . import services
+from .templatetags.planner_tags import target_label
 from .forms import LogEntryForm
 from .forms import PileForm
 from .forms import PlanConditionForm
@@ -71,7 +72,7 @@ class SummaryContentView(PlannerMixin, TemplateView):
             pile = piles[name]
             card = {"pile": pile, "pm": pm}
             if pile.kind == Pile.FUND:
-                target = pile.target
+                target = pm.target  # this month's goal (follows the salary if so set)
                 card["progress"] = (
                     pm.before / target * 100 if target and target > 0 else Decimal(0)
                 )
@@ -220,7 +221,10 @@ class SettingsPilesView(ActionPostMixin, PlannerMixin, TemplateView):
         return get_object_or_404(Pile, pk=pk, user=request.user) if pk else None
 
     def do_save(self, request):
-        form = PileForm(request.POST, instance=self._pile(request), user=request.user)
+        pile = self._pile(request)
+        # same prefixes as the rendered forms: "p<pk>" for a pile, "new" for the add form
+        prefix = f"p{pile.pk}" if pile else "new"
+        form = PileForm(request.POST, instance=pile, user=request.user, prefix=prefix)
         if form.is_valid():
             form.save()
             messages.success(request, _("Pile saved"))
@@ -264,7 +268,7 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
         return ctx | {
             "periods": periods,
             "piles": piles,
-            "pile_targets": {p.pk: str(p.target) for p in piles if p.target is not None},
+            "pile_targets": {p.pk: target_label(p) for p in piles if p.has_target},
             "default_month": services.current_month(),
         }
 

@@ -208,3 +208,51 @@ def test_no_applicable_plan_means_no_allocation():
     plan = [PlanRow("2027-02", {"spend": D(1)}, key="later")]
     months = run([Pile("spend")], end="2027-02", plan=plan)
     assert months[0].plan_key == "" and months[0].piles["spend"].allocation == 0
+
+
+def test_target_follows_the_salary():
+    pile = Pile("save", kind=FUND, target_percent=D(60), target_months=6)
+    assert pile.target_for(D(48000)) == D(172800)  # 60% * 48,000 * 6
+    assert pile.target_for(D(50000)) == D(180000)
+    assert Pile("x", target=D(1000)).target_for(D(50000)) == D(1000)  # fixed stays fixed
+    assert Pile("y").target_for(D(50000)) is None
+
+
+def test_reserve_plan_returns_when_a_raise_moves_the_target():
+    """Build the reserve to 60% x salary x 6, go back to normal, and resume after a raise."""
+    save = Pile("save", kind=FUND, target_percent=D(60), target_months=1)
+    spend = Pile("spend")  # keeps its own money; only the reserve plan feeds "save"
+    reserve_plan = PlanRow(
+        "2027-01",
+        {"save": D(1)},
+        condition=Condition("save", LT, use_target=True),
+        key="reserve",
+    )
+    normal = PlanRow("2027-01", {"spend": D(1)}, key="normal")
+    salaries = [Salary("2027-01", D(10000)), Salary("2027-04", D(20000))]
+    months = run(
+        [spend, save],
+        end="2027-05",
+        salaries=salaries,
+        plan=[normal, reserve_plan],
+    )
+    # target = 60% of salary: 6,000 until March, 12,000 from April.
+    assert [m.piles["save"].target for m in months] == [D(6000)] * 3 + [D(12000)] * 2
+    # Jan: 0 < 6,000 -> reserve (+10,000). Feb/Mar: 10,000 >= 6,000 -> normal.
+    # Apr: the raise lifts the target to 12,000 > 10,000 -> reserve again (+20,000).
+    # May: 30,000 >= 12,000 -> normal.
+    assert [m.plan_key for m in months] == ["reserve", "normal", "normal", "reserve", "normal"]
+
+
+def test_use_target_without_a_target_falls_back_to_the_amount():
+    plan = [
+        PlanRow("2027-01", {"spend": D(1)}, key="base"),
+        PlanRow(
+            "2027-01",
+            {"spend": D(1)},
+            condition=Condition("spend", GTE, D(1), use_target=True),
+            key="cond",
+        ),
+    ]
+    months = run([Pile("spend")], end="2027-02", plan=plan)
+    assert [m.plan_key for m in months] == ["base", "cond"]  # amount 1 is used

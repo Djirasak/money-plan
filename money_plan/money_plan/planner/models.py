@@ -4,6 +4,8 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -84,6 +86,19 @@ class Pile(models.Model):
         null=True,
         blank=True,
     )
+    # a goal that follows the salary: salary * target_percent% * target_months
+    target_percent = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0.01"))],
+    )
+    target_months = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(120)],
+    )
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
@@ -98,6 +113,14 @@ class Pile(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    @property
+    def has_target(self) -> bool:
+        return self.target is not None or self.has_salary_target
+
+    @property
+    def has_salary_target(self) -> bool:
+        return bool(self.target_percent is not None and self.target_months)
+
     def to_engine(self) -> engine.Pile:
         return engine.Pile(
             name=self.name,
@@ -106,6 +129,8 @@ class Pile(models.Model):
             cap=self.cap,
             overflow_to=self.overflow_to.name if self.overflow_to else None,
             target=self.target,
+            target_percent=self.target_percent,
+            target_months=self.target_months,
         )
 
 
@@ -167,19 +192,24 @@ class PlanPeriod(models.Model):
         ordering = ["-effective_month", "-id"]
 
     def clean(self) -> None:
-        if self.cond_op and (self.cond_pile_id is None or self.cond_amount is None):
+        no_amount = self.cond_amount is None and not self.cond_use_target
+        if self.cond_op and (self.cond_pile_id is None or no_amount):
             msg = "A condition needs a pile and an amount"
             raise ValidationError(msg)
 
     def to_condition(self) -> engine.Condition | None:
         if not (self.cond_op and self.cond_pile_id):
             return None
+        use_target = self.cond_use_target and self.cond_pile.has_target
         amount = self.cond_amount
-        if self.cond_use_target and self.cond_pile.target is not None:
-            amount = self.cond_pile.target
-        if amount is None:
+        if amount is None and not use_target:
             return None
-        return engine.Condition(self.cond_pile.name, self.cond_op, amount)
+        return engine.Condition(
+            self.cond_pile.name,
+            self.cond_op,
+            amount if amount is not None else Decimal(0),
+            use_target=use_target,
+        )
 
 
 class PlanItem(models.Model):

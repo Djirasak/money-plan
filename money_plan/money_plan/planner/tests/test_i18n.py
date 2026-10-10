@@ -103,3 +103,17 @@ def test_month_picker_shows_buddhist_years_in_thai_but_posts_gregorian(client_in
     client_in.post(reverse("set_language"), {"language": "en", "next": "/settings/"})
     html = client_in.get(reverse("planner:settings")).content.decode()
     assert f'<option value="{year}" selected>{year}</option>' in html
+
+
+def test_target_label_reads_naturally():
+    from decimal import Decimal
+
+    from money_plan.planner.models import Pile
+    from money_plan.planner.templatetags.planner_tags import target_label
+
+    pile = Pile(target_percent=Decimal("60.00"), target_months=6)
+    with translation.override("en"):
+        assert target_label(pile) == "60% of salary x 6 months"
+    with translation.override("th"):
+        assert target_label(pile) == "60% ของเงินเดือน × 6 เดือน"
+    assert target_label(Pile(target=Decimal(120000))) == "฿120,000"

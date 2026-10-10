@@ -8,6 +8,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from django.utils.translation import get_language
+from django.utils.translation import gettext as _
 
 register = template.Library()
 
@@ -86,3 +87,14 @@ def month_picker(name: str, value: str, field_id: str, label: str) -> dict:
         "sel_month": month,
         "sel_year": year,
     }
+
+
+@register.filter
+def target_label(pile) -> str:
+    """Human description of a pile's goal, e.g. '฿150,000' or '60% of salary x 6 months'."""
+    if pile.has_salary_target:
+        return _("%(percent)s%% of salary x %(months)s months") % {
+            "percent": f"{pile.target_percent.normalize():f}",
+            "months": pile.target_months,
+        }
+    return baht(pile.target) if pile.target is not None else ""

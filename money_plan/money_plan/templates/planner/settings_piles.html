@@ -9,14 +9,14 @@
       <form method="post" class="card space-y-3">
         {% csrf_token %}<input type="hidden" name="id" value="{{ pile.pk }}" /><input type="hidden" name="action" value="save" />
         <div class="flex items-center justify-between"><div class="flex items-center gap-2 font-bold"><span class="size-3.5 rounded-full" style="background:{{ pile.color }}"></span>{{ pile.name }}</div>{% include "planner/_trash.html" with confirm_text=_("Delete this pile?") %}</div>
-        {% for f in form %}<div><label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endfor %}
+        {% for f in form %}{% if f.name == "target_mode" %}{% include "planner/_pile_target.html" %}{% elif f.name == "target" or f.name == "target_percent" or f.name == "target_months" %}{% else %}<div><label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endif %}{% endfor %}
         {% include "planner/_actions.html" with add_href="#new-pile" %}
       </form>
     {% endfor %}
     <form method="post" class="card space-y-3" id="new-pile">
       {% csrf_token %}<input type="hidden" name="action" value="save" />
       <h2 class="text-lg font-bold">{% trans "+ Add a new pile" %}</h2>
-      {% for f in new_form %}<div><label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endfor %}
+      {% for f in new_form %}{% if f.name == "target_mode" %}{% include "planner/_pile_target.html" with form=new_form %}{% elif f.name == "target" or f.name == "target_percent" or f.name == "target_months" %}{% else %}<div><label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endif %}{% endfor %}
       {% include "planner/_actions.html" with save_label=_("Add pile") %}
     </form>
   </div>
