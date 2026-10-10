@@ -37,11 +37,15 @@ NAV = [
 
 def _month_ctx(request, cfg, active: str) -> dict:
     month = _selected_month(request, cfg)
+    months = services.month_range(cfg.start_month)
+    i = months.index(month)
     return {
         "nav": NAV,
         "active": active,
         "month": month,
-        "months": services.month_range(cfg.start_month),
+        "months": months,
+        "prev_month": months[i - 1] if i > 0 else None,
+        "next_month": months[i + 1] if i < len(months) - 1 else None,
     }
 
 

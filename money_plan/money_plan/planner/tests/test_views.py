@@ -147,3 +147,13 @@ def test_salary_form_has_add_toggle_left_and_save_right(client_in):
     section = html[start:]
     assert section.index("@click=") < section.index('type="submit"')
     assert 'x-data="{ open: false }"' in html  # salary exists -> collapsed
+
+
+def test_month_bar_navigation(client_in, user):
+    start = user.planner_settings.start_month
+    html = client_in.get(reverse("planner:summary"), {"m": start}).content.decode()
+    assert "month-bar" in html
+    assert "Previous month" not in html and "เดือนก่อนหน้า" not in html  # first month
+    assert "เดือนถัดไป" in html
+    html = client_in.get(reverse("planner:summary"), {"m": "2099-01"}).content.decode()
+    assert 'aria-label="เดือนก่อนหน้า"' not in html  # unknown month -> first month

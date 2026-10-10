@@ -10,19 +10,31 @@
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-500">Money Plan</p>
       <h1 class="truncate text-2xl font-bold">{% block heading %}{% endblock heading %}</h1>
     </div>
-    {% if months %}
-      <form method="get" class="header-month shrink-0">
-        <select name="m" onchange="this.form.submit()" aria-label="{% trans "Month" %}"
-                class="rounded-2xl border-0 bg-white py-3 pl-4 pr-8 text-sm font-semibold shadow-sm" data-search="true">
-          {% for m in months %}<option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m|month_label }}</option>{% endfor %}
-        </select>
-      </form>
-    {% endif %}
     <button type="button" aria-label="{% trans "Sign out" %}" onclick="document.getElementById('logout-modal').showModal()"
             class="grid size-12 shrink-0 place-items-center rounded-full bg-white text-brand-600 shadow-sm">
       <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3M16 17l5-5-5-5M21 12H9"/></svg>
     </button>
   </header>
+  {% if months %}
+    <div class="month-bar mb-5 flex items-center gap-2">
+      {% if prev_month %}
+        <a href="?m={{ prev_month }}" aria-label="{% trans 'Previous month' %}" class="icon-btn !size-11 !rounded-full !bg-white shadow-sm">
+          <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+        </a>
+      {% else %}<span class="size-11"></span>{% endif %}
+      <form method="get" class="min-w-0 flex-1">
+        <select name="m" onchange="this.form.submit()" aria-label="{% trans 'Month' %}"
+                class="w-full rounded-2xl border-0 bg-white py-3 pl-4 pr-8 text-center text-sm font-semibold shadow-sm">
+          {% for m in months %}<option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m|month_label }}</option>{% endfor %}
+        </select>
+      </form>
+      {% if next_month %}
+        <a href="?m={{ next_month }}" aria-label="{% trans 'Next month' %}" class="icon-btn !size-11 !rounded-full !bg-white shadow-sm">
+          <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+        </a>
+      {% else %}<span class="size-11"></span>{% endif %}
+    </div>
+  {% endif %}
   {% block page %}{% endblock page %}
   <dialog id="logout-modal" class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-3xl bg-white p-6 text-ink shadow-2xl backdrop:bg-slate-900/40 backdrop:backdrop-blur-sm"
           onclick="if (event.target === this) this.close()">

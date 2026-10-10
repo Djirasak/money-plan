@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 06:35+0700\n"
+"POT-Creation-Date: 2026-10-10 06:58+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -258,11 +258,17 @@ msgstr "แผนแบ่งเงิน"
 msgid "Delete"
 msgstr "ลบ"
 
+msgid "Sign out"
+msgstr "ออกจากระบบ"
+
+msgid "Previous month"
+msgstr "เดือนก่อนหน้า"
+
 msgid "Month"
 msgstr "เดือน"
 
-msgid "Sign out"
-msgstr "ออกจากระบบ"
+msgid "Next month"
+msgstr "เดือนถัดไป"
 
 msgid "Sign out?"
 msgstr "ออกจากระบบ?"

@@ -66,3 +66,9 @@ def test_vendor_scripts_loaded_on_every_page(client_in):
     for name in ("choices", "htmx", "alpine"):
         assert f"js/vendor/{name}.min.js" in html
     assert "X-CSRFToken" in html
+
+
+def test_no_fuzzy_translations():
+    """msgmerge marks guessed translations fuzzy; Django silently ignores them."""
+    po = Path(__file__).resolve().parents[3] / "locale/th/LC_MESSAGES/django.po"
+    assert "#, fuzzy" not in po.read_text()

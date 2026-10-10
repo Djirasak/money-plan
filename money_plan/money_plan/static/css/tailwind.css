@@ -116,8 +116,16 @@
 .choices[data-type*="select-one"] .choices__inner {
   @apply pb-3;
 }
-.choices[data-type*="select-one"]::after {
-  @apply right-4 border-slate-500;
+/* Replace the CSS-triangle arrow with a clean chevron */
+.choices[data-type*="select-one"]::after,
+.choices[data-type*="select-one"].is-open::after {
+  @apply right-4 size-4 border-0;
+  margin-top: -0.5rem;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform 0.2s;
+}
+.choices[data-type*="select-one"].is-open::after {
+  transform: rotate(180deg);
 }
 .choices__list--dropdown,
 .choices__list[aria-expanded] {
@@ -139,12 +147,12 @@
 .choices[data-type*="select-one"] .choices__input {
   @apply m-2 w-[calc(100%-1rem)] rounded-xl border-0 bg-slate-100 px-3 py-2 text-base outline-none;
 }
-.header-month .choices {
-  @apply w-36;
+.month-bar .choices {
+  @apply w-full;
 }
-.header-month .choices__inner {
-  @apply bg-white py-3 pr-9 text-sm font-semibold shadow-sm;
+.month-bar .choices__inner {
+  @apply bg-white py-3 pr-9 text-center text-sm font-semibold shadow-sm;
 }
-.header-month .choices__list--dropdown {
-  @apply right-0 w-56;
+.month-bar .choices__list--dropdown {
+  @apply left-0 right-0 w-full;
 }
