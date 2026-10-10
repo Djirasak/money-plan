@@ -1,10 +1,10 @@
-name: CI
+name: Tests
 
 on:
   push:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: tests-${{ github.ref }}
   cancel-in-progress: true
 
 defaults:
