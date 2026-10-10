@@ -161,7 +161,7 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
         return ctx | {
             "cfg": self.cfg,
             "salaries": Salary.objects.filter(user=self.request.user),
-            "salary_months": services.month_range(services.current_month(), 12 * 5),
+            "salary_months": services.month_window(self.cfg.start_month),
             "default_month": services.current_month(),
         }
 

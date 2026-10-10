@@ -8,7 +8,7 @@
     {% csrf_token %}<input type="hidden" name="action" value="general" />
     <h2 class="text-lg font-bold">{% trans "Start month" %}</h2>
     <div>
-      <label class="label">{% trans "First month of the table (covers 30 years), format YYYY-MM" %}</label>
+      <label class="label">{% trans "First month of the table (covers 3 years ahead), format YYYY-MM" %}</label>
       <input class="field" name="start_month" value="{{ cfg.start_month }}" pattern="\d{4}-(0[1-9]|1[0-2])" required />
     </div>
     <div>

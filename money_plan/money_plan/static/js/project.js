@@ -64,27 +64,33 @@
  * <select> keeps working and still fires "change".
  */
 (() => {
+  // Building the dropdown DOM for long lists is slow, so do it when idle.
+  const BIG_LIST = 24;
+  const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 50));
+
+  const enhance = (el) => {
+    const { searchPlaceholder, noResults, noChoices } = document.body.dataset;
+    new Choices(el, {
+      searchEnabled: el.options.length > 12,
+      shouldSort: false,
+      itemSelectText: '',
+      allowHTML: false,
+      searchPlaceholderValue: searchPlaceholder,
+      noResultsText: noResults,
+      noChoicesText: noChoices,
+    });
+  };
+
   const init = (root = document) => {
     if (!window.Choices) return;
-    const { searchPlaceholder, noResults, noChoices } = {
-      searchPlaceholder: document.body.dataset.searchPlaceholder,
-      noResults: document.body.dataset.noResults,
-      noChoices: document.body.dataset.noChoices,
-    };
     for (const el of root.querySelectorAll('select:not([data-choices="off"])')) {
       if (el.dataset.choicesReady || el.multiple) continue;
       el.dataset.choicesReady = 'true';
-      new Choices(el, {
-        searchEnabled: el.options.length > 12,
-        shouldSort: false,
-        itemSelectText: '',
-        allowHTML: false,
-        searchPlaceholderValue: searchPlaceholder,
-        noResultsText: noResults,
-        noChoicesText: noChoices,
-      });
+      if (el.options.length > BIG_LIST) idle(() => enhance(el));
+      else enhance(el);
     }
   };
+
   document.addEventListener('DOMContentLoaded', () => init());
   document.addEventListener('htmx:afterSwap', (event) => init(event.target));
 })();

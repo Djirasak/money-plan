@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:08+0700\n"
+"POT-Creation-Date: 2026-10-10 16:20+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -84,6 +84,15 @@ msgstr "เพิ่มเงินเดือนได้ไม่เกิน
 msgid "A plan for this month already exists"
 msgstr "มีแผนของเดือนนี้อยู่แล้ว"
 
+msgid "Summary"
+msgstr "สรุป"
+
+msgid "Log"
+msgstr "บันทึก"
+
+msgid "Settings"
+msgstr "ตั้งค่า"
+
 msgid "Month must be in YYYY-MM format"
 msgstr "รูปแบบเดือนต้องเป็น YYYY-MM"
 
@@ -137,15 +146,6 @@ msgstr "เงินใช้ฟรี"
 
 msgid "Build the reserve"
 msgstr "สะสมเงินสำรอง"
-
-msgid "Summary"
-msgstr "สรุป"
-
-msgid "Log"
-msgstr "บันทึก"
-
-msgid "Settings"
-msgstr "ตั้งค่า"
 
 msgid "Entry saved"
 msgstr "บันทึกรายการแล้ว"
@@ -368,7 +368,7 @@ msgstr "ยังไม่มีรายการในเดือนนี้
 msgid "Start month"
 msgstr "เดือนเริ่มระบบ"
 
-msgid "First month of the table (covers 30 years), format YYYY-MM"
+msgid "First month of the table (covers 3 years ahead), format YYYY-MM"
 msgstr "เดือนแรกของตาราง (ครอบคลุม 30 ปี) รูปแบบ YYYY-MM"
 
 #, python-format

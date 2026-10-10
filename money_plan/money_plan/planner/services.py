@@ -13,7 +13,7 @@ from .models import Pile
 from .models import PlannerSettings
 from .models import Salary
 
-HORIZON_MONTHS = 360
+LOOKAHEAD_MONTHS = 36  # how far ahead of today (or of the start) you can plan
 
 
 def current_month() -> str:
@@ -60,8 +60,23 @@ def ensure_defaults(user: AbstractBaseUser) -> PlannerSettings:
     return cfg
 
 
-def month_range(start: str, count: int = HORIZON_MONTHS) -> list[str]:
+def month_range(start: str, count: int) -> list[str]:
     return [engine.add_months(start, i) for i in range(count)]
+
+
+def month_window(start: str) -> list[str]:
+    """Months you can pick: from ``start`` to LOOKAHEAD_MONTHS past today.
+
+    If the plan starts in the future the window is measured from the start.
+    """
+    end = max(
+        engine.add_months(start, LOOKAHEAD_MONTHS),
+        engine.add_months(current_month(), LOOKAHEAD_MONTHS),
+    )
+    count = 1
+    while engine.add_months(start, count - 1) < end:
+        count += 1
+    return month_range(start, count)
 
 
 def compute_months(user: AbstractBaseUser, end_month: str) -> list[engine.Month]:

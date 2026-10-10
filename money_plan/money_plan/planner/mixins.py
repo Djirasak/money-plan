@@ -25,7 +25,7 @@ class PlannerMixin(LoginRequiredMixin):
 
     @cached_property
     def months(self) -> list[str]:
-        return services.month_range(self.cfg.start_month)
+        return services.month_window(self.cfg.start_month)
 
     @cached_property
     def month(self) -> str:
