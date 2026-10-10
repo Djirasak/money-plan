@@ -8,4 +8,6 @@ set -o nounset
 python manage.py compilemessages
 python manage.py migrate
 python manage.py initial_user_data --first-run
-exec python manage.py runserver_plus 0.0.0.0:8000
+# Poll for changes every 3s instead of watching the whole tree (.venv, node_modules)
+# with watchdog, which kept a core at ~100% and slowed every request.
+exec python manage.py runserver_plus 0.0.0.0:8000 --reloader-type stat --reloader-interval 3

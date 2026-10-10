@@ -12,3 +12,6 @@ venv
 .envs/
 .venv/
 **/__pycache__/
+.ipython/
+node_modules/
+.pytest_cache/

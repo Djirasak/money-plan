@@ -5,4 +5,5 @@ set -o nounset
 
 
 rm -f './celerybeat.pid'
-exec watchfiles --filter python celery.__main__.main --args '-A config.celery_app beat -l INFO'
+# Only watch our own code, not .venv / node_modules (that pegged a CPU core).
+exec watchfiles --filter python --args '-A config.celery_app beat -l INFO' celery.__main__.main money_plan config
