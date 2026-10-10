@@ -102,5 +102,6 @@ jobs:
           cache-dependency-glob: money_plan/uv.lock
       - run: sudo apt-get update && sudo apt-get install -y libpq-dev gettext
       - run: uv sync --frozen
+      - run: uv run --no-sync python manage.py compilemessages
       - run: uv run --no-sync coverage run -m pytest
       - run: uv run --no-sync coverage report --show-missing
