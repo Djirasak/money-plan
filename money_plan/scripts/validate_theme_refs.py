@@ -17,14 +17,28 @@ and a custom property defined inside the scanned file counts as defined there.
 A reference carrying a fallback - var(--x, 8px) - cannot render wrong, so it is
 reported and not failed.
 """
+
 import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DEF = re.compile(r"(--[A-Za-z0-9_-]+)\s*:")            # --x: value  (a definition)
-REF = re.compile(r"var\(\s*(--[A-Za-z0-9_-]+)\s*(,[^)]*)?\)")  # group 2 is the fallback, if any
-CODE_EXT = {".css", ".scss", ".tsx", ".jsx", ".ts", ".js", ".vue", ".svelte", ".html", ".astro"}
+DEF = re.compile(r"(--[A-Za-z0-9_-]+)\s*:")  # --x: value  (a definition)
+REF = re.compile(
+    r"var\(\s*(--[A-Za-z0-9_-]+)\s*(,[^)]*)?\)",
+)  # group 2 is the fallback, if any
+CODE_EXT = {
+    ".css",
+    ".scss",
+    ".tsx",
+    ".jsx",
+    ".ts",
+    ".js",
+    ".vue",
+    ".svelte",
+    ".html",
+    ".astro",
+}
 
 
 def collect_defs(theme_paths):
@@ -53,9 +67,11 @@ def main(argv):
     i = 0
     while i < len(argv):
         if argv[i] == "--theme" and i + 1 < len(argv):
-            theme_paths.append(argv[i + 1]); i += 2
+            theme_paths.append(argv[i + 1])
+            i += 2
         else:
-            code_paths.append(argv[i]); i += 1
+            code_paths.append(argv[i])
+            i += 1
     # the old two-argument form: first path is the theme
     if not theme_paths and len(code_paths) >= 2:
         theme_paths, code_paths = [code_paths[0]], code_paths[1:]
@@ -66,7 +82,9 @@ def main(argv):
         print("ERROR: give at least one --theme and one path to scan.")
         return 1
 
-    missing_paths = [str(x) for x in list(theme_paths) + list(code_paths) if not Path(x).exists()]
+    missing_paths = [
+        str(x) for x in list(theme_paths) + list(code_paths) if not Path(x).exists()
+    ]
     if missing_paths:
         # Scanning nothing must not read as clean.
         print("ERROR: path(s) not found: " + ", ".join(missing_paths))
@@ -74,12 +92,16 @@ def main(argv):
 
     shared = collect_defs(theme_paths)
     if not shared:
-        print(f"ERROR: no CSS variables defined in theme ({[str(t) for t in theme_paths]}).")
+        print(
+            f"ERROR: no CSS variables defined in theme ({[str(t) for t in theme_paths]}).",
+        )
         return 1
 
     files = list(iter_files(code_paths))
     if not files:
-        print(f"ERROR: no scannable file(s) under {', '.join(str(c) for c in code_paths)}")
+        print(
+            f"ERROR: no scannable file(s) under {', '.join(str(c) for c in code_paths)}",
+        )
         return 1
 
     missing, with_fallback, unreadable, scanned = [], 0, [], 0
@@ -87,7 +109,8 @@ def main(argv):
         try:
             text = f.read_text()
         except (UnicodeDecodeError, OSError) as err:
-            unreadable.append((f, err)); continue
+            unreadable.append((f, err))
+            continue
         scanned += 1
         # A page may define its own custom properties; those are definitions too.
         defined = shared | {m.group(1) for m in DEF.finditer(text)}
@@ -101,13 +124,19 @@ def main(argv):
                     continue
                 missing.append(f"{f}:{n}: var({var}) resolves to nothing")
 
-    print(f"Theme defines {len(shared)} tokens; scanned {scanned} of {len(files)} file(s).")
+    print(
+        f"Theme defines {len(shared)} tokens; scanned {scanned} of {len(files)} file(s).",
+    )
     if with_fallback:
-        print(f"  {with_fallback} reference(s) to an undefined token carry a fallback - not a failure.")
+        print(
+            f"  {with_fallback} reference(s) to an undefined token carry a fallback - not a failure.",
+        )
     for f, err in unreadable:
         print(f"ERROR: could not read {f}: {err}", file=sys.stderr)
     if unreadable:
-        print(f"FAIL: {len(unreadable)} file(s) could not be read, so this run cannot report clean.")
+        print(
+            f"FAIL: {len(unreadable)} file(s) could not be read, so this run cannot report clean.",
+        )
         return 1
     if missing:
         print(f"\nFAIL: {len(missing)} reference(s) resolve to nothing:")

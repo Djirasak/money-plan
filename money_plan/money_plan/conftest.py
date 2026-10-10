@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from django.utils import translation
 from django.core.management import call_command
+from django.utils import translation
 
 from money_plan.users.tests.factories import UserFactory
 

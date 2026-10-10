@@ -4,12 +4,12 @@ from decimal import Decimal as D
 from money_plan.planner.engine import FUND
 from money_plan.planner.engine import GTE
 from money_plan.planner.engine import LT
-from money_plan.planner.engine import Condition
 from money_plan.planner.engine import ROLLOVER
 from money_plan.planner.engine import SWEEP
+from money_plan.planner.engine import Condition
 from money_plan.planner.engine import Entry
-from money_plan.planner.engine import PlanRow
 from money_plan.planner.engine import Pile
+from money_plan.planner.engine import PlanRow
 from money_plan.planner.engine import Salary
 from money_plan.planner.engine import add_months
 from money_plan.planner.engine import compute
@@ -178,7 +178,12 @@ def test_plan_applies_only_while_a_pile_is_below_an_amount():
 def test_condition_uses_the_balance_at_the_start_of_the_month():
     plan = [
         PlanRow("2027-01", {"spend": D(1)}, key="base"),
-        PlanRow("2027-01", {"spend": D(1)}, condition=Condition("spend", GTE, D(1)), key="cond"),
+        PlanRow(
+            "2027-01",
+            {"spend": D(1)},
+            condition=Condition("spend", GTE, D(1)),
+            key="cond",
+        ),
     ]
     months = run([Pile("spend")], end="2027-02", plan=plan)
     assert months[0].plan_key == "base"  # nothing carried in yet
@@ -198,7 +203,12 @@ def test_newest_start_month_wins_then_later_row_on_a_tie():
 def test_unmet_condition_falls_back_to_the_next_older_plan():
     plan = [
         PlanRow("2027-01", {"spend": D(1)}, key="old"),
-        PlanRow("2027-02", {"spend": D(1)}, condition=Condition("spend", GTE, D(10**9)), key="never"),
+        PlanRow(
+            "2027-02",
+            {"spend": D(1)},
+            condition=Condition("spend", GTE, D(10**9)),
+            key="never",
+        ),
     ]
     months = run([Pile("spend")], end="2027-03", plan=plan)
     assert [m.plan_key for m in months] == ["old", "old", "old"]
@@ -214,7 +224,9 @@ def test_target_follows_the_salary():
     pile = Pile("save", kind=FUND, target_percent=D(60), target_months=6)
     assert pile.target_for(D(48000)) == D(172800)  # 60% * 48,000 * 6
     assert pile.target_for(D(50000)) == D(180000)
-    assert Pile("x", target=D(1000)).target_for(D(50000)) == D(1000)  # fixed stays fixed
+    assert Pile("x", target=D(1000)).target_for(D(50000)) == D(
+        1000,
+    )  # fixed stays fixed
     assert Pile("y").target_for(D(50000)) is None
 
 
@@ -241,7 +253,13 @@ def test_reserve_plan_returns_when_a_raise_moves_the_target():
     # Jan: 0 < 6,000 -> reserve (+10,000). Feb/Mar: 10,000 >= 6,000 -> normal.
     # Apr: the raise lifts the target to 12,000 > 10,000 -> reserve again (+20,000).
     # May: 30,000 >= 12,000 -> normal.
-    assert [m.plan_key for m in months] == ["reserve", "normal", "normal", "reserve", "normal"]
+    assert [m.plan_key for m in months] == [
+        "reserve",
+        "normal",
+        "normal",
+        "reserve",
+        "normal",
+    ]
 
 
 def test_use_target_without_a_target_falls_back_to_the_amount():

@@ -7,7 +7,7 @@ Usage:
   python3 scripts/design_systems.py show <name>          # print a system's DESIGN.md path + summary
   python3 scripts/design_systems.py categories           # category counts
 """
-import re
+
 import sys
 from pathlib import Path
 
@@ -49,7 +49,11 @@ def cmd_list(s):
 
 def cmd_search(s, term):
     t = term.lower()
-    hits = [(n, d) for n, (_, c, d) in s.items() if t in n.lower() or t in d.lower() or t in c.lower()]
+    hits = [
+        (n, d)
+        for n, (_, c, d) in s.items()
+        if t in n.lower() or t in d.lower() or t in c.lower()
+    ]
     if not hits:
         print(f"No match for {term!r}.")
         return
@@ -63,7 +67,9 @@ def cmd_show(s, name):
         return 1
     f, cat, desc = s[name]
     print(f"{name}  [{cat}]\n{desc}\n\nSpec: {f}")
-    print("Apply: read this DESIGN.md, then map values via design-systems/interop-protocol.md")
+    print(
+        "Apply: read this DESIGN.md, then map values via design-systems/interop-protocol.md",
+    )
     return 0
 
 
@@ -76,6 +82,7 @@ def main(argv):
         cmd_list(s)
     elif argv[0] == "categories":
         from collections import Counter
+
         c = Counter(cat for _, cat, _ in s.values())
         for cat, n in sorted(c.items()):
             print(f"  {n:3}  {cat}")

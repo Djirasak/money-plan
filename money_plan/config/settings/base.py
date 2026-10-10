@@ -1,5 +1,6 @@
-# ruff: noqa: ERA001, E501
+# ruff: noqa: ERA001
 """Base settings to build other settings files upon."""
+
 import os
 import ssl
 from pathlib import Path

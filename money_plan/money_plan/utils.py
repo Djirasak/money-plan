@@ -54,7 +54,11 @@ def _encode(img: Image.Image, fmt: str, quality: int) -> bytes:
     return buf.getvalue()
 
 
-def _best_quality(img: Image.Image, fmt: str, max_bytes: int) -> tuple[bytes, int] | None:
+def _best_quality(
+    img: Image.Image,
+    fmt: str,
+    max_bytes: int,
+) -> tuple[bytes, int] | None:
     """Highest quality in [MIN_QUALITY, START_QUALITY] that fits ``max_bytes``."""
     data = _encode(img, fmt, START_QUALITY)
     if len(data) <= max_bytes:
@@ -119,6 +123,9 @@ def compress_image(
             msg = "Image cannot be compressed under the size limit"
             raise ImageError(msg)
         img = img.resize(
-            (max(MIN_SIDE, int(img.width * 0.85)), max(MIN_SIDE, int(img.height * 0.85))),
+            (
+                max(MIN_SIDE, int(img.width * 0.85)),
+                max(MIN_SIDE, int(img.height * 0.85)),
+            ),
             Image.Resampling.LANCZOS,
         )

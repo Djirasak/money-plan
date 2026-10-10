@@ -29,6 +29,7 @@ Usage:
   python3 scripts/validate_agents_surface.py --root DIR   # check a copy
 Exit 0 = the two surfaces agree; 1 = they do not.
 """
+
 import re
 import sys
 from pathlib import Path
@@ -49,7 +50,10 @@ SHARED_RULES = [
     ("the emoji ban, stated absolutely", r"[Zz]ero emoji|ABSOLUTE: zero emoji"),
     ("the emoji gate, named", r"check_no_emoji\.py"),
     ("the one-command gate, named", r"accuracy_report\.mjs"),
-    ("never state an unmeasured number", r"[Nn]ever state a number you did not measure"),
+    (
+        "never state an unmeasured number",
+        r"[Nn]ever state a number you did not measure",
+    ),
     ("SKIPPED is not a pass", r"SKIPPED"),
     ("render and look", r"[Ss]creenshot"),
     ("token by intent", r"[Tt]oken by intent"),
@@ -91,28 +95,36 @@ def main(argv):
             in_claude = bool(re.search(pattern, ctext))
             in_agents = bool(re.search(pattern, text))
             if in_claude and not in_agents:
-                problems.append(f"CLAUDE.md states {label} and AGENTS.md does not - the surfaces drifted")
+                problems.append(
+                    f"CLAUDE.md states {label} and AGENTS.md does not - the surfaces drifted",
+                )
     else:
         problems.append("CLAUDE.md not found, so the two surfaces cannot be compared")
 
     # Every command it tells the agent to run must exist.
     for script in sorted(set(CMD.findall(text))):
         if not (root / script).exists():
-            problems.append(f"AGENTS.md tells the agent to run {script}, which does not exist")
+            problems.append(
+                f"AGENTS.md tells the agent to run {script}, which does not exist",
+            )
 
     # It must be honest about what it cannot enforce.
     if not re.search(r"hook", text, re.I):
         problems.append(
             "AGENTS.md does not mention hooks. It has none, Claude Code does, and a "
-            "surface that stays silent about that implies a parity it does not have")
+            "surface that stays silent about that implies a parity it does not have",
+        )
 
     if len(lines) > MAX_LINES:
         problems.append(
             f"AGENTS.md is {len(lines)} lines, over the {MAX_LINES}-line budget. It is read "
-            f"on every turn; depth belongs in the files it points at")
+            f"on every turn; depth belongs in the files it points at",
+        )
 
-    print(f"AGENTS.md: {len(lines)}/{MAX_LINES} lines, {len(SHARED_RULES)} shared rules checked, "
-          f"{len(set(CMD.findall(text)))} script(s) named.")
+    print(
+        f"AGENTS.md: {len(lines)}/{MAX_LINES} lines, {len(SHARED_RULES)} shared rules checked, "
+        f"{len(set(CMD.findall(text)))} script(s) named.",
+    )
 
     if problems:
         print(f"\nFAIL: {len(problems)} problem(s) on the agent-neutral surface:")
@@ -120,7 +132,9 @@ def main(argv):
             print(f"  x {p}")
         return 1
 
-    print("OK: AGENTS.md carries every rule CLAUDE.md does, names only scripts that exist,")
+    print(
+        "OK: AGENTS.md carries every rule CLAUDE.md does, names only scripts that exist,",
+    )
     print("    and says plainly what it cannot enforce.")
     return 0
 

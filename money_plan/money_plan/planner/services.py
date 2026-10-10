@@ -7,10 +7,10 @@ from django.utils.translation import gettext as _
 
 from . import engine
 from .models import LogEntry
-from .models import PlanItem
-from .models import PlanPeriod
 from .models import Pile
+from .models import PlanItem
 from .models import PlannerSettings
+from .models import PlanPeriod
 from .models import Salary
 
 LOOKAHEAD_MONTHS = 36  # how far ahead of today (or of the start) you can plan
@@ -82,29 +82,32 @@ def month_window(start: str) -> list[str]:
 def compute_months(user: AbstractBaseUser, end_month: str) -> list[engine.Month]:
     cfg = ensure_defaults(user)
     piles = list(user.piles.select_related("overflow_to"))
-    plan = []
     periods = (
         user.plan_periods.select_related("cond_pile")
         .prefetch_related("items__pile")
         .order_by("effective_month", "id")  # engine: later row wins a tie
     )
-    for period in periods:
-        plan.append(
-            engine.PlanRow(
-                effective_month=period.effective_month,
-                shares={i.pile.name: i.percent / 100 for i in period.items.all()},
-                condition=period.to_condition(),
-                key=str(period.pk),
-            ),
+    plan = [
+        engine.PlanRow(
+            effective_month=period.effective_month,
+            shares={i.pile.name: i.percent / 100 for i in period.items.all()},
+            condition=period.to_condition(),
+            key=str(period.pk),
         )
-    entries = [e.to_engine() for e in LogEntry.objects.filter(user=user)
-               .select_related("from_pile", "to_pile")]
+        for period in periods
+    ]
+    entries = [
+        e.to_engine()
+        for e in LogEntry.objects.filter(user=user).select_related(
+            "from_pile",
+            "to_pile",
+        )
+    ]
     salaries = [
         engine.Salary(s.effective_month, s.amount)
         for s in Salary.objects.filter(user=user)
     ]
-    if end_month < cfg.start_month:
-        end_month = cfg.start_month
+    end_month = max(end_month, cfg.start_month)
     return engine.compute(
         piles=[p.to_engine() for p in piles],
         salaries=salaries,

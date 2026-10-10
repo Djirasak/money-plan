@@ -19,12 +19,14 @@ Usage:
   python3 scripts/validate_template.py
 Exit 0 = template is sound, 1 = problems found.
 """
+
 import json
 import re
 import sys
 from pathlib import Path
 
 KIT = Path(__file__).resolve().parent.parent
+
 
 def _root():
     """Where to look. Defaults to the repo this script lives in.
@@ -41,12 +43,14 @@ def _root():
             return Path(argv[i + 1]).resolve()
     return KIT
 
+
 ROOT = _root()
 TPL = ROOT / "templates" / "product-design"
 ALIAS = re.compile(r"\{([^}]+)\}")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from validate_contrast import ratio, resolve  # noqa: E402  (same DTCG shape)
+from validate_contrast import ratio  # noqa: E402  (same DTCG shape)
+from validate_contrast import resolve  # noqa: E402  (same DTCG shape)
 
 # The reference layout, in the reference order. CLAUDE.local.md ships with a
 # .template suffix so the kit's own gitignore cannot swallow it; the scaffold
@@ -66,13 +70,28 @@ LAYOUT = [
 ]
 
 REQUIRED_PAIRS = [
-    ("semantic.text.primary",   "semantic.surface.page",   4.5, "body text on page"),
-    ("semantic.text.primary",   "semantic.surface.card",   4.5, "body text on card"),
-    ("semantic.text.secondary", "semantic.surface.page",   4.5, "secondary text on page"),
-    ("semantic.text.link",      "semantic.surface.page",   4.5, "link on page"),
-    ("semantic.text.on-action", "semantic.action.primary", 4.5, "text on primary action"),
-    ("semantic.text.on-action", "semantic.action.danger",  4.5, "text on destructive action"),
-    ("semantic.border.strong",  "semantic.surface.page",   3.0, "essential control border"),
+    ("semantic.text.primary", "semantic.surface.page", 4.5, "body text on page"),
+    ("semantic.text.primary", "semantic.surface.card", 4.5, "body text on card"),
+    ("semantic.text.secondary", "semantic.surface.page", 4.5, "secondary text on page"),
+    ("semantic.text.link", "semantic.surface.page", 4.5, "link on page"),
+    (
+        "semantic.text.on-action",
+        "semantic.action.primary",
+        4.5,
+        "text on primary action",
+    ),
+    (
+        "semantic.text.on-action",
+        "semantic.action.danger",
+        4.5,
+        "text on destructive action",
+    ),
+    (
+        "semantic.border.strong",
+        "semantic.surface.page",
+        3.0,
+        "essential control border",
+    ),
 ]
 
 
@@ -94,7 +113,9 @@ def check_layout():
         if not p.exists():
             issues.append(f"layout: missing {rel}")
         elif p.is_dir() and not any(p.iterdir()):
-            issues.append(f"layout: {rel}/ is empty and would not survive a commit (add .gitkeep)")
+            issues.append(
+                f"layout: {rel}/ is empty and would not survive a commit (add .gitkeep)",
+            )
     return issues
 
 
@@ -124,10 +145,14 @@ def check_contrast(data):
         for fg_path, bg_path, minr, label in REQUIRED_PAIRS:
             fg, bg = resolve(data, fg_path, ov), resolve(data, bg_path, ov)
             if fg is None or bg is None:
-                issues.append(f"contrast ({mode}): {label} - token missing ({fg_path}, {bg_path})")
+                issues.append(
+                    f"contrast ({mode}): {label} - token missing ({fg_path}, {bg_path})",
+                )
                 continue
             r = ratio(fg, bg)
-            print(f"  {'PASS' if r >= minr else 'FAIL'} {mode:5} {label}: {r:.2f}:1 (need {minr})  [{fg} on {bg}]")
+            print(
+                f"  {'PASS' if r >= minr else 'FAIL'} {mode:5} {label}: {r:.2f}:1 (need {minr})  [{fg} on {bg}]",
+            )
             if r < minr:
                 issues.append(f"contrast ({mode}): {label} {r:.2f}:1 < {minr}")
     return issues
@@ -140,9 +165,16 @@ def check_rules():
         if not (TPL / m).exists():
             issues.append(f"rules: CLAUDE.md points at {m}, which does not exist")
     for rule in sorted((TPL / ".claude" / "rules").glob("*.md")):
-        for script in re.findall(r"scripts/([a-z_]+\.(?:mjs|py))", rule.read_text(encoding="utf-8")):
-            if not (KIT / "scripts" / script).exists():   # the kit ships the script, not the copy under test
-                issues.append(f"rules: {rule.name} points at scripts/{script}, which does not exist")
+        for script in re.findall(
+            r"scripts/([a-z_]+\.(?:mjs|py))",
+            rule.read_text(encoding="utf-8"),
+        ):
+            if not (
+                KIT / "scripts" / script
+            ).exists():  # the kit ships the script, not the copy under test
+                issues.append(
+                    f"rules: {rule.name} points at scripts/{script}, which does not exist",
+                )
     return issues
 
 
@@ -152,7 +184,9 @@ def main():
         return 1
     data = json.loads((TPL / "design-tokens.json").read_text(encoding="utf-8"))
     issues = check_layout() + check_tokens(data) + check_contrast(data) + check_rules()
-    print(f"\nChecked layout ({len(LAYOUT)} entries), tokens, contrast (light + dark), rule links.")
+    print(
+        f"\nChecked layout ({len(LAYOUT)} entries), tokens, contrast (light + dark), rule links.",
+    )
     if issues:
         print(f"\nFAIL: {len(issues)} problem(s) in the starter template:")
         for i in issues:

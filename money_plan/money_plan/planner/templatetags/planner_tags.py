@@ -1,12 +1,12 @@
 from decimal import Decimal
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 
 from django import template
+from django.utils import timezone
 from django.utils.dates import MONTHS
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils import timezone
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
@@ -52,7 +52,7 @@ def pct(value) -> str:
 ICON_DIR = Path(__file__).resolve().parents[2] / "templates" / "icons"
 
 
-@lru_cache(maxsize=None)
+@cache
 def _icon_svg(name: str) -> str:
     return (ICON_DIR / f"{name}.svg").read_text().strip()
 

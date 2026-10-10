@@ -211,7 +211,7 @@ def compute(
         targets = {p.name: p.target_for(raw_salary) for p in piles}
         row_plan = plan_for(month, plan, carry, targets) or PlanRow(month)
         row = Month(month=month, salary=salary, plan_key=row_plan.key)
-        incoming = {n: ZERO for n in names}
+        incoming = dict.fromkeys(names, ZERO)
 
         for pile in piles:
             pm = PileMonth(

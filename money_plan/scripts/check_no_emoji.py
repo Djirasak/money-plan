@@ -13,6 +13,7 @@ Usage:
   python3 scripts/check_no_emoji.py path/to/src ...
 Exit 0 = clean, 1 = an emoji/pictograph was found.
 """
+
 import re
 import sys
 from pathlib import Path
@@ -21,27 +22,50 @@ ROOT = Path(__file__).resolve().parent.parent
 # Scan product UI (examples), the taste doctrine, AND the agent's instruction surface —
 # the files the model loads and imitates. README is marketing/branding and is excluded.
 DEFAULT = [
-    ROOT / "examples", ROOT / "taste",
-    ROOT / "CLAUDE.md", ROOT / "CONTEXT.md",
-    ROOT / ".claude" / "skills", ROOT / ".claude" / "rules", ROOT / ".claude" / "commands",
-    ROOT / ".claude" / "agents", ROOT / "evals", ROOT / "templates",
-    ROOT / "components", ROOT / "workflows", ROOT / "content",
-    ROOT / "accessibility", ROOT / "frameworks",
+    ROOT / "examples",
+    ROOT / "taste",
+    ROOT / "CLAUDE.md",
+    ROOT / "CONTEXT.md",
+    ROOT / ".claude" / "skills",
+    ROOT / ".claude" / "rules",
+    ROOT / ".claude" / "commands",
+    ROOT / ".claude" / "agents",
+    ROOT / "evals",
+    ROOT / "templates",
+    ROOT / "components",
+    ROOT / "workflows",
+    ROOT / "content",
+    ROOT / "accessibility",
+    ROOT / "frameworks",
     ROOT / "design-systems",
 ]
-EXTS = {".md", ".mdx", ".html", ".htm", ".tsx", ".jsx", ".ts", ".js",
-        ".vue", ".svelte", ".css", ".scss", ".astro", ".json"}
+EXTS = {
+    ".md",
+    ".mdx",
+    ".html",
+    ".htm",
+    ".tsx",
+    ".jsx",
+    ".ts",
+    ".js",
+    ".vue",
+    ".svelte",
+    ".css",
+    ".scss",
+    ".astro",
+    ".json",
+}
 
 # Emoji + dingbat pictographs (check marks, stars, etc.). Deliberately EXCLUDES
 # arrows (U+2190-21FF) and box-drawing, which are legitimate typographic notation.
 # Ranges are referenced by codepoint only (this file stays emoji-free itself).
 EMOJI = re.compile(
-    "[\U0001F000-\U0001FAFF"   # symbols & pictographs, emoticons, transport, supplemental
-    "\U00002600-\U000026FF"    # misc symbols
-    "\U00002700-\U000027BF"    # dingbats (check marks, stars, scissors, ...)
-    "\U00002B00-\U00002BFF"    # misc symbols & arrow pictographs (star, ...)
-    "\U0001FA70-\U0001FAFF"
-    "\U0000FE0F\U000020E3]"    # variation selector + combining keycap
+    "[\U0001f000-\U0001faff"  # symbols & pictographs, emoticons, transport, supplemental
+    "\U00002600-\U000026ff"  # misc symbols
+    "\U00002700-\U000027bf"  # dingbats (check marks, stars, scissors, ...)
+    "\U00002b00-\U00002bff"  # misc symbols & arrow pictographs (star, ...)
+    "\U0001fa70-\U0001faff"
+    "\U0000fe0f\U000020e3]",  # variation selector + combining keycap
 )
 
 
@@ -59,6 +83,7 @@ def iter_files(paths):
 UI_EXTS = {".html", ".htm", ".tsx", ".jsx", ".vue", ".svelte"}
 DASH = re.compile("[—–]")  # em-dash / en-dash — an AI-pattern tell in UI copy
 
+
 def main(argv):
     explicit = [Path(a) for a in argv]
     paths = explicit or DEFAULT
@@ -71,20 +96,26 @@ def main(argv):
     hits = []
     files = list(iter_files(paths))
     if explicit and not files:
-        print(f"ERROR: no scannable file(s) under {', '.join(str(p) for p in explicit)}")
+        print(
+            f"ERROR: no scannable file(s) under {', '.join(str(p) for p in explicit)}",
+        )
         return 1
     for f in files:
         try:
             text = f.read_text(encoding="utf-8")
-        except (UnicodeDecodeError, OSError):
+        except UnicodeDecodeError, OSError:
             continue
         ui = f.suffix in UI_EXTS
         for n, line in enumerate(text.splitlines(), 1):
             for m in EMOJI.finditer(line):
-                hits.append(f"{f}:{n}: emoji/pictograph {m.group(0)!r} - use lucide / plain text")
+                hits.append(
+                    f"{f}:{n}: emoji/pictograph {m.group(0)!r} - use lucide / plain text",
+                )
             if ui:
                 for m in DASH.finditer(line):
-                    hits.append(f"{f}:{n}: em/en-dash {m.group(0)!r} - AI-pattern tell; use a period, comma, or hyphen")
+                    hits.append(
+                        f"{f}:{n}: em/en-dash {m.group(0)!r} - AI-pattern tell; use a period, comma, or hyphen",
+                    )
     print(f"Scanned {len(files)} file(s).")
     if hits:
         print(f"\nFAIL: {len(hits)} emoji/pictograph(s) found:")

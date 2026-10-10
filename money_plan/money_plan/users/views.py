@@ -38,7 +38,8 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         bound = kwargs.get("bound") or {}
         return ctx | {
             "username_form": bound.get("username") or UsernameChangeForm(instance=user),
-            "email_form": bound.get("email") or EmailChangeForm(initial={"email": user.email}, user=user),
+            "email_form": bound.get("email")
+            or EmailChangeForm(initial={"email": user.email}, user=user),
             "name_form": bound.get("name") or NameChangeForm(instance=user),
             "password_form": bound.get("password") or AccountPasswordChangeForm(user),
             "open_dialog": kwargs.get("open_dialog", ""),
@@ -98,7 +99,10 @@ class AccountChangeView(LoginRequiredMixin, View):
         detail = UserDetailView()
         detail.setup(request, username=request.user.username)
         detail.object = request.user
-        ctx = detail.get_context_data(bound={self.key: form}, open_dialog=f"account-{self.key}")
+        ctx = detail.get_context_data(
+            bound={self.key: form},
+            open_dialog=f"account-{self.key}",
+        )
         return detail.render_to_response(ctx)
 
 
@@ -108,7 +112,10 @@ class UsernameChangeView(AccountChangeView):
 
     def get_form(self):
         # a fresh copy, so a rejected value never leaks into the signed-in user shown on the page
-        return UsernameChangeForm(self.request.POST, instance=User.objects.get(pk=self.request.user.pk))
+        return UsernameChangeForm(
+            self.request.POST,
+            instance=User.objects.get(pk=self.request.user.pk),
+        )
 
 
 class EmailChangeView(AccountChangeView):
@@ -136,4 +143,7 @@ class NameChangeView(AccountChangeView):
     success_message = _("Name updated")
 
     def get_form(self):
-        return NameChangeForm(self.request.POST, instance=User.objects.get(pk=self.request.user.pk))
+        return NameChangeForm(
+            self.request.POST,
+            instance=User.objects.get(pk=self.request.user.pk),
+        )

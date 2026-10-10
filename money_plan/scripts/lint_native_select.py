@@ -23,6 +23,7 @@ Usage:
   python3 scripts/lint_native_select.py <file|dir> [...]
 Exit 0 = clean; 1 = a finding; 2 = unusable input.
 """
+
 import re
 import sys
 from pathlib import Path
@@ -41,7 +42,11 @@ def iter_files(paths):
             yield p
         elif p.is_dir():
             for f in sorted(p.rglob("*")):
-                if f.is_file() and f.suffix in MARKUP_EXT and not (set(f.parts) & SKIP_DIRS):
+                if (
+                    f.is_file()
+                    and f.suffix in MARKUP_EXT
+                    and not (set(f.parts) & SKIP_DIRS)
+                ):
                     yield f
 
 
@@ -53,8 +58,10 @@ def strip_comments(text):
     reported two findings in its own documentation. The raw line is still what
     the exception marker is read from, because an exception is itself a comment.
     """
+
     def blank(m):
         return re.sub(r"[^\n]", " ", m.group(0))
+
     # <!-- ... -->, /* ... */ and // ... to end of line
     text = re.sub(r"<!--.*?-->", blank, text, flags=re.S)
     text = re.sub(r"/\*.*?\*/", blank, text, flags=re.S)
@@ -104,15 +111,21 @@ def main(argv):
     for f, err in unreadable:
         print(f"ERROR: could not read {f}: {err}", file=sys.stderr)
     if unreadable:
-        print(f"FAIL: {len(unreadable)} file(s) could not be read, so this run cannot report clean.")
+        print(
+            f"FAIL: {len(unreadable)} file(s) could not be read, so this run cannot report clean.",
+        )
         return 1
 
     if found:
-        print(f"\nFAIL: {len(found)} native <select> element(s). The native control draws its own")
+        print(
+            f"\nFAIL: {len(found)} native <select> element(s). The native control draws its own",
+        )
         print("chevron hard against the edge and cannot be made to match the system.")
         for f, n, line in found:
             print(f"  x {f}:{n}: {line}")
-        print("\nUse the Listbox or Combobox pattern in components/forms-advanced.md, or add a")
+        print(
+            "\nUse the Listbox or Combobox pattern in components/forms-advanced.md, or add a",
+        )
         print(f"`{ALLOW_SELECT}` comment if this one is deliberate.")
         return 1
 

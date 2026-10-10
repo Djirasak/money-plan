@@ -1,15 +1,15 @@
 from django import forms
+from django.db.models import Max
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.db.models import Max
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
+from .models import MAX_SALARIES
 from .models import LogEntry
 from .models import Pile
 from .models import PlanPeriod
 from .models import Salary
-from .models import MAX_SALARIES
 from .models import month_validator
 
 FIELD = {"class": "input"}
@@ -25,7 +25,7 @@ class BasecoatSelect(forms.Select):
             options[0]["selected"] = True  # what a browser <select> would do
         return context
 
-    def render(self, name, value, attrs=None, renderer=None):  # noqa: ARG002
+    def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
         return mark_safe(render_to_string("widgets/basecoat_select.html", context))  # noqa: S308
 
@@ -45,7 +45,12 @@ class LogEntryForm(forms.ModelForm):
             "from_pile": BasecoatSelect(),
             "to_pile": BasecoatSelect(),
             "amount": forms.NumberInput(
-                attrs=FIELD | {"inputmode": "decimal", "step": "0.01", "placeholder": example("120")},
+                attrs=FIELD
+                | {
+                    "inputmode": "decimal",
+                    "step": "0.01",
+                    "placeholder": example("120"),
+                },
             ),
             "note": forms.TextInput(attrs=FIELD),
         }
@@ -109,9 +114,15 @@ class PileForm(forms.ModelForm):
             "mode": BasecoatSelect(),
             "cap": forms.NumberInput(attrs=FIELD | {"placeholder": _("Unlimited")}),
             "overflow_to": BasecoatSelect(),
-            "target": forms.NumberInput(attrs=FIELD | {"placeholder": example("100000")}),
-            "target_percent": forms.NumberInput(attrs=FIELD | {"placeholder": example("60"), "step": "0.01"}),
-            "target_months": forms.NumberInput(attrs=FIELD | {"placeholder": example("6"), "min": "1", "max": "120"}),
+            "target": forms.NumberInput(
+                attrs=FIELD | {"placeholder": example("100000")},
+            ),
+            "target_percent": forms.NumberInput(
+                attrs=FIELD | {"placeholder": example("60"), "step": "0.01"},
+            ),
+            "target_months": forms.NumberInput(
+                attrs=FIELD | {"placeholder": example("6"), "min": "1", "max": "120"},
+            ),
         }
         labels = {
             "name": _("Pile name"),
@@ -148,7 +159,11 @@ class PileForm(forms.ModelForm):
             self.fields[name].required = False
         pile = self.instance
         self.fields["target_mode"].initial = (
-            "salary" if pile.has_salary_target else "fixed" if pile.target is not None else "none"
+            "salary"
+            if pile.has_salary_target
+            else "fixed"
+            if pile.target is not None
+            else "none"
         )
         self.order_fields([
             "name", "color", "kind", "mode", "cap", "overflow_to",
@@ -185,7 +200,9 @@ class PileForm(forms.ModelForm):
     def save(self, commit=True):  # noqa: FBT002
         self.instance.user = self.user
         if self.instance.pk is None:  # new piles go to the end of the list
-            last = Pile.objects.filter(user=self.user).aggregate(Max("order"))["order__max"]
+            last = Pile.objects.filter(user=self.user).aggregate(Max("order"))[
+                "order__max"
+            ]
             self.instance.order = 0 if last is None else last + 1
         return super().save(commit=commit)
 
@@ -210,10 +227,18 @@ class SalaryForm(forms.Form):
             if taken.count() >= MAX_SALARIES:
                 msg = _("You can add at most %(max)s salaries") % {"max": MAX_SALARIES}
                 raise forms.ValidationError(msg)
-        elif data.get("effective_month") and taken.filter(
-            effective_month=data["effective_month"],
-        ).exclude(pk=self.instance.pk).exists():
-            self.add_error("effective_month", _("A salary for this month already exists"))
+        elif (
+            data.get("effective_month")
+            and taken.filter(
+                effective_month=data["effective_month"],
+            )
+            .exclude(pk=self.instance.pk)
+            .exists()
+        ):
+            self.add_error(
+                "effective_month",
+                _("A salary for this month already exists"),
+            )
         return data
 
 
@@ -226,7 +251,10 @@ class PlanConditionForm(forms.Form):
     """Optional "only use this plan while <pile> <has at least|is below> <amount>"."""
 
     condition_mode = forms.ChoiceField(choices=[("", ""), ("on", "on")], required=False)
-    condition_pile = forms.ModelChoiceField(queryset=Pile.objects.none(), required=False)
+    condition_pile = forms.ModelChoiceField(
+        queryset=Pile.objects.none(),
+        required=False,
+    )
     condition_op = forms.ChoiceField(choices=PlanPeriod.OP_CHOICES, required=False)
     condition_use_target = forms.BooleanField(required=False)
     condition_amount = forms.DecimalField(
@@ -254,10 +282,14 @@ class PlanConditionForm(forms.Form):
         amount = data.get("condition_amount")
         if use_target:
             if pile is not None and not pile.has_target:
-                msg = _("This pile has no target. Set one on the Piles tab or enter an amount.")
+                msg = _(
+                    "This pile has no target. Set one on the Piles tab or enter an amount.",
+                )
                 raise forms.ValidationError(msg)
             amount = pile.target if pile else None
-        if not (pile and data.get("condition_op") and (use_target or amount is not None)):
+        if not (
+            pile and data.get("condition_op") and (use_target or amount is not None)
+        ):
             msg = _("Choose a pile, a comparison and an amount for the condition")
             raise forms.ValidationError(msg)
         return {

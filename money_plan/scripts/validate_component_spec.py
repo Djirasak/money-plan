@@ -9,11 +9,13 @@ Usage:
   python3 scripts/validate_component_spec.py
 Exit 0 = all specs complete, 1 = a spec is missing a required section.
 """
+
 import re
 import sys
 from pathlib import Path
 
 KIT = Path(__file__).resolve().parent.parent
+
 
 def _root():
     """Where to look. Defaults to the repo this script lives in.
@@ -30,6 +32,7 @@ def _root():
             return Path(argv[i + 1]).resolve()
     return KIT
 
+
 ROOT = _root()
 COMPONENTS = ROOT / "components"
 
@@ -44,7 +47,10 @@ REQUIRED = {
 
 # files that are subsystem/overview docs, not single-component specs (relaxed: a11y + tokens only)
 RELAXED = {"icon-system.md"}
-RELAXED_REQUIRED = {"token mapping": REQUIRED["token mapping"], "accessibility": REQUIRED["accessibility"]}
+RELAXED_REQUIRED = {
+    "token mapping": REQUIRED["token mapping"],
+    "accessibility": REQUIRED["accessibility"],
+}
 
 
 def main():
@@ -58,7 +64,10 @@ def main():
         req = RELAXED_REQUIRED if f.name in RELAXED else REQUIRED
         missing = [name for name, pat in req.items() if not re.search(pat, text, re.I)]
         status = "OK  " if not missing else "MISS"
-        print(f"  {status} {f.name}" + (f"  → missing: {', '.join(missing)}" if missing else ""))
+        print(
+            f"  {status} {f.name}"
+            + (f"  → missing: {', '.join(missing)}" if missing else ""),
+        )
         if missing:
             problems.append((f.name, missing))
 
@@ -66,7 +75,9 @@ def main():
     if problems:
         print(f"FAIL: {len(problems)} spec(s) missing required sections.")
         return 1
-    print("OK: all component specs document anatomy, variants, states, tokens, and a11y.")
+    print(
+        "OK: all component specs document anatomy, variants, states, tokens, and a11y.",
+    )
     return 0
 
 

@@ -51,12 +51,16 @@ class UsernameChangeForm(forms.ModelForm):
         model = User
         fields = ["username"]
         labels = {"username": _("Username")}
-        widgets = {"username": forms.TextInput(attrs=INPUT | {"autocomplete": "username"})}
+        widgets = {
+            "username": forms.TextInput(attrs=INPUT | {"autocomplete": "username"}),
+        }
         help_texts = {"username": ""}
 
     def clean_username(self):
         username = self.cleaned_data["username"]
-        taken = User.objects.filter(username__iexact=username).exclude(pk=self.instance.pk)
+        taken = User.objects.filter(username__iexact=username).exclude(
+            pk=self.instance.pk,
+        )
         if taken.exists():
             msg = _("This username has already been taken.")
             raise forms.ValidationError(msg)
@@ -76,7 +80,9 @@ class EmailChangeForm(forms.Form):
     def clean_email(self):
         email = self.cleaned_data["email"].strip()
         taken_user = User.objects.filter(email__iexact=email).exclude(pk=self.user.pk)
-        taken_addr = EmailAddress.objects.filter(email__iexact=email).exclude(user=self.user)
+        taken_addr = EmailAddress.objects.filter(email__iexact=email).exclude(
+            user=self.user,
+        )
         if taken_user.exists() or taken_addr.exists():
             msg = _("This email is already used by another account.")
             raise forms.ValidationError(msg)
@@ -88,7 +94,12 @@ class EmailChangeForm(forms.Form):
         self.user.email = email
         self.user.save(update_fields=["email"])
         EmailAddress.objects.filter(user=self.user).delete()
-        EmailAddress.objects.create(user=self.user, email=email, primary=True, verified=True)
+        EmailAddress.objects.create(
+            user=self.user,
+            email=email,
+            primary=True,
+            verified=True,
+        )
         return self.user
 
 

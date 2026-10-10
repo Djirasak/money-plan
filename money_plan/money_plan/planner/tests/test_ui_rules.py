@@ -19,7 +19,11 @@ PICTOGRAPHS = re.compile("[←-⇿■-◿☀-➿\U0001f000-\U0001faff]")
 
 def test_no_pictographs_or_emoji_in_ui_sources():
     offenders = []
-    for path in [*(ROOT / "templates").rglob("*.html"), *ROOT.glob("planner/**/*.py"), ROOT / "static/js/project.js"]:
+    for path in [
+        *(ROOT / "templates").rglob("*.html"),
+        *ROOT.glob("planner/**/*.py"),
+        ROOT / "static/js/project.js",
+    ]:
         if "tests" in path.parts or "migrations" in path.parts:
             continue
         if PICTOGRAPHS.search(path.read_text()):
@@ -28,13 +32,17 @@ def test_no_pictographs_or_emoji_in_ui_sources():
 
 
 def test_icon_tag_renders_decorative_inline_svg():
-    html = Template('{% load planner_tags %}{% icon "plus" "size-6" %}').render(Context())
+    html = Template('{% load planner_tags %}{% icon "plus" "size-6" %}').render(
+        Context(),
+    )
     assert html.startswith('<svg class="size-6" aria-hidden="true" focusable="false"')
     assert "currentColor" in html
 
 
 def test_icon_tag_escapes_class():
-    html = Template('{% load planner_tags %}{% icon "plus" cls %}').render(Context({"cls": '"><script>'}))
+    html = Template('{% load planner_tags %}{% icon "plus" cls %}').render(
+        Context({"cls": '"><script>'}),
+    )
     assert "<script>" not in html
 
 
@@ -44,7 +52,10 @@ def test_every_icon_file_exists_and_is_an_svg():
     assert all(f.read_text().lstrip().startswith("<svg") for f in files)
 
 
-@pytest.mark.parametrize("name", ["planner:settings", "planner:plan", "planner:piles", "planner:log"])
+@pytest.mark.parametrize(
+    "name",
+    ["planner:settings", "planner:plan", "planner:piles", "planner:log"],
+)
 def test_every_visible_input_has_an_accessible_name(client_in, name):
     html = client_in.get(reverse(name)).content.decode()
     for tag in re.findall(r"<(?:input|select|textarea)\b[^>]*>", html):
@@ -72,7 +83,9 @@ def test_dark_mode_toggle_and_no_flash_script(client_in):
 
 def test_ui_does_not_hardcode_light_only_colours():
     """Surfaces and text use semantic tokens so dark mode can swap them."""
-    bad = re.compile(r"(?<![\w/-])(bg-white|bg-slate-\d+|text-slate-\d+|bg-(?:rose|emerald|amber)-(?:50|100|200))(?![\w/%-])")
+    bad = re.compile(
+        r"(?<![\w/-])(bg-white|bg-slate-\d+|text-slate-\d+|bg-(?:rose|emerald|amber)-(?:50|100|200))(?![\w/%-])",
+    )
     offenders = {}
     for path in (ROOT / "templates").rglob("*.html"):
         found = bad.findall(path.read_text())
@@ -86,9 +99,15 @@ def test_messages_are_toasts_with_the_right_roles(client_in, user):
 
     pile = Pile.objects.get(user=user, name="เงินสำรอง")
     prefix = f"p{pile.pk}"
-    bad = {"action": "save", "id": pile.pk, f"{prefix}-name": pile.name, f"{prefix}-color": "#10b981",
-           f"{prefix}-kind": "fund", f"{prefix}-mode": "rollover",
-           f"{prefix}-target_mode": "salary"}  # percent and months missing
+    bad = {
+        "action": "save",
+        "id": pile.pk,
+        f"{prefix}-name": pile.name,
+        f"{prefix}-color": "#10b981",
+        f"{prefix}-kind": "fund",
+        f"{prefix}-mode": "rollover",
+        f"{prefix}-target_mode": "salary",
+    }  # percent and months missing
     html = client_in.post(reverse("planner:piles"), bad, follow=True).content.decode()
     toaster = html[html.index('id="toaster"') :]
     assert 'class="toast" role="alert"' in toaster  # errors are announced assertively
@@ -103,5 +122,3 @@ def test_placeholders_read_as_examples_not_values(client_in):
     html = client_in.get(reverse("planner:piles")).content.decode()
     assert 'placeholder="เช่น 60"' in html
     assert 'placeholder="60"' not in html and 'placeholder="6"' not in html
-
-

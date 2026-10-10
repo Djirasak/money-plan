@@ -31,10 +31,12 @@ skill.
 no spelling of a path can reach it; closing that gap is a different fix, and
 gating it here would only tempt someone to weaken the measurement.
 """
+
 import json
 import re
 import sys
 from pathlib import Path
+
 
 def _root():
     """`--root <dir>` points the gate at a copy, which is the only way to show it
@@ -64,9 +66,20 @@ SKILLS_ADD_KEEPS = {".claude"}
 # Only the top-level directories the kit actually ships are counted, so prose
 # like "components/atoms" in a sentence about the user's own repo is not.
 KIT_DIRS = (
-    "scripts", "tokens", "components", "taste", "design-systems", "frameworks",
-    "accessibility", "workflows", "content", "examples", "evals", "templates",
-    "docs", "tests",
+    "scripts",
+    "tokens",
+    "components",
+    "taste",
+    "design-systems",
+    "frameworks",
+    "accessibility",
+    "workflows",
+    "content",
+    "examples",
+    "evals",
+    "templates",
+    "docs",
+    "tests",
 )
 # The same body in both patterns, so a reference counts identically whether or
 # not it is prefixed: a denominator that moves when you fix something makes the
@@ -77,15 +90,32 @@ REF = re.compile(r"(?<![\w./-])" + _BODY)
 # ends in one of these is prose, not a path: "SemVer for tokens/components" means
 # tokens and components, and counting it as a broken reference would inflate the
 # very number this script exists to report honestly.
-FILE_EXT = (".md", ".mjs", ".js", ".py", ".json", ".html", ".css", ".tsx", ".jsx",
-            ".vue", ".svelte", ".swift", ".txt", ".yml", ".yaml")
+FILE_EXT = (
+    ".md",
+    ".mjs",
+    ".js",
+    ".py",
+    ".json",
+    ".html",
+    ".css",
+    ".tsx",
+    ".jsx",
+    ".vue",
+    ".svelte",
+    ".swift",
+    ".txt",
+    ".yml",
+    ".yaml",
+)
 
 
 def is_path_reference(text: str) -> bool:
     if "*" in text:
         # `taste/*` means "the files in taste/" - a real reference to a real dir
-        return (ROOT / text.split("*")[0].rstrip("/")).is_dir()
+        return (ROOT / text.split("*", maxsplit=1)[0].rstrip("/")).is_dir()
     return (ROOT / text).exists() or text.endswith(FILE_EXT)
+
+
 # A reference already built from a path variable. It must still be COUNTED, or
 # fixing a reference would make it disappear from the denominator instead of
 # moving it into the resolved column - an instrument that flatters itself.
@@ -95,7 +125,7 @@ def is_path_reference(text: str) -> bool:
 # version of this script lost four of them the moment they were fixed.
 GUARDED = re.compile(
     r"(?:\$\{?CLAUDE_(?:SKILL_DIR|PLUGIN_ROOT|PROJECT_DIR)\}?|\$\{?KIT\}?)"
-    r"(?:/\.\.)*/" + _BODY
+    r"(?:/\.\.)*/" + _BODY,
 )
 
 
@@ -192,12 +222,14 @@ def installed_by_cli(path_text: str) -> bool:
     global _CLI_AREAS
     if _CLI_AREAS is None:
         cli = (ROOT / "bin" / "cli.js").read_text()
-        block = cli[cli.index("const AREAS = {"):]
-        block = block[:block.index("};")]
+        block = cli[cli.index("const AREAS = {") :]
+        block = block[: block.index("};")]
         # AREAS maps an area NAME to the path it installs; the paths are what
         # lands in the project, so those are what a reference can resolve against.
-        _CLI_AREAS = {v.split("/")[-1] if v.startswith(".claude/") else v
-                      for v in re.findall(r":\s*'([^']+)'", block)}
+        _CLI_AREAS = {
+            v.split("/")[-1] if v.startswith(".claude/") else v
+            for v in re.findall(r":\s*'([^']+)'", block)
+        }
     top = path_text.split("/", 1)[0]
     return top in _CLI_AREAS
 
@@ -208,16 +240,22 @@ def main(argv):
 
     if "--gate" in argv:
         bare = [(f, n, p) for f, n, p, g in refs if not g]
-        print(f"Plugin surface: {len(refs)} kit-file reference(s), "
-              f"{len(refs) - len(bare)} built from a path variable.")
+        print(
+            f"Plugin surface: {len(refs)} kit-file reference(s), "
+            f"{len(refs) - len(bare)} built from a path variable.",
+        )
         if bare:
-            print(f"\nFAIL: {len(bare)} reference(s) are bare repo-root paths. Under a "
-                  f"plugin install they resolve against the user's project, where the "
-                  f"kit is not:")
+            print(
+                f"\nFAIL: {len(bare)} reference(s) are bare repo-root paths. Under a "
+                f"plugin install they resolve against the user's project, where the "
+                f"kit is not:",
+            )
             for f, n, p in bare:
                 print(f"  x {f}:{n}: {p}")
-            print("\nWrite them as ${CLAUDE_SKILL_DIR}/../../../<path>, or for a "
-                  "subagent as $KIT/<path> with the invoking skill passing KIT=.")
+            print(
+                "\nWrite them as ${CLAUDE_SKILL_DIR}/../../../<path>, or for a "
+                "subagent as $KIT/<path> with the invoking skill passing KIT=.",
+            )
             return 1
         print("OK: every reference in the plugin surface carries a path variable.")
         return 0
@@ -232,25 +270,41 @@ def main(argv):
     table = {}
     for route in routes:
         ok = sum(1 for _, _, p, g in refs if resolves(p, g, route))
-        table[route] = {"resolved": ok, "total": len(refs),
-                        "share": round(ok / len(refs), 4) if refs else 0.0}
+        table[route] = {
+            "resolved": ok,
+            "total": len(refs),
+            "share": round(ok / len(refs), 4) if refs else 0.0,
+        }
 
     guarded = sum(1 for *_, g in refs if g)
     h1 = round(sum(t["share"] for t in table.values()) / len(routes), 4)
 
     if "--json" in argv:
-        print(json.dumps({"references": len(refs), "variable_guarded": guarded,
-                          "routes": table, "H1": h1}, indent=2))
+        print(
+            json.dumps(
+                {
+                    "references": len(refs),
+                    "variable_guarded": guarded,
+                    "routes": table,
+                    "H1": h1,
+                },
+                indent=2,
+            ),
+        )
         return 0
 
-    print(f"Plugin surface: {len(list(surface_files()))} file(s), "
-          f"{len(refs)} kit-file reference(s), {guarded} already variable-guarded.")
+    print(
+        f"Plugin surface: {len(list(surface_files()))} file(s), "
+        f"{len(refs)} kit-file reference(s), {guarded} already variable-guarded.",
+    )
     print()
     print(f"  {'route':<12} {'resolves':>10}  {'share':>7}")
     print(f"  {'-' * 12} {'-' * 10}  {'-' * 7}")
     for route in routes:
         t = table[route]
-        print(f"  {route:<12} {t['resolved']:>4} / {t['total']:<3}  {t['share'] * 100:>6.1f}%")
+        print(
+            f"  {route:<12} {t['resolved']:>4} / {t['total']:<3}  {t['share'] * 100:>6.1f}%",
+        )
     print()
     print(f"  H1 (mean across the three routes) = {h1}")
     print()

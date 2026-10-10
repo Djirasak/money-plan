@@ -4,7 +4,6 @@ from decimal import Decimal
 import pytest
 from django.urls import reverse
 
-from money_plan.planner import services
 from money_plan.planner.models import LogEntry
 from money_plan.planner.models import Pile
 from money_plan.planner.models import PlanPeriod
@@ -45,7 +44,10 @@ def test_add_log_entry_and_it_reduces_balance(client_in, user):
     )
     assert resp.status_code == 302
     assert LogEntry.objects.filter(user=user, amount=1000).exists()
-    html = client_in.get(reverse("planner:summary_content"), {"m": month}).content.decode()
+    html = client_in.get(
+        reverse("planner:summary_content"),
+        {"m": month},
+    ).content.decode()
     assert "฿25,400" in html
 
 
@@ -62,18 +64,31 @@ def test_cannot_touch_other_users_entries(client_in, django_user_model):
     other = django_user_model.objects.create_user("other", password="x")  # noqa: S106
     pile = Pile.objects.create(user=other, name="x")
     entry = LogEntry.objects.create(
-        user=other, date=date(2027, 1, 1), type="spend", from_pile=pile, amount=5,
+        user=other,
+        date=date(2027, 1, 1),
+        type="spend",
+        from_pile=pile,
+        amount=5,
     )
-    assert client_in.post(reverse("planner:log_delete", args=[entry.pk])).status_code == 404
+    assert (
+        client_in.post(reverse("planner:log_delete", args=[entry.pk])).status_code
+        == 404
+    )
     assert LogEntry.objects.filter(pk=entry.pk).exists()
 
 
 def test_add_pile_and_plan_period_copies_previous(client_in, user):
     client_in.post(
         reverse("planner:piles"),
-        {"action": "save", "new-name": "ท่องเที่ยว", "new-color": "#ff0000",
-         "new-kind": "fund", "new-mode": "rollover", "new-order": 9,
-         "new-target_mode": "none"},
+        {
+            "action": "save",
+            "new-name": "ท่องเที่ยว",
+            "new-color": "#ff0000",
+            "new-kind": "fund",
+            "new-mode": "rollover",
+            "new-order": 9,
+            "new-target_mode": "none",
+        },
     )
     assert Pile.objects.filter(user=user, name="ท่องเที่ยว").exists()
     client_in.post(
@@ -93,14 +108,21 @@ def test_save_plan_changes_allocation_from_that_month(client_in, user):
         data[f"percent_{pile.pk}"] = "50" if pile == spend else "0"
     client_in.post(reverse("planner:plan"), data)
     month = user.planner_settings.start_month
-    html = client_in.get(reverse("planner:summary_content"), {"m": month}).content.decode()
+    html = client_in.get(
+        reverse("planner:summary_content"),
+        {"m": month},
+    ).content.decode()
     assert "฿24,000" in html  # 48,000 * 50%
 
 
 def test_delete_pile_in_use_is_blocked(client_in, user):
     spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
     LogEntry.objects.create(
-        user=user, date=date(2027, 1, 1), type="spend", from_pile=spend, amount=5,
+        user=user,
+        date=date(2027, 1, 1),
+        type="spend",
+        from_pile=spend,
+        amount=5,
     )
     client_in.post(reverse("planner:piles"), {"action": "delete", "id": spend.pk})
     assert Pile.objects.filter(pk=spend.pk).exists()
@@ -122,7 +144,13 @@ def test_logout_via_post_signs_out(client_in):
 
 @pytest.mark.parametrize(
     "name",
-    ["planner:summary", "planner:log", "planner:settings", "planner:piles", "planner:plan"],
+    [
+        "planner:summary",
+        "planner:log",
+        "planner:settings",
+        "planner:piles",
+        "planner:plan",
+    ],
 )
 def test_every_page_renders(client_in, name):
     assert client_in.get(reverse(name)).status_code == 200
@@ -131,7 +159,11 @@ def test_every_page_renders(client_in, name):
 def test_edit_page_renders_with_cancel_and_the_entry_values(client_in, user):
     spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
     entry = LogEntry.objects.create(
-        user=user, date=date(2027, 1, 1), type="spend", from_pile=spend, amount=5,
+        user=user,
+        date=date(2027, 1, 1),
+        type="spend",
+        from_pile=spend,
+        amount=5,
     )
     resp = client_in.get(reverse("planner:log_edit", args=[entry.pk]))
     assert resp.status_code == 200
@@ -262,13 +294,23 @@ def test_incomplete_condition_is_rejected_and_nothing_changes(client_in, user):
     period = PlanPeriod.objects.get(user=user)
     client_in.post(
         reverse("planner:plan"),
-        _plan_post(user, period, condition_mode="on", condition_op="lt", name="renamed"),
+        _plan_post(
+            user,
+            period,
+            condition_mode="on",
+            condition_op="lt",
+            name="renamed",
+        ),
     )
     period.refresh_from_db()
     assert period.cond_op == "" and period.name != "renamed"
 
 
-def test_cannot_use_another_users_pile_in_a_condition(client_in, user, django_user_model):
+def test_cannot_use_another_users_pile_in_a_condition(
+    client_in,
+    user,
+    django_user_model,
+):
     other = django_user_model.objects.create_user("other2", password="x")  # noqa: S106
     foreign = Pile.objects.create(user=other, name="theirs")
     period = PlanPeriod.objects.get(user=user)
@@ -325,8 +367,15 @@ def test_summary_uses_the_plan_whose_condition_is_met(client_in, user):
         cond_amount=1,
     )
     for pile in user.piles.all():
-        PlanItem.objects.create(period=rich, pile=pile, percent=100 if pile == spend else 0)
-    html = client_in.get(reverse("planner:summary_content"), {"m": month}).content.decode()
+        PlanItem.objects.create(
+            period=rich,
+            pile=pile,
+            percent=100 if pile == spend else 0,
+        )
+    html = client_in.get(
+        reverse("planner:summary_content"),
+        {"m": month},
+    ).content.decode()
     assert "Lean" in html  # the hero names the plan that is actually in force
     assert "฿48,000" in html  # spend gets 100% of the salary
 
@@ -425,7 +474,10 @@ def test_salaries_are_cards_with_modals_and_icon_buttons(client_in, user):
     html = client_in.get(reverse("planner:settings")).content.decode()
     salary = Salary.objects.get(user=user)
     assert f'data-open-dialog="salary-edit-{salary.pk}"' in html
-    assert f'data-delete-id="{salary.pk}"' in html and 'data-open-dialog="salary-new"' in html
+    assert (
+        f'data-delete-id="{salary.pk}"' in html
+        and 'data-open-dialog="salary-new"' in html
+    )
     assert 'id="salary-new"' in html and f'id="salary-edit-{salary.pk}"' in html
     assert 'class="btn-danger"' not in html  # no more text "ลบ" button
     assert html.count('id="cond') == 0  # (plan page only) sanity
@@ -436,7 +488,12 @@ def test_editing_a_salary_changes_amount_and_month(client_in, user):
     year, month = user.planner_settings.start_month.split("-")
     resp = client_in.post(
         reverse("planner:settings"),
-        _salary_dialog_post(user, id=salary.pk, amount="61000", effective_month_year=str(int(year) + 1)),
+        _salary_dialog_post(
+            user,
+            id=salary.pk,
+            amount="61000",
+            effective_month_year=str(int(year) + 1),
+        ),
     )
     assert resp.status_code == 302
     salary.refresh_from_db()
@@ -450,10 +507,17 @@ def test_adding_a_salary_via_the_modal_form(client_in, user):
         reverse("planner:settings"),
         _salary_dialog_post(user, effective_month_year=str(year), amount="70000"),
     )
-    assert Salary.objects.filter(user=user, effective_month__startswith=str(year), amount=70000).exists()
+    assert Salary.objects.filter(
+        user=user,
+        effective_month__startswith=str(year),
+        amount=70000,
+    ).exists()
 
 
-def test_moving_a_salary_onto_an_existing_month_is_rejected_and_the_modal_reopens(client_in, user):
+def test_moving_a_salary_onto_an_existing_month_is_rejected_and_the_modal_reopens(
+    client_in,
+    user,
+):
     first = Salary.objects.get(user=user)
     year = int(user.planner_settings.start_month[:4]) + 1
     other = Salary.objects.create(user=user, effective_month=f"{year}-03", amount=1)
@@ -476,14 +540,20 @@ def test_moving_a_salary_onto_an_existing_month_is_rejected_and_the_modal_reopen
 
 def test_deleting_a_salary_uses_the_confirm_dialog_post(client_in, user):
     salary = Salary.objects.get(user=user)
-    client_in.post(reverse("planner:settings"), {"action": "salary_delete", "id": salary.pk})
+    client_in.post(
+        reverse("planner:settings"),
+        {"action": "salary_delete", "id": salary.pk},
+    )
     assert not Salary.objects.filter(pk=salary.pk).exists()
 
 
 def test_cannot_edit_another_users_salary(client_in, django_user_model):
     other = django_user_model.objects.create_user("other4", password="x")  # noqa: S106
     theirs = Salary.objects.create(user=other, effective_month="2030-01", amount=1)
-    resp = client_in.post(reverse("planner:settings"), {"action": "salary_save", "id": theirs.pk, "amount": "9"})
+    resp = client_in.post(
+        reverse("planner:settings"),
+        {"action": "salary_save", "id": theirs.pk, "amount": "9"},
+    )
     assert resp.status_code == 404
     theirs.refresh_from_db()
     assert theirs.amount == 1
@@ -495,7 +565,12 @@ def test_log_entry_tone_colours(client_in, user):
 
     def make(kind, src, dst):
         return LogEntry.objects.create(
-            user=user, date=f"{month}-05", type=kind, from_pile=src, to_pile=dst, amount=10,
+            user=user,
+            date=f"{month}-05",
+            type=kind,
+            from_pile=src,
+            to_pile=dst,
+            amount=10,
         )
 
     assert make("spend", a, None).tone == "out"
@@ -513,31 +588,61 @@ def test_log_loads_25_then_10_at_a_time(client_in, user):
     month = user.planner_settings.start_month
     for i in range(40):
         LogEntry.objects.create(
-            user=user, date=f"{month}-05", type="spend", from_pile=pile, amount=i + 1,
+            user=user,
+            date=f"{month}-05",
+            type="spend",
+            from_pile=pile,
+            amount=i + 1,
         )
     url = reverse("planner:log")
     html = client_in.get(url, {"m": month}).content.decode()
     assert html.count('class="item entry') == 25 and "offset=25" in html
-    resp = client_in.get(url, {"m": month, "offset": 25}, headers={"HX-Request": "true"})
+    resp = client_in.get(
+        url,
+        {"m": month, "offset": 25},
+        headers={"HX-Request": "true"},
+    )
     html = resp.content.decode()
     assert html.count('class="item entry') == 10 and "offset=35" in html
-    html = client_in.get(url, {"m": month, "offset": 35}, headers={"HX-Request": "true"}).content.decode()
+    html = client_in.get(
+        url,
+        {"m": month, "offset": 35},
+        headers={"HX-Request": "true"},
+    ).content.decode()
     assert html.count('class="item entry') == 5
     assert "Load more" not in html and "ไม่มีรายการเพิ่มแล้ว" in html and "<html" not in html
 
 
 def test_clear_all_needs_the_typed_word(client_in, user):
-    before = (Pile.objects.filter(user=user).count(), Salary.objects.filter(user=user).count())
+    before = (
+        Pile.objects.filter(user=user).count(),
+        Salary.objects.filter(user=user).count(),
+    )
     assert before[0] and before[1]
-    client_in.post(reverse("planner:settings"), {"action": "clear_all", "confirm": "nope"})
-    after = (Pile.objects.filter(user=user).count(), Salary.objects.filter(user=user).count())
+    client_in.post(
+        reverse("planner:settings"),
+        {"action": "clear_all", "confirm": "nope"},
+    )
+    after = (
+        Pile.objects.filter(user=user).count(),
+        Salary.objects.filter(user=user).count(),
+    )
     assert after == before
 
 
 def test_clear_all_deletes_everything_but_the_user(client_in, user):
     pile = Pile.objects.filter(user=user).first()
-    LogEntry.objects.create(user=user, date=f"{user.planner_settings.start_month}-05", type="spend", from_pile=pile, amount=5)
-    resp = client_in.post(reverse("planner:settings"), {"action": "clear_all", "confirm": " ลบทั้งหมด "})
+    LogEntry.objects.create(
+        user=user,
+        date=f"{user.planner_settings.start_month}-05",
+        type="spend",
+        from_pile=pile,
+        amount=5,
+    )
+    resp = client_in.post(
+        reverse("planner:settings"),
+        {"action": "clear_all", "confirm": " ลบทั้งหมด "},
+    )
     assert resp.status_code == 302
     assert not Pile.objects.filter(user=user).exists()
     assert not LogEntry.objects.filter(user=user).exists()

@@ -15,12 +15,25 @@ Flags a line with a raw hex color, px length, or ms/s duration UNLESS it:
   - carries an inline allow comment containing 'ds-allow-hardcode'.
 Exit 0 = clean, 1 = violations found.
 """
+
 import re
 import sys
 from pathlib import Path
 
-CODE_EXT = {".css", ".scss", ".tsx", ".jsx", ".ts", ".js", ".vue", ".svelte",
-            ".swift", ".kt", ".dart", ".html"}
+CODE_EXT = {
+    ".css",
+    ".scss",
+    ".tsx",
+    ".jsx",
+    ".ts",
+    ".js",
+    ".vue",
+    ".svelte",
+    ".swift",
+    ".kt",
+    ".dart",
+    ".html",
+}
 
 HEX = re.compile(r"(?<![\w&])#[0-9a-fA-F]{3,8}\b")
 # Outside CSS, a # is far more often prose than a colour: "issue #412" is not a
@@ -33,7 +46,9 @@ MS = re.compile(r"(?<![\w.])\d+(?:\.\d+)?m?s\b")
 # bypass semantic tokens — the #1 real-world drift (527 of these in one audited project).
 _TW_PREFIX = r"(?:bg|text|border|ring|ring-offset|fill|stroke|from|via|to|divide|outline|decoration|accent|caret|placeholder|shadow)"
 _TW_COLOR = r"(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)"
-TW = re.compile(rf"(?<![\w-]){_TW_PREFIX}-{_TW_COLOR}-(?:50|100|200|300|400|500|600|700|800|900|950)\b")
+TW = re.compile(
+    rf"(?<![\w-]){_TW_PREFIX}-{_TW_COLOR}-(?:50|100|200|300|400|500|600|700|800|900|950)\b",
+)
 # hardcoded font-family not coming from a token/var
 FONT = re.compile(r"font-family\s*:\s*(?!.*var\()")
 # A custom-property definition line, where a raw value is the point.
@@ -57,7 +72,11 @@ def iter_files(paths, exts):
                 # unreadable candidate fails the run, it has to be excluded here
                 # instead. A file that vanishes between this walk and the read
                 # still surfaces as a read error, which is correct.
-                if f.suffix in exts and "node_modules" not in f.parts and not f.is_dir():
+                if (
+                    f.suffix in exts
+                    and "node_modules" not in f.parts
+                    and not f.is_dir()
+                ):
                     yield f
         elif pp.is_file() and pp.suffix in exts:
             yield pp
@@ -235,16 +254,22 @@ def main(argv):
                 print(f"{f}:{n}: hardcoded {kind} '{val}' — use a token")
                 violations += 1
 
-    print(f"\nScanned {len(files) - len(unreadable)} of {len(files)} candidate file(s).")
+    print(
+        f"\nScanned {len(files) - len(unreadable)} of {len(files)} candidate file(s).",
+    )
     for f, err in unreadable:
         print(f"ERROR: could not read {f}: {err}", file=sys.stderr)
     if unreadable:
-        print(f"FAIL: {len(unreadable)} file(s) could not be read, so this run "
-              f"cannot report clean. {violations} hardcoded value(s) in the rest.")
+        print(
+            f"FAIL: {len(unreadable)} file(s) could not be read, so this run "
+            f"cannot report clean. {violations} hardcoded value(s) in the rest.",
+        )
         return 1
     if violations:
-        print(f"FAIL: {violations} hardcoded value(s). Map each to a token, "
-              f"or add a '{ALLOW}' comment for a justified exception.")
+        print(
+            f"FAIL: {violations} hardcoded value(s). Map each to a token, "
+            f"or add a '{ALLOW}' comment for a justified exception.",
+        )
         return 1
     print("OK: no hardcoded values found.")
     return 0

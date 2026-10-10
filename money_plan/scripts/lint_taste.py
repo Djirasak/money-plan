@@ -17,6 +17,7 @@ Checks:
   - very long headings (likely wrap past 3 lines)
 Exit 0 unless --strict and findings exist.
 """
+
 import re
 import sys
 from pathlib import Path
@@ -25,7 +26,7 @@ CODE_EXT = {".html", ".tsx", ".jsx", ".vue", ".svelte", ".css", ".scss", ".js", 
 PURE = re.compile(r"#(?:000(?:000)?|fff(?:fff)?)\b", re.I)
 HEX = re.compile(r"#[0-9a-fA-F]{6}\b")
 JUSTIFY = re.compile(r"text-align\s*:\s*justify|\btext-justify\b")
-EMOJI = re.compile("[" "\U0001F300-\U0001FAFF" "\U00002600-\U000027BF" "\U0001F000-\U0001F0FF" "]")
+EMOJI = re.compile("[\U0001f300-\U0001faff\U00002600-\U000027bf\U0001f000-\U0001f0ff]")
 HEADING = re.compile(r"<h[12][^>]*>(.*?)</h[12]>", re.I | re.S)
 
 
@@ -44,7 +45,7 @@ def lint(f):
     out = []
     try:
         text = f.read_text()
-    except (UnicodeDecodeError, OSError):
+    except UnicodeDecodeError, OSError:
         return out
     for n, line in enumerate(text.splitlines(), 1):
         if PURE.search(line) and "ds-allow" not in line:
@@ -56,11 +57,21 @@ def lint(f):
     # whole-file checks
     hues = {h.lower() for h in HEX.findall(text)}
     if len(hues) > 6:
-        out.append((0, f"{len(hues)} distinct hex colors — palette sprawl (cap accents; use tokens)"))
+        out.append(
+            (
+                0,
+                f"{len(hues)} distinct hex colors — palette sprawl (cap accents; use tokens)",
+            ),
+        )
     for h in HEADING.findall(text):
         words = len(re.sub(r"<[^>]+>", "", h).split())
         if words > 12:
-            out.append((0, f"long heading ({words} words) — likely wraps >3 lines; tighten or scale up"))
+            out.append(
+                (
+                    0,
+                    f"long heading ({words} words) — likely wraps >3 lines; tighten or scale up",
+                ),
+            )
     return out
 
 

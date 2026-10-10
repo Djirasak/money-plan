@@ -1,8 +1,7 @@
 import pytest
+from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
 from django.views import defaults
-
-from django.core.exceptions import PermissionDenied
 
 
 @pytest.fixture

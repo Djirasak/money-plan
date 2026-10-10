@@ -14,6 +14,7 @@ FAILS. The default tokens/ run only warns, because a reference there may point a
 a token that is about to be added.
 Exit code 0 = all good, 1 = problems found.
 """
+
 import json
 import re
 import sys
@@ -87,7 +88,7 @@ def main(argv=()):
         parsed[f] = data
         flat = flatten(data)
         for path, val in flat.items():
-            all_tokens[path] = val           # e.g. "duration.fast"
+            all_tokens[path] = val  # e.g. "duration.fast"
             all_tokens[f"{f.stem}.{path}"] = val  # e.g. "motion.duration.fast"
 
     # Pass 2: resolve aliases
@@ -110,7 +111,9 @@ def main(argv=()):
                     continue
                 unresolved.append(f"{f.name}: {path} → {{{ref}}} (unresolved)")
 
-    print(f"Parsed {len(parsed)}/{len(files)} token files, {len(all_tokens)//2} tokens defined.")
+    print(
+        f"Parsed {len(parsed)}/{len(files)} token files, {len(all_tokens) // 2} tokens defined.",
+    )
     for e in errors:
         print("  x " + e)
     for u in unresolved:
@@ -121,9 +124,13 @@ def main(argv=()):
         return 1
     if unresolved:
         if explicit:
-            print(f"\nFAIL: {len(unresolved)} unresolved alias(es) in a self-contained token set.")
+            print(
+                f"\nFAIL: {len(unresolved)} unresolved alias(es) in a self-contained token set.",
+            )
             return 1
-        print(f"\nWARN: {len(unresolved)} unresolved alias(es) — may reference tokens to be added.")
+        print(
+            f"\nWARN: {len(unresolved)} unresolved alias(es) — may reference tokens to be added.",
+        )
         # warnings don't fail the build
     print("\nOK: all token files valid JSON.")
     return 0

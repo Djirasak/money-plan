@@ -1,10 +1,10 @@
 from django.contrib import admin
 
 from .models import LogEntry
-from .models import PlanItem
-from .models import PlanPeriod
 from .models import Pile
+from .models import PlanItem
 from .models import PlannerSettings
+from .models import PlanPeriod
 from .models import Salary
 
 
@@ -15,7 +15,14 @@ class PlanItemInline(admin.TabularInline):
 
 @admin.register(PlanPeriod)
 class PlanPeriodAdmin(admin.ModelAdmin):
-    list_display = ["user", "effective_month", "name", "cond_pile", "cond_op", "cond_amount"]
+    list_display = [
+        "user",
+        "effective_month",
+        "name",
+        "cond_pile",
+        "cond_op",
+        "cond_amount",
+    ]
     inlines = [PlanItemInline]
 
 

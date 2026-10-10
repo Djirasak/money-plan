@@ -23,9 +23,15 @@ class Command(BaseCommand):
     help = "Create the initial superuser and its starter planner data."
 
     def add_arguments(self, parser):
-        parser.add_argument("--username", default=os.environ.get("INITIAL_USER_USERNAME"))
+        parser.add_argument(
+            "--username",
+            default=os.environ.get("INITIAL_USER_USERNAME"),
+        )
         parser.add_argument("--email", default=os.environ.get("INITIAL_USER_EMAIL", ""))
-        parser.add_argument("--password", default=os.environ.get("INITIAL_USER_PASSWORD"))
+        parser.add_argument(
+            "--password",
+            default=os.environ.get("INITIAL_USER_PASSWORD"),
+        )
         parser.add_argument(
             "--first-run",
             action="store_true",

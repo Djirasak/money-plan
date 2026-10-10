@@ -8,6 +8,7 @@ Usage:
 
 Prints to stdout, or writes to --out.
 """
+
 import sys
 from pathlib import Path
 

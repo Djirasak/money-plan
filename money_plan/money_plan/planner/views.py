@@ -16,7 +16,6 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from . import services
-from .templatetags.planner_tags import target_label
 from .forms import LogEntryForm
 from .forms import PileForm
 from .forms import PlanConditionForm
@@ -26,11 +25,13 @@ from .mixins import ActionPostMixin
 from .mixins import PlannerMixin
 from .mixins import month_from_post
 from .models import LogEntry
-from .models import PlannerSettings
-from .models import PlanItem
-from .models import PlanPeriod
 from .models import Pile
+from .models import PlanItem
+from .models import PlannerSettings
+from .models import PlanPeriod
 from .models import Salary
+from .templatetags.planner_tags import target_label
+
 
 def _errors(request, form) -> None:
     for errs in form.errors.values():
@@ -186,7 +187,9 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
             "salary_dialogs": self._salary_dialogs(),
         }
 
-    bound_salary: tuple | None = None  # (salary or None, posted data, form) after a failed save
+    bound_salary: tuple | None = (
+        None  # (salary or None, posted data, form) after a failed save
+    )
 
     def _salary_dialogs(self) -> list[dict]:
         """One entry per dialog (each salary, plus "new") with its field values/errors."""
@@ -228,7 +231,10 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
             _errors(request, form)
             self.bound_salary = (salary, data, form)
             return self.render_to_response(self.get_context_data())
-        month, amount = form.cleaned_data["effective_month"], form.cleaned_data["amount"]
+        month, amount = (
+            form.cleaned_data["effective_month"],
+            form.cleaned_data["amount"],
+        )
         if salary is None:
             Salary.objects.update_or_create(
                 user=request.user,
@@ -249,17 +255,19 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
         phrase = str(CLEAR_PHRASE)
         if request.POST.get("confirm", "").strip().casefold() != phrase.casefold():
             messages.error(request, _("Type the word to confirm, nothing was deleted"))
-            return None
+            return
         user = request.user
         with transaction.atomic():
             # entries first: they protect the piles they point at
             LogEntry.objects.filter(user=user).delete()
-            PlanPeriod.objects.filter(user=user).delete()  # takes its plan items with it
+            PlanPeriod.objects.filter(
+                user=user,
+            ).delete()  # takes its plan items with it
             Pile.objects.filter(user=user).delete()
             Salary.objects.filter(user=user).delete()
             PlannerSettings.objects.filter(user=user).delete()
         messages.success(request, _("All your data was cleared"))
-        return None
+        return
 
     def do_general(self, request):
         cfg = self.cfg
@@ -273,7 +281,7 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
             cfg.salary_multiplier = multiplier
             cfg.full_clean()
             cfg.save()
-        except (InvalidOperation, ValidationError):
+        except InvalidOperation, ValidationError:
             messages.error(request, _("Invalid value"))
         else:
             messages.success(request, _("Settings saved"))
@@ -305,7 +313,9 @@ class SettingsPilesView(ActionPostMixin, PlannerMixin, TemplateView):
             "open_dialog": (
                 None
                 if self.bound_form is None
-                else f"pile-edit-{self.bound_pile.pk}" if self.bound_pile else "pile-new"
+                else f"pile-edit-{self.bound_pile.pk}"
+                if self.bound_pile
+                else "pile-new"
             ),
         }
 
@@ -335,7 +345,9 @@ class SettingsPilesView(ActionPostMixin, PlannerMixin, TemplateView):
         except ProtectedError:
             messages.error(
                 request,
-                _("Cannot delete: this pile is used by log entries or a plan condition"),
+                _(
+                    "Cannot delete: this pile is used by log entries or a plan condition",
+                ),
             )
         else:
             messages.success(request, _("Pile deleted"))
@@ -350,9 +362,15 @@ class PileReorderView(LoginRequiredMixin, View):
     def post(self, request):
         wanted = [int(pk) for pk in request.POST.getlist("ids") if pk.isdigit()]
         mine = set(request.user.piles.values_list("pk", flat=True))
-        ids = [pk for pk in dict.fromkeys(wanted) if pk in mine]  # unique, own piles only
+        ids = [
+            pk for pk in dict.fromkeys(wanted) if pk in mine
+        ]  # unique, own piles only
         # the piles that were not listed keep their relative order, after the listed ones
-        rest = [pk for pk in request.user.piles.values_list("pk", flat=True) if pk not in ids]
+        rest = [
+            pk
+            for pk in request.user.piles.values_list("pk", flat=True)
+            if pk not in ids
+        ]
         for position, pk in enumerate([*ids, *rest]):
             Pile.objects.filter(pk=pk, user=request.user).update(order=position)
         return JsonResponse({"order": [*ids, *rest]})
@@ -392,7 +410,11 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
         }
 
     def _period(self, request) -> PlanPeriod:
-        return get_object_or_404(PlanPeriod, pk=request.POST.get("id"), user=request.user)
+        return get_object_or_404(
+            PlanPeriod,
+            pk=request.POST.get("id"),
+            user=request.user,
+        )
 
     def do_add(self, request):
         data = request.POST.copy()

@@ -111,7 +111,12 @@ class TestAccountChanges:
     def test_page_has_edit_dialogs_and_logout(self, client, user: User):
         client.force_login(user)
         html = client.get(user.get_absolute_url()).content.decode()
-        for dialog in ("account-username", "account-email", "account-password", "logout-modal"):
+        for dialog in (
+            "account-username",
+            "account-email",
+            "account-password",
+            "logout-modal",
+        ):
             assert f'id="{dialog}"' in html
         assert "disabled" in html  # profile photo button is not available yet
 
@@ -127,7 +132,10 @@ class TestAccountChanges:
         other = UserFactory(username="Taken_Name")
         client.force_login(user)
         old = user.username
-        resp = client.post(reverse("users:change_username"), {"username": other.username.lower()})
+        resp = client.post(
+            reverse("users:change_username"),
+            {"username": other.username.lower()},
+        )
         assert resp.status_code == HTTPStatus.OK
         html = resp.content.decode()
         assert "data-auto-open" in html
@@ -162,12 +170,18 @@ class TestAccountChanges:
         client.force_login(user)
         resp = client.post(
             reverse("users:change_password"),
-            {"old_password": "old-pass-123!", "new_password1": "Brand-new-pass-77", "new_password2": "Brand-new-pass-77"},
+            {
+                "old_password": "old-pass-123!",
+                "new_password1": "Brand-new-pass-77",
+                "new_password2": "Brand-new-pass-77",
+            },
         )
         assert resp.status_code == HTTPStatus.FOUND
         user.refresh_from_db()
         assert user.check_password("Brand-new-pass-77")
-        assert client.get(user.get_absolute_url()).status_code == HTTPStatus.OK  # still signed in
+        assert (
+            client.get(user.get_absolute_url()).status_code == HTTPStatus.OK
+        )  # still signed in
 
     def test_wrong_current_password_rejected(self, client, user: User):
         user.set_password("old-pass-123!")
@@ -175,7 +189,11 @@ class TestAccountChanges:
         client.force_login(user)
         resp = client.post(
             reverse("users:change_password"),
-            {"old_password": "nope", "new_password1": "Brand-new-pass-77", "new_password2": "Brand-new-pass-77"},
+            {
+                "old_password": "nope",
+                "new_password1": "Brand-new-pass-77",
+                "new_password2": "Brand-new-pass-77",
+            },
         )
         assert resp.status_code == HTTPStatus.OK
         user.refresh_from_db()
@@ -188,9 +206,16 @@ class TestAccountChanges:
 
     def test_change_name_stores_first_and_last(self, client, user: User):
         client.force_login(user)
-        resp = client.post(reverse("users:change_name"), {"first_name": " สมชาย ", "last_name": "ใจดี"})
+        resp = client.post(
+            reverse("users:change_name"),
+            {"first_name": " สมชาย ", "last_name": "ใจดี"},
+        )
         assert resp.status_code == HTTPStatus.FOUND
         user.refresh_from_db()
-        assert (user.first_name, user.last_name, user.name) == ("สมชาย", "ใจดี", "สมชาย ใจดี")
+        assert (user.first_name, user.last_name, user.name) == (
+            "สมชาย",
+            "ใจดี",
+            "สมชาย ใจดี",
+        )
         html = client.get(user.get_absolute_url()).content.decode()
         assert 'id="account-name"' in html

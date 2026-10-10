@@ -15,13 +15,23 @@ Usage:
   python3 scripts/check_links.py [file-or-dir ...]     (default: the doc surface)
 Exit 0 = every relative link resolves, 1 = at least one does not.
 """
+
 import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT = ["README.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "CHANGELOG.md",
-           "CLAUDE.md", "docs", ".claude/rules", ".claude/skills", ".claude/commands"]
+DEFAULT = [
+    "README.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "docs",
+    ".claude/rules",
+    ".claude/skills",
+    ".claude/commands",
+]
 LINK = re.compile(r"\]\(\s*([^)\s]+?)\s*\)")
 SKIP_PREFIX = ("http://", "https://", "mailto:", "#", "tel:")
 
@@ -56,7 +66,9 @@ def main(argv):
                 line = text[: m.start()].count("\n") + 1
                 broken.append(f"{f.relative_to(ROOT)}:{line}: {target}")
 
-    print(f"Checked {checked} relative link(s) across {len(list(files(targets)))} file(s).")
+    print(
+        f"Checked {checked} relative link(s) across {len(list(files(targets)))} file(s).",
+    )
     if broken:
         print(f"\nFAIL: {len(broken)} link(s) point at nothing:")
         for b in broken:

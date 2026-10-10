@@ -89,8 +89,14 @@ def test_target_follows_the_salary(client_in, user):
     }
     client_in.post(reverse("planner:piles"), data)
     pile.refresh_from_db()
-    assert (pile.target, pile.target_percent, pile.target_months) == (None, Decimal(60), 6)
-    assert pile.to_engine().target_for(Decimal(48000)) == Decimal(172800)  # 60% x 48,000 x 6
+    assert (pile.target, pile.target_percent, pile.target_months) == (
+        None,
+        Decimal(60),
+        6,
+    )
+    assert pile.to_engine().target_for(Decimal(48000)) == Decimal(
+        172800,
+    )  # 60% x 48,000 x 6
 
 
 @pytest.mark.parametrize(
@@ -138,17 +144,28 @@ def test_summary_shows_the_target_for_the_month_following_the_salary(client_in, 
             f"{prefix}-target_months": "2",
         },
     )
-    html = client_in.get(reverse("planner:summary_content"), {"m": start}).content.decode()
+    html = client_in.get(
+        reverse("planner:summary_content"),
+        {"m": start},
+    ).content.decode()
     assert "฿48,000" in html  # 50% x 48,000 x 2
     Salary.objects.filter(user=user).update(amount=60000)
-    html = client_in.get(reverse("planner:summary_content"), {"m": start}).content.decode()
+    html = client_in.get(
+        reverse("planner:summary_content"),
+        {"m": start},
+    ).content.decode()
     assert "฿60,000" in html  # the target moved with the raise
 
 
 def test_new_pile_form_is_prefixed_too(client_in, user):
     forms = page_forms(client_in, "planner:piles")
     new = next(f for f in forms if "new-name" in f)
-    new |= {"new-name": "Trip", "new-target_mode": "salary", "new-target_percent": "10", "new-target_months": "3"}
+    new |= {
+        "new-name": "Trip",
+        "new-target_mode": "salary",
+        "new-target_percent": "10",
+        "new-target_months": "3",
+    }
     client_in.post(reverse("planner:piles"), new)
     trip = Pile.objects.get(user=user, name="Trip")
     assert trip.target_months == 3
@@ -172,9 +189,20 @@ def test_order_is_gone_from_the_forms_and_new_piles_go_last(client_in, user):
     assert ">ลำดับ</label>" not in html
     forms = page_forms(client_in, "planner:piles")
     new = next(f for f in forms if "new-name" in f)
-    client_in.post(reverse("planner:piles"), new | {"new-name": "Trip", "new-target_mode": "none"})
+    client_in.post(
+        reverse("planner:piles"),
+        new | {"new-name": "Trip", "new-target_mode": "none"},
+    )
     trip = Pile.objects.get(user=user, name="Trip")
-    assert trip.order == max(Pile.objects.filter(user=user).exclude(pk=trip.pk).values_list("order", flat=True)) + 1
+    assert (
+        trip.order
+        == max(
+            Pile.objects.filter(user=user)
+            .exclude(pk=trip.pk)
+            .values_list("order", flat=True),
+        )
+        + 1
+    )
 
 
 def test_invalid_pile_form_reopens_its_dialog_with_the_input_kept(client_in, user):
@@ -182,7 +210,11 @@ def test_invalid_pile_form_reopens_its_dialog_with_the_input_kept(client_in, use
     prefix = f"p{pile.pk}"
     resp = client_in.post(
         reverse("planner:piles"),
-        data | {f"{prefix}-name": "Keep me", f"{prefix}-target_mode": "salary"},  # percent/months missing
+        data
+        | {
+            f"{prefix}-name": "Keep me",
+            f"{prefix}-target_mode": "salary",
+        },  # percent/months missing
     )
     assert resp.status_code == 200  # re-rendered, not redirected
     html = resp.content.decode()
@@ -196,7 +228,10 @@ def test_invalid_pile_form_reopens_its_dialog_with_the_input_kept(client_in, use
 def test_invalid_new_pile_reopens_the_create_dialog(client_in, user):
     forms = page_forms(client_in, "planner:piles")
     new = next(f for f in forms if "new-name" in f)
-    resp = client_in.post(reverse("planner:piles"), new | {"new-name": "", "new-color": "#ff0000"})
+    resp = client_in.post(
+        reverse("planner:piles"),
+        new | {"new-name": "", "new-color": "#ff0000"},
+    )
     assert resp.status_code == 200
     assert 'data-auto-open-id="pile-new"' in resp.content.decode()
 
@@ -211,16 +246,27 @@ def test_reorder_saves_the_new_order(client_in, user):
     new_order = [piles[2].pk, piles[0].pk, piles[1].pk]
     resp = client_in.post(reverse("planner:piles_reorder"), {"ids": new_order})
     assert resp.status_code == 200
-    assert list(Pile.objects.filter(user=user).values_list("pk", flat=True)) == new_order
+    assert (
+        list(Pile.objects.filter(user=user).values_list("pk", flat=True)) == new_order
+    )
     html = client_in.get(reverse("planner:piles")).content.decode()
-    assert html.index(f'data-sort-id="{new_order[0]}"') < html.index(f'data-sort-id="{new_order[2]}"')
+    assert html.index(f'data-sort-id="{new_order[0]}"') < html.index(
+        f'data-sort-id="{new_order[2]}"',
+    )
 
 
-def test_reorder_ignores_other_users_piles_and_keeps_unlisted_ones(client_in, user, django_user_model):
+def test_reorder_ignores_other_users_piles_and_keeps_unlisted_ones(
+    client_in,
+    user,
+    django_user_model,
+):
     other = django_user_model.objects.create_user("other3", password="x")  # noqa: S106
     foreign = Pile.objects.create(user=other, name="theirs", order=0)
     mine = list(Pile.objects.filter(user=user))
-    client_in.post(reverse("planner:piles_reorder"), {"ids": [foreign.pk, mine[1].pk, 999999, mine[1].pk]})
+    client_in.post(
+        reverse("planner:piles_reorder"),
+        {"ids": [foreign.pk, mine[1].pk, 999999, mine[1].pk]},
+    )
     foreign.refresh_from_db()
     assert foreign.order == 0  # untouched
     ordered = list(Pile.objects.filter(user=user).values_list("pk", flat=True))
