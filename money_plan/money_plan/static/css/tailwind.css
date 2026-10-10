@@ -134,6 +134,10 @@ input[type="color"].input {
 .app-nav a[aria-current="page"] {
   @apply bg-accent text-accent-foreground;
 }
+/* a closed select popover must not take part in layout, or it stretches the page below the content */
+.select [data-popover][aria-hidden="true"] {
+  display: none;
+}
 .toaster {
   bottom: calc(env(safe-area-inset-bottom, 0px) + 6rem) !important;
 }
