@@ -197,7 +197,7 @@ input[type="color"].input {
   @apply shrink-0 text-xs font-semibold tabular-nums;
 }
 
-/* ---- Log entries: red = money out, green = money in, blue = only moved between piles ---- */
+/* ---- Log entries: red = money out, green = money in, blue = only moved between piles (full tinted border + icon, never a one-sided bar) ---- */
 :root {
   --tone-out: #b91c1c; --tone-out-bg: #fef2f2;
   --tone-in: #15803d; --tone-in-bg: #f0fdf4;
@@ -208,7 +208,7 @@ input[type="color"].input {
   --tone-in: #86efac; --tone-in-bg: #11301e;
   --tone-move: #93c5fd; --tone-move-bg: #14264a;
 }
-.entry { border-left-width: 4px; border-left-color: var(--tone); background-color: var(--tone-bg); }
+.entry { border-color: color-mix(in srgb, var(--tone) 35%, transparent); background-color: var(--tone-bg); }
 .entry-out { --tone: var(--tone-out); --tone-bg: var(--tone-out-bg); }
 .entry-in { --tone: var(--tone-in); --tone-bg: var(--tone-in-bg); }
 .entry-move { --tone: var(--tone-move); --tone-bg: var(--tone-move-bg); }
