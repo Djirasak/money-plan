@@ -47,9 +47,9 @@ importers:
       stylelint:
         specifier: ^17.16.0
         version: 17.16.0
-      stylelint-config-standard:
-        specifier: ^40.0.0
-        version: 40.0.0(stylelint@17.16.0)
+      stylelint-config-recommended:
+        specifier: ^18.0.0
+        version: 18.0.0(stylelint@17.16.0)
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -1556,12 +1556,6 @@ packages:
     peerDependencies:
       stylelint: ^17.0.0
 
-  stylelint-config-standard@40.0.0:
-    resolution: {integrity: sha512-EznGJxOUhtWck2r6dJpbgAdPATIzvpLdK9+i5qPd4Lx70es66TkBPljSg4wN3Qnc6c4h2n+WbUrUynQ3fanjHw==}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      stylelint: ^17.0.0
-
   stylelint@17.16.0:
     resolution: {integrity: sha512-ejlWnbJ13x1GU32+zZXa6sYQJsKKkwSdv2B4rAdO3OWdEmvhSJKcXi5pOphQYSzyaj1kXpuGJr7pcMBNfDIuPw==}
     engines: {node: '>=20.19.0'}
@@ -3002,11 +2996,6 @@ snapshots:
   stylelint-config-recommended@18.0.0(stylelint@17.16.0):
     dependencies:
       stylelint: 17.16.0
-
-  stylelint-config-standard@40.0.0(stylelint@17.16.0):
-    dependencies:
-      stylelint: 17.16.0
-      stylelint-config-recommended: 18.0.0(stylelint@17.16.0)
 
   stylelint@17.16.0:
     dependencies:

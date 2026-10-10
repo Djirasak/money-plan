@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: money_plan
+
+jobs:
+  js-lint:
+    name: JS lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: money_plan/package.json
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: money_plan/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:js
+
+  css-lint:
+    name: CSS lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: money_plan/package.json
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: money_plan/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:css
+
+  js-test:
+    name: JS test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: money_plan/package.json
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: money_plan/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:js:coverage
+
+  ruff:
+    name: Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v6
+      - run: uvx ruff@0.16.10 check .
+      - run: uvx ruff@0.16.10 format --check .
+
+  pytest:
+    name: Pytest + coverage
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: money_plan
+          POSTGRES_USER: debug
+          POSTGRES_PASSWORD: debug
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U debug"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://debug:debug@localhost:5432/money_plan
+      REDIS_URL: redis://localhost:6379/0
+      DJANGO_SETTINGS_MODULE: config.settings.test
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: money_plan/uv.lock
+      - run: sudo apt-get update && sudo apt-get install -y libpq-dev
+      - run: uv sync --frozen
+      - run: uv run --no-sync coverage run -m pytest
+      - run: uv run --no-sync coverage report --show-missing

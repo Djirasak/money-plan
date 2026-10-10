@@ -123,7 +123,7 @@ window.addEventListener('pageshow', (event) => {
     root.classList.toggle('dark', dark);
     try {
       localStorage.setItem('theme', dark ? 'dark' : 'light');
-    } catch (e) { /* storage blocked: the choice just won't persist */ }
+    } catch { /* storage blocked: the choice just won't persist */ }
     sync();
     Busy.hide(since, 220);
   });
@@ -180,7 +180,7 @@ window.addEventListener('pageshow', (event) => {
   const csrf = () => {
     try {
       return JSON.parse(document.body.getAttribute('hx-headers') || '{}')['X-CSRFToken'] || '';
-    } catch (e) {
+    } catch {
       return '';
     }
   };

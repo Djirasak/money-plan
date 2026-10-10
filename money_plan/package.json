@@ -8,7 +8,11 @@
     "vendor": "mkdir -p money_plan/static/js/vendor && cp node_modules/basecoat-css/dist/js/all.min.js money_plan/static/js/vendor/basecoat.min.js && cp node_modules/htmx.org/dist/htmx.min.js money_plan/static/js/vendor/htmx.min.js && cp node_modules/alpinejs/dist/cdn.min.js money_plan/static/js/vendor/alpine.min.js && cp node_modules/sortablejs/Sortable.min.js money_plan/static/js/vendor/sortable.min.js",
     "dev": "pnpm run vendor && (esbuild money_plan/static/js/project.js --minify --target=es2020 --outfile=money_plan/static/js/project.min.js --watch=forever &) && tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --watch=always",
     "build": "pnpm run vendor && esbuild money_plan/static/js/project.js --minify --target=es2020 --outfile=money_plan/static/js/project.min.js && tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --minify",
-    "icons": "node bin/sync-icons.mjs"
+    "icons": "node bin/sync-icons.mjs",
+    "lint:js": "eslint money_plan/static/js eslint.config.mjs vitest.config.mjs",
+    "lint:css": "stylelint money_plan/static/css/tailwind.css",
+    "test:js": "vitest run",
+    "test:js:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -24,7 +28,7 @@
     "lucide-static": "^1.55.0",
     "sortablejs": "^1.15.7",
     "stylelint": "^17.16.0",
-    "stylelint-config-standard": "^40.0.0",
+    "stylelint-config-recommended": "^18.0.0",
     "tailwindcss": "^4.3.3",
     "vitest": "^5.0.3"
   },
