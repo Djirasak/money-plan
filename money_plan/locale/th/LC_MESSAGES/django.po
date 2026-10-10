@@ -391,7 +391,7 @@ msgstr "ทบได้ไม่จำกัด"
 
 #, python-format
 msgid "Overflow %(amount)s to %(target)s"
-msgstr "ส่วนเกิน %(amount)s โอนไป %(target)s แล้ว"
+msgstr "ส่วนเกิน %(amount)s โอนไป %(target)s"
 
 msgid "Sign out"
 msgstr "ออกจากระบบ"

@@ -13,7 +13,7 @@
   </section>
 
   <h2 class="mb-2 mt-6 px-1 text-xs font-medium text-muted-foreground">{% trans "Monthly budget" %}</h2>
-  <div class="grid grid-cols-2 items-start gap-2.5">
+  <div class="grid grid-cols-2 items-stretch gap-2.5">
     {% for c in cards %}
       {% with p=c.pile pm=c.pm %}
         <article class="card pile-summary" data-size="sm" style="--pc:{{ p.color }}">
@@ -35,6 +35,9 @@
               {% else %}
                 <div class="pile-bar"><div style="width:{{ pm.used_pct|pct }}%"></div></div>
                 <p class="text-[11px] text-muted-foreground">{% blocktrans with used=pm.used|baht budget=pm.budget|baht %}Spent {{ used }} of {{ budget }}{% endblocktrans %}</p>
+                {% if pm.overflow %}
+                  <p class="rounded-md bg-warn-soft px-2 py-1 text-[11px] font-medium leading-snug text-warn">{% blocktrans with amount=pm.overflow|baht target=pm.overflow_to %}Overflow {{ amount }} to {{ target }}{% endblocktrans %}</p>
+                {% endif %}
               {% endif %}
             </summary>
             <dl class="pile-kv mx-3">
@@ -56,9 +59,6 @@
               {% endif %}
             </dl>
           </details>
-          {% if pm.overflow %}
-            <p class="px-3"><span class="badge bg-warn-soft px-2.5 py-1 text-xs font-medium text-warn">{% blocktrans with amount=pm.overflow|baht target=pm.overflow_to %}Overflow {{ amount }} to {{ target }}{% endblocktrans %}</span></p>
-          {% endif %}
         </article>
       {% endwith %}
     {% endfor %}
