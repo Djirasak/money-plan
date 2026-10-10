@@ -1,0 +1,32 @@
+{% load i18n planner_tags %}
+{# A page of log rows; the last item loads the next page in place of itself. Needs: entries, month, next_offset. #}
+{% for e in entries %}
+      <li class="item entry entry-{{ e.tone }}" data-variant="outline">
+        <span class="entry-icon" aria-hidden="true">{% if e.tone == "out" %}{% icon "arrow-up-right" "size-4" %}{% elif e.tone == "in" %}{% icon "arrow-down-left" "size-4" %}{% else %}{% icon "arrow-left-right" "size-4" %}{% endif %}</span>
+        <section>
+          <h3>{{ e.get_type_display }} · <span class="entry-amount">{% if e.tone == "out" %}-{% elif e.tone == "in" %}+{% endif %}{{ e.amount|baht }}</span></h3>
+          <p>
+            {{ e.date|date:"j F" }} ·
+            {% if e.from_pile %}{{ e.from_pile }}{% endif %}{% if e.from_pile and e.to_pile %} {% icon "arrow-right" "size-3 inline-block align-[-1px]" %} {% endif %}{% if e.to_pile %}{{ e.to_pile }}{% endif %}
+            {% if e.note %}· {{ e.note }}{% endif %}
+          </p>
+        </section>
+        <aside class="gap-1">
+          <a class="btn" data-variant="ghost" data-size="icon-sm" href="{% url 'planner:log_edit' e.pk %}?m={{ month }}" aria-label="{% trans 'Edit entry' %}" title="{% trans 'Edit' %}">
+            {% icon "square-pen" "size-4" %}
+          </a>
+          <button type="button" class="btn text-destructive" data-variant="ghost" data-size="icon-sm" data-confirm-delete data-delete-id="{{ e.pk }}"
+                  data-delete-url="{% url 'planner:log_delete' e.pk %}"
+                  data-delete-name="{{ e.get_type_display }} · {{ e.amount|baht }} · {{ e.date|date:'j F' }}"
+                  aria-label="{% trans 'Delete' %}" title="{% trans 'Delete' %}">
+            {% icon "trash-2" "size-4" %}
+          </button>
+        </aside>
+      </li>
+{% endfor %}
+{% if next_offset %}
+  <li class="list-none">
+    <button type="button" class="btn w-full" data-variant="outline" hx-get="{% url 'planner:log' %}?m={{ month }}&offset={{ next_offset }}"
+            hx-target="closest li" hx-swap="outerHTML">{% icon "chevron-down" "size-4" %}{% trans "Load more" %}</button>
+  </li>
+{% endif %}

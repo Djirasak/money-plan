@@ -606,3 +606,6 @@ msgstr "ชื่อผู้ใช้"
 
 msgid "Information successfully updated"
 msgstr "อัปเดตข้อมูลเรียบร้อยแล้ว"
+
+msgid "Load more"
+msgstr "โหลดเพิ่ม"
