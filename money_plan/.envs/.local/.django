@@ -17,3 +17,6 @@ CELERY_FLOWER_PASSWORD=debug
 # Set INITIAL_USER_PASSWORD too, or a random one is generated and printed once.
 INITIAL_USER_USERNAME=zercoms
 INITIAL_USER_EMAIL=4.1.jirasak@gmail.com
+
+# Show django-debug-toolbar (hidden by default)
+# DJANGO_DEBUG_TOOLBAR=True
