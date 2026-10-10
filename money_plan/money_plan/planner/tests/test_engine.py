@@ -2,6 +2,9 @@ from datetime import date
 from decimal import Decimal as D
 
 from money_plan.planner.engine import FUND
+from money_plan.planner.engine import GTE
+from money_plan.planner.engine import LT
+from money_plan.planner.engine import Condition
 from money_plan.planner.engine import ROLLOVER
 from money_plan.planner.engine import SWEEP
 from money_plan.planner.engine import Entry
@@ -133,3 +136,75 @@ def test_plan_change_applies_from_effective_month():
         D(28800),
         D(28800),
     ]
+
+
+def two_piles():
+    return [Pile("spend", mode=SWEEP, overflow_to="save"), Pile("save", kind=FUND)]
+
+
+def test_plan_switches_when_a_pile_reaches_an_amount():
+    plan = [
+        PlanRow("2027-01", {"spend": D("0.5"), "save": D("0.5")}, key="base"),
+        PlanRow(
+            "2027-01",
+            {"spend": D("0.9"), "save": D("0.1")},
+            condition=Condition("save", GTE, D(20000)),
+            key="rich",
+        ),
+    ]
+    months = run(two_piles(), end="2027-04", plan=plan)
+    # January: save has 0 -> base. It ends with 24,000 and the swept 24,000 arrives
+    # in February, so save starts February at 48,000 >= 20,000 -> rich from then on.
+    assert [m.plan_key for m in months] == ["base", "rich", "rich", "rich"]
+    assert months[1].piles["spend"].allocation == D(43200)  # 90% of 48,000
+
+
+def test_plan_applies_only_while_a_pile_is_below_an_amount():
+    plan = [
+        PlanRow("2027-01", {"spend": D(1)}, key="normal"),
+        PlanRow(
+            "2027-01",
+            {"spend": D(1)},
+            condition=Condition("spend", LT, D(10000)),
+            key="lean",
+        ),
+    ]
+    months = run([Pile("spend")], end="2027-02", plan=plan)
+    # January starts at 0 (< 10,000) -> lean. 48,000 carries over, so February is
+    # no longer below the threshold and the older plan takes over again.
+    assert [m.plan_key for m in months] == ["lean", "normal"]
+
+
+def test_condition_uses_the_balance_at_the_start_of_the_month():
+    plan = [
+        PlanRow("2027-01", {"spend": D(1)}, key="base"),
+        PlanRow("2027-01", {"spend": D(1)}, condition=Condition("spend", GTE, D(1)), key="cond"),
+    ]
+    months = run([Pile("spend")], end="2027-02", plan=plan)
+    assert months[0].plan_key == "base"  # nothing carried in yet
+    assert months[1].plan_key == "cond"  # 48,000 carried in
+
+
+def test_newest_start_month_wins_then_later_row_on_a_tie():
+    plan = [
+        PlanRow("2027-01", {"spend": D(1)}, key="a"),
+        PlanRow("2027-02", {"spend": D(1)}, key="b"),
+        PlanRow("2027-02", {"spend": D(1)}, key="c"),
+    ]
+    months = run([Pile("spend")], end="2027-03", plan=plan)
+    assert [m.plan_key for m in months] == ["a", "c", "c"]
+
+
+def test_unmet_condition_falls_back_to_the_next_older_plan():
+    plan = [
+        PlanRow("2027-01", {"spend": D(1)}, key="old"),
+        PlanRow("2027-02", {"spend": D(1)}, condition=Condition("spend", GTE, D(10**9)), key="never"),
+    ]
+    months = run([Pile("spend")], end="2027-03", plan=plan)
+    assert [m.plan_key for m in months] == ["old", "old", "old"]
+
+
+def test_no_applicable_plan_means_no_allocation():
+    plan = [PlanRow("2027-02", {"spend": D(1)}, key="later")]
+    months = run([Pile("spend")], end="2027-02", plan=plan)
+    assert months[0].plan_key == "" and months[0].piles["spend"].allocation == 0

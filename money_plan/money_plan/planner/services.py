@@ -83,11 +83,18 @@ def compute_months(user: AbstractBaseUser, end_month: str) -> list[engine.Month]
     cfg = ensure_defaults(user)
     piles = list(user.piles.select_related("overflow_to"))
     plan = []
-    for period in user.plan_periods.prefetch_related("items__pile"):
+    periods = (
+        user.plan_periods.select_related("cond_pile")
+        .prefetch_related("items__pile")
+        .order_by("effective_month", "id")  # engine: later row wins a tie
+    )
+    for period in periods:
         plan.append(
             engine.PlanRow(
                 effective_month=period.effective_month,
                 shares={i.pile.name: i.percent / 100 for i in period.items.all()},
+                condition=period.to_condition(),
+                key=str(period.pk),
             ),
         )
     entries = [e.to_engine() for e in LogEntry.objects.filter(user=user)

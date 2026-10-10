@@ -136,17 +136,42 @@ class PlanPeriod(models.Model):
         on_delete=models.CASCADE,
         related_name="plan_periods",
     )
+    GTE = engine.GTE
+    LT = engine.LT
+    OP_CHOICES = [(GTE, _("has at least")), (LT, _("is below"))]
+
     effective_month = models.CharField(max_length=7, validators=[month_validator])
     name = models.CharField(max_length=60, blank=True)
+    # Optional start condition: the plan only applies while this pile's balance
+    # (at the start of the month) satisfies the comparison.
+    cond_pile = models.ForeignKey(
+        "Pile",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    cond_op = models.CharField(max_length=3, choices=OP_CHOICES, blank=True)
+    cond_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
-        ordering = ["-effective_month"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["user", "effective_month"],
-                name="unique_plan_month_per_user",
-            ),
-        ]
+        # newest start month first; on the same month the later-created plan wins
+        ordering = ["-effective_month", "-id"]
+
+    def clean(self) -> None:
+        if self.cond_op and (self.cond_pile_id is None or self.cond_amount is None):
+            msg = "A condition needs a pile and an amount"
+            raise ValidationError(msg)
+
+    def to_condition(self) -> engine.Condition | None:
+        if not (self.cond_op and self.cond_pile_id and self.cond_amount is not None):
+            return None
+        return engine.Condition(self.cond_pile.name, self.cond_op, self.cond_amount)
 
 
 class PlanItem(models.Model):

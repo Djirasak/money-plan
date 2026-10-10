@@ -1,0 +1,30 @@
+{% load i18n %}
+{# "Use this plan always, or only while a pile's balance meets a condition." #}
+<fieldset class="flex flex-col gap-3" x-data="{ on: {% if mode %}true{% else %}false{% endif %} }">
+  <legend class="label">{% trans "When to use this plan" %}</legend>
+  {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
+  <select class="field" name="condition_mode" id="cond{{ field_id }}_mode" aria-label="{% trans 'When to use this plan' %}"
+          @change="on = $event.target.value === 'on'">
+    <option value="" {% if not mode %}selected{% endif %}>{% trans "Always, from the start month" %}</option>
+    <option value="on" {% if mode %}selected{% endif %}>{% trans "Only while a pile's balance matches" %}</option>
+  </select>
+  <div x-show="on" x-cloak class="flex flex-col gap-2">
+    <div class="grid grid-cols-2 gap-2">
+      {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
+      <select class="field" name="condition_pile" id="cond{{ field_id }}_pile" aria-label="{% trans 'Pile' %}">
+        {% for pile in piles %}<option value="{{ pile.pk }}" {% if pile.pk == pile_id %}selected{% endif %}>{{ pile.name }}</option>{% endfor %}
+      </select>
+      {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
+      <select class="field" name="condition_op" id="cond{{ field_id }}_op" aria-label="{% trans 'Comparison' %}">
+        <option value="gte" {% if op == 'gte' %}selected{% endif %}>{% trans "has at least" %}</option>
+        <option value="lt" {% if op == 'lt' %}selected{% endif %}>{% trans "is below" %}</option>
+      </select>
+    </div>
+    <div class="relative">
+      <input class="field !pl-9" name="condition_amount" id="cond{{ field_id }}_amount" inputmode="decimal"
+             value="{{ amount|default_if_none:''|floatformat:'-2' }}" placeholder="0" aria-label="{% trans 'Amount (THB)' %}" />
+      <span class="pointer-events-none absolute inset-y-0 left-4 grid place-items-center text-muted" aria-hidden="true">฿</span>
+    </div>
+    <p class="text-sm text-muted">{% trans "Checked at the start of each month. If the condition is not met, the next older plan is used." %}</p>
+  </div>
+</fieldset>

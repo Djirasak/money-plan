@@ -4,7 +4,7 @@
 {% block heading %}{% trans "Budget plan" %}{% endblock heading %}
 {% block page %}
   {% include "planner/_settings_tabs.html" %}
-  <p class="mb-4 px-1 text-sm text-muted">{% trans "Each plan applies from its start month onwards. Split your salary between your piles by percentage." %}</p>
+  <p class="mb-4 px-1 text-sm text-muted">{% trans "Each plan applies from its start month onwards. Split your salary between your piles by percentage. Plans can also wait for a pile to reach an amount. The newest plan whose condition is met is used." %}</p>
   <div class="space-y-4">
     {% for item in periods %}
       <form method="post" class="card space-y-3">
@@ -14,6 +14,9 @@
           <div class="flex items-center gap-2"><span class="rounded-full px-3 py-1 text-xs font-semibold {% if item.total == 100 %}bg-success-soft text-success{% else %}bg-warn-soft text-warn{% endif %}">{% blocktrans with total=item.total|floatformat:"-2" %}Total {{ total }}{% endblocktrans %}%</span>{% include "planner/_trash.html" with confirm_text=_("Delete this plan?") %}</div>
         </div>
         <input class="field" name="name" value="{{ item.period.name }}" placeholder="{% trans "Plan name (optional)" %}" aria-label="{% trans "Plan name" %}" />
+        {% with p=item.period %}
+          {% include "planner/_plan_condition.html" with field_id=p.pk mode=p.cond_op pile_id=p.cond_pile_id op=p.cond_op amount=p.cond_amount %}
+        {% endwith %}
         <div class="grid grid-cols-[minmax(0,1fr)_6rem] items-end gap-2 text-xs font-semibold text-muted" aria-hidden="true">
           <span></span>
           <span class="text-center leading-tight">{% trans "% of salary" %}</span>
@@ -39,6 +42,7 @@
         <div class="col-span-2">{% month_picker "effective_month" default_month "new_period_month" start_label %}</div>
         <div class="col-span-2"><label class="label" for="new_period_name">{% trans "Plan name" %}</label><input class="field" id="new_period_name" name="name" /></div>
       </div>
+      {% include "planner/_plan_condition.html" with field_id="new_plan" mode="" pile_id=None op="gte" amount=None %}
       <p class="text-sm text-muted">{% trans "Values are copied from the previous plan; adjust as needed." %}</p>
       {% include "planner/_actions.html" with save_label=_("Add plan") %}
     </form>

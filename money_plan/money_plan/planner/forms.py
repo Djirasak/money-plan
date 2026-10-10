@@ -146,13 +146,37 @@ class PlanPeriodForm(forms.Form):
     effective_month = MonthField()
     name = forms.CharField(max_length=60, required=False)
 
+
+class PlanConditionForm(forms.Form):
+    """Optional "only use this plan while <pile> <has at least|is below> <amount>"."""
+
+    condition_mode = forms.ChoiceField(choices=[("", ""), ("on", "on")], required=False)
+    condition_pile = forms.ModelChoiceField(queryset=Pile.objects.none(), required=False)
+    condition_op = forms.ChoiceField(choices=PlanPeriod.OP_CHOICES, required=False)
+    condition_amount = forms.DecimalField(
+        min_value=0,
+        max_digits=14,
+        decimal_places=2,
+        required=False,
+    )
+
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
-        self.user = user
+        self.fields["condition_pile"].queryset = Pile.objects.filter(user=user)
 
-    def clean_effective_month(self):
-        month = self.cleaned_data["effective_month"]
-        if PlanPeriod.objects.filter(user=self.user, effective_month=month).exists():
-            msg = _("A plan for this month already exists")
+    def clean(self):
+        data = super().clean()
+        if data.get("condition_mode") != "on":
+            return {"cond_pile": None, "cond_op": "", "cond_amount": None}
+        if not (
+            data.get("condition_pile")
+            and data.get("condition_op")
+            and data.get("condition_amount") is not None
+        ):
+            msg = _("Choose a pile, a comparison and an amount for the condition")
             raise forms.ValidationError(msg)
-        return month
+        return {
+            "cond_pile": data["condition_pile"],
+            "cond_op": data["condition_op"],
+            "cond_amount": data["condition_amount"],
+        }

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 18:27+0700\n"
+"POT-Creation-Date: 2026-10-10 18:36+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -81,8 +81,8 @@ msgstr "ชื่อกองนี้มีอยู่แล้ว"
 msgid "You can add at most %(max)s salaries"
 msgstr "เพิ่มเงินเดือนได้ไม่เกิน %(max)s แถว"
 
-msgid "A plan for this month already exists"
-msgstr "มีแผนของเดือนนี้อยู่แล้ว"
+msgid "Choose a pile, a comparison and an amount for the condition"
+msgstr "เลือกกอง เงื่อนไข และจำนวนเงินสำหรับเงื่อนไข"
 
 msgid "Summary"
 msgstr "สรุป"
@@ -122,6 +122,12 @@ msgstr "เพดานทบ"
 
 msgid "Target"
 msgstr "เป้าหมาย"
+
+msgid "has at least"
+msgstr "มีอย่างน้อย"
+
+msgid "is below"
+msgstr "ต่ำกว่า"
 
 msgid "Spend"
 msgstr "จ่าย"
@@ -165,8 +171,8 @@ msgstr "บันทึกการตั้งค่าแล้ว"
 msgid "Pile saved"
 msgstr "บันทึกกองแล้ว"
 
-msgid "Cannot delete: this pile is used by log entries"
-msgstr "ลบไม่ได้: กองนี้ถูกใช้ในรายการบันทึก"
+msgid "Cannot delete: this pile is used by log entries or a plan condition"
+msgstr "ลบไม่ได้: กองนี้ถูกใช้ในรายการบันทึกหรือเงื่อนไขของแผน"
 
 msgid "Pile deleted"
 msgstr "ลบกองแล้ว"
@@ -254,6 +260,24 @@ msgstr "เดือน"
 
 msgid "Year"
 msgstr "ปี"
+
+msgid "When to use this plan"
+msgstr "เมื่อไหร่ที่ใช้แผนนี้"
+
+msgid "Always, from the start month"
+msgstr "ใช้เสมอ ตั้งแต่เดือนที่เริ่ม"
+
+msgid "Only while a pile's balance matches"
+msgstr "ใช้เมื่อยอดของกองใดกองหนึ่งตรงเงื่อนไข"
+
+msgid "Pile"
+msgstr "กอง"
+
+msgid "Comparison"
+msgstr "การเปรียบเทียบ"
+
+msgid "Checked at the start of each month. If the condition is not met, the next older plan is used."
+msgstr "ตรวจทุกต้นเดือน ถ้าไม่ตรงเงื่อนไข จะใช้แผนที่เก่ากว่าถัดไปแทน"
 
 msgid "General"
 msgstr "ทั่วไป"
@@ -435,8 +459,8 @@ msgstr "+ เพิ่มกองใหม่"
 msgid "Add pile"
 msgstr "เพิ่มกอง"
 
-msgid "Each plan applies from its start month onwards. Split your salary between your piles by percentage."
-msgstr "แต่ละแผนใช้ตั้งแต่เดือนที่กำหนดเป็นต้นไป แบ่งเงินเดือนให้แต่ละกองเป็นเปอร์เซ็นต์"
+msgid "Each plan applies from its start month onwards. Split your salary between your piles by percentage. Plans can also wait for a pile to reach an amount. The newest plan whose condition is met is used."
+msgstr "แต่ละแผนใช้ตั้งแต่เดือนที่กำหนดเป็นต้นไป แบ่งเงินเดือนให้แต่ละกองเป็นเปอร์เซ็นต์ และตั้งให้รอจนกองใดกองหนึ่งถึงยอดที่กำหนดได้ แผนใหม่สุดที่เงื่อนไขตรงจะถูกใช้"
 
 #, python-format
 msgid "Total %(total)s"
@@ -504,8 +528,3 @@ msgstr "ชื่อผู้ใช้"
 
 msgid "Information successfully updated"
 msgstr "อัปเดตข้อมูลเรียบร้อยแล้ว"
-
-
-#, python-format
-
-#, python-format

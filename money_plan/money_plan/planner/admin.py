@@ -15,7 +15,7 @@ class PlanItemInline(admin.TabularInline):
 
 @admin.register(PlanPeriod)
 class PlanPeriodAdmin(admin.ModelAdmin):
-    list_display = ["user", "effective_month", "name"]
+    list_display = ["user", "effective_month", "name", "cond_pile", "cond_op", "cond_amount"]
     inlines = [PlanItemInline]
 
 

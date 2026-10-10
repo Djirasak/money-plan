@@ -16,6 +16,7 @@ from django.views.generic import TemplateView
 from . import services
 from .forms import LogEntryForm
 from .forms import PileForm
+from .forms import PlanConditionForm
 from .forms import PlanPeriodForm
 from .forms import SalaryForm
 from .mixins import ActionPostMixin
@@ -81,14 +82,9 @@ class SummaryContentView(PlannerMixin, TemplateView):
             "current": current,
             "cards": cards,
             "allocated": sum(pm.allocation for pm in current.piles.values()),
-            "plan_name": next(
-                (
-                    p.name
-                    for p in user.plan_periods.all()  # newest first
-                    if p.effective_month <= self.month
-                ),
-                "",
-            ),
+            "plan_name": dict(
+                user.plan_periods.values_list("pk", "name"),
+            ).get(int(current.plan_key) if current.plan_key else None, ""),
         }
         return ctx
 
@@ -238,7 +234,10 @@ class SettingsPilesView(ActionPostMixin, PlannerMixin, TemplateView):
         try:
             pile.delete()
         except ProtectedError:
-            messages.error(request, _("Cannot delete: this pile is used by log entries"))
+            messages.error(
+                request,
+                _("Cannot delete: this pile is used by log entries or a plan condition"),
+            )
         else:
             messages.success(request, _("Pile deleted"))
 
@@ -262,7 +261,11 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
                     "total": sum((i.percent for i in items.values()), Decimal(0)),
                 },
             )
-        return ctx | {"periods": periods, "default_month": services.current_month()}
+        return ctx | {
+            "periods": periods,
+            "piles": piles,
+            "default_month": services.current_month(),
+        }
 
     def _period(self, request) -> PlanPeriod:
         return get_object_or_404(PlanPeriod, pk=request.POST.get("id"), user=request.user)
@@ -270,20 +273,24 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
     def do_add(self, request):
         data = request.POST.copy()
         data["effective_month"] = month_from_post(request.POST, "effective_month")
-        form = PlanPeriodForm(data, user=request.user)
-        if not form.is_valid():
+        form = PlanPeriodForm(data)
+        condition = PlanConditionForm(request.POST, user=request.user)
+        if not (form.is_valid() and condition.is_valid()):
             _errors(request, form)
+            _errors(request, condition)
             return
         month = form.cleaned_data["effective_month"]
+        # new plans start from a copy of the newest plan that has started by then
         previous = (
-            request.user.plan_periods.filter(effective_month__lt=month)
-            .order_by("-effective_month")
+            request.user.plan_periods.filter(effective_month__lte=month)
+            .order_by("-effective_month", "-id")
             .first()
         )
         period = PlanPeriod.objects.create(
             user=request.user,
             effective_month=month,
             name=form.cleaned_data["name"],
+            **condition.cleaned_data,
         )
         old = {i.pile_id: i for i in previous.items.all()} if previous else {}
         for pile in request.user.piles.all():
@@ -297,8 +304,14 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
 
     def do_save(self, request):
         period = self._period(request)
+        condition = PlanConditionForm(request.POST, user=request.user)
+        if not condition.is_valid():
+            _errors(request, condition)
+            return
         period.name = request.POST.get("name", "")[:60]
-        period.save(update_fields=["name"])
+        for field, value in condition.cleaned_data.items():
+            setattr(period, field, value)
+        period.save()
         for pile in request.user.piles.all():
             PlanItem.objects.update_or_create(
                 period=period,

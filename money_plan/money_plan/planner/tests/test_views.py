@@ -232,3 +232,121 @@ def test_month_from_post_helper():
     assert month_from_post({"m_year": "2027", "m_month": "5"}, "m") == "2027-05"
     assert month_from_post({"m_year": "x", "m_month": "5"}, "m") == ""
     assert month_from_post({}, "m") == ""
+
+
+def _plan_post(user, period, **extra):
+    data = {"action": "save", "id": period.pk, "name": period.name}
+    for pile in user.piles.all():
+        data[f"percent_{pile.pk}"] = "0"
+    return data | extra
+
+
+def test_plan_condition_can_be_saved_and_cleared(client_in, user):
+    period = PlanPeriod.objects.get(user=user)
+    reserve = Pile.objects.get(user=user, name="เงินสำรอง")
+    client_in.post(
+        reverse("planner:plan"),
+        _plan_post(
+            user,
+            period,
+            condition_mode="on",
+            condition_pile=reserve.pk,
+            condition_op="gte",
+            condition_amount="100000",
+        ),
+    )
+    period.refresh_from_db()
+    assert (period.cond_pile, period.cond_op, period.cond_amount) == (
+        reserve,
+        "gte",
+        Decimal(100000),
+    )
+    client_in.post(reverse("planner:plan"), _plan_post(user, period))  # mode off
+    period.refresh_from_db()
+    assert (period.cond_pile, period.cond_op, period.cond_amount) == (None, "", None)
+
+
+def test_incomplete_condition_is_rejected_and_nothing_changes(client_in, user):
+    period = PlanPeriod.objects.get(user=user)
+    client_in.post(
+        reverse("planner:plan"),
+        _plan_post(user, period, condition_mode="on", condition_op="lt", name="renamed"),
+    )
+    period.refresh_from_db()
+    assert period.cond_op == "" and period.name != "renamed"
+
+
+def test_cannot_use_another_users_pile_in_a_condition(client_in, user, django_user_model):
+    other = django_user_model.objects.create_user("other2", password="x")  # noqa: S106
+    foreign = Pile.objects.create(user=other, name="theirs")
+    period = PlanPeriod.objects.get(user=user)
+    client_in.post(
+        reverse("planner:plan"),
+        _plan_post(
+            user,
+            period,
+            condition_mode="on",
+            condition_pile=foreign.pk,
+            condition_op="gte",
+            condition_amount="1",
+        ),
+    )
+    period.refresh_from_db()
+    assert period.cond_pile is None
+
+
+def test_two_plans_can_share_a_start_month(client_in, user):
+    month = user.planner_settings.start_month
+    reserve = Pile.objects.get(user=user, name="เงินสำรอง")
+    year, mon = month.split("-")
+    resp = client_in.post(
+        reverse("planner:plan"),
+        {
+            "action": "add",
+            "effective_month_year": year,
+            "effective_month_month": str(int(mon)),
+            "name": "Rich",
+            "condition_mode": "on",
+            "condition_pile": reserve.pk,
+            "condition_op": "gte",
+            "condition_amount": "50000",
+        },
+    )
+    assert resp.status_code == 302
+    assert PlanPeriod.objects.filter(user=user, effective_month=month).count() == 2
+    new = PlanPeriod.objects.get(user=user, name="Rich")
+    assert new.items.count() == user.piles.count()  # copied from the plan in force
+
+
+def test_summary_uses_the_plan_whose_condition_is_met(client_in, user):
+    from money_plan.planner.models import PlanItem
+
+    month = user.planner_settings.start_month
+    spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
+    # a conditional plan that is met from the start (balance 0 < 1) and gives 100% to spending
+    rich = PlanPeriod.objects.create(
+        user=user,
+        effective_month=month,
+        name="Lean",
+        cond_pile=spend,
+        cond_op="lt",
+        cond_amount=1,
+    )
+    for pile in user.piles.all():
+        PlanItem.objects.create(period=rich, pile=pile, percent=100 if pile == spend else 0)
+    html = client_in.get(reverse("planner:summary_content"), {"m": month}).content.decode()
+    assert "Lean" in html  # the hero names the plan that is actually in force
+    assert "฿48,000" in html  # spend gets 100% of the salary
+
+
+def test_pile_used_by_a_plan_condition_cannot_be_deleted(client_in, user):
+    reserve = Pile.objects.get(user=user, name="เงินสำรอง")
+    PlanPeriod.objects.create(
+        user=user,
+        effective_month="2030-01",
+        cond_pile=reserve,
+        cond_op="gte",
+        cond_amount=1,
+    )
+    client_in.post(reverse("planner:piles"), {"action": "delete", "id": reserve.pk})
+    assert Pile.objects.filter(pk=reserve.pk).exists()
