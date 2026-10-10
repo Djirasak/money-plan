@@ -4,7 +4,7 @@
       <li class="item entry entry-{{ e.tone }}" data-variant="outline">
         <span class="entry-icon" aria-hidden="true">{% if e.tone == "out" %}{% icon "arrow-up-right" "size-4" %}{% elif e.tone == "in" %}{% icon "arrow-down-left" "size-4" %}{% else %}{% icon "arrow-left-right" "size-4" %}{% endif %}</span>
         <section>
-          <h3>{{ e.get_type_display }} · <span class="entry-amount">{% if e.tone == "out" %}-{% elif e.tone == "in" %}+{% endif %}{{ e.amount|baht }}</span></h3>
+          <h3 class="entry-title"><span class="entry-type">{{ e.get_type_display }}</span><span class="entry-amount">{% if e.tone == "out" %}-{% elif e.tone == "in" %}+{% endif %}{{ e.amount|baht }}</span></h3>
           <p>
             {{ e.date|date:"j F" }} ·
             {% if e.from_pile %}{{ e.from_pile }}{% endif %}{% if e.from_pile and e.to_pile %} {% icon "arrow-right" "size-3 inline-block align-[-1px]" %} {% endif %}{% if e.to_pile %}{{ e.to_pile }}{% endif %}
