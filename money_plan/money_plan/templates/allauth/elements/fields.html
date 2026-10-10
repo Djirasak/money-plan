@@ -6,14 +6,14 @@
       {{ field }}
     {% else %}
       <div class="{% if field.field.widget.input_type == 'checkbox' %}flex flex-row-reverse items-center justify-end gap-2{% endif %}">
-        <label class="label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required and field.field.widget.input_type != 'checkbox' %}<span class="text-rose-700"> *</span>{% endif %}</label>
+        <label class="label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required and field.field.widget.input_type != 'checkbox' %}<span class="text-danger"> *</span>{% endif %}</label>
         {{ field }}
-        {% if field.help_text %}<p class="mt-1 text-xs text-slate-600">{{ field.help_text|safe }}</p>{% endif %}
-        {% for error in field.errors %}<p class="mt-1 text-sm text-rose-600">{{ error }}</p>{% endfor %}
+        {% if field.help_text %}<p class="mt-1 text-xs text-muted">{{ field.help_text|safe }}</p>{% endif %}
+        {% for error in field.errors %}<p class="mt-1 text-sm text-danger">{{ error }}</p>{% endfor %}
       </div>
     {% endif %}
   {% endfor %}
   {% for error in attrs.form.non_field_errors %}
-    <p class="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">{{ error }}</p>
+    <p class="rounded-2xl bg-danger-soft px-4 py-3 text-sm font-medium text-danger">{{ error }}</p>
   {% endfor %}
 </div>

@@ -30,7 +30,7 @@ def month_label(value: str) -> str:
 
 @register.filter
 def tint(color: str, pct: int = 12) -> str:
-    return f"color-mix(in srgb, {color} {pct}%, white)"
+    return f"color-mix(in srgb, {color} {pct}%, var(--surface))"
 
 
 @register.filter

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 17:09+0700\n"
+"POT-Creation-Date: 2026-10-10 17:39+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -237,6 +237,9 @@ msgstr "ไม่พบผลลัพธ์"
 msgid "No choices to choose from"
 msgstr "ไม่มีตัวเลือก"
 
+msgid "Loading..."
+msgstr "กำลังโหลด..."
+
 msgid "Go back"
 msgstr "ย้อนกลับ"
 
@@ -397,8 +400,21 @@ msgstr "เดือนที่เริ่มใช้"
 msgid "Save salary"
 msgstr "บันทึกเงินเดือน"
 
-msgid "Language"
-msgstr "ภาษา"
+msgid "Preferences"
+msgstr "การตั้งค่าส่วนตัว"
+
+#, python-format
+msgid "Switch language to %(name)s"
+msgstr "เปลี่ยนภาษาเป็น %(name)s"
+
+msgid "Dark mode"
+msgstr "โหมดมืด"
+
+msgid "Light"
+msgstr "สว่าง"
+
+msgid "Dark"
+msgstr "มืด"
 
 msgid "Delete this pile?"
 msgstr "ลบกองนี้?"
@@ -423,6 +439,9 @@ msgstr "ลบแผนนี้?"
 msgid "Plan name (optional)"
 msgstr "ชื่อแผน (ไม่บังคับ)"
 
+msgid "Plan name"
+msgstr "ชื่อแผน"
+
 msgid "Percent"
 msgstr "เปอร์เซ็นต์"
 
@@ -442,9 +461,6 @@ msgstr "+ เพิ่มแผนใหม่"
 msgid "Start month (YYYY-MM)"
 msgstr "เริ่มเดือน (YYYY-MM)"
 
-msgid "Plan name"
-msgstr "ชื่อแผน"
-
 msgid "Values are copied from the previous plan; adjust as needed."
 msgstr "คัดลอกค่าจากแผนก่อนหน้าให้ แล้วปรับแก้ได้"
 
@@ -453,9 +469,6 @@ msgstr "เพิ่มแผน"
 
 msgid "Monthly summary"
 msgstr "สรุปรายเดือน"
-
-msgid "Loading..."
-msgstr "กำลังโหลด..."
 
 msgid "Back to summary"
 msgstr "กลับหน้าสรุป"

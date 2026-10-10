@@ -7,50 +7,50 @@
       {% icon "wallet" "size-6" %}
     </div>
     <div class="min-w-0 flex-1">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-500">Money Plan</p>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-fg">Money Plan</p>
       <h1 class="truncate text-2xl font-bold">{% block heading %}{% endblock heading %}</h1>
     </div>
     <button type="button" aria-label="{% trans "Sign out" %}" onclick="document.getElementById('logout-modal').showModal()"
-            class="grid size-12 shrink-0 place-items-center rounded-full bg-white text-brand-600 shadow-sm">
+            class="grid size-12 shrink-0 place-items-center rounded-full bg-surface text-brand-fg shadow-sm">
       {% icon "log-out" "size-5" %}
     </button>
   </header>
   {% if months %}
     <div class="month-bar mb-5 flex items-center gap-2">
       {% if prev_month %}
-        <a href="?m={{ prev_month }}" aria-label="{% trans 'Previous month' %}" class="icon-btn !size-11 !rounded-full !bg-white shadow-sm">
+        <a href="?m={{ prev_month }}" aria-label="{% trans 'Previous month' %}" class="icon-btn !size-11 !rounded-full !bg-surface shadow-sm">
           {% icon "chevron-left" "size-5" %}
         </a>
       {% else %}<span class="size-11"></span>{% endif %}
       <form method="get" class="min-w-0 flex-1">
         {# ds-allow-native-select: progressively enhanced into a listbox by Choices.js #}
         <select name="m" onchange="this.form.submit()" aria-label="{% trans 'Month' %}"
-                class="w-full rounded-2xl border-0 bg-white py-3 pl-4 pr-8 text-center text-sm font-semibold shadow-sm">
+                class="w-full rounded-2xl border-0 bg-surface py-3 pl-4 pr-8 text-center text-sm font-semibold shadow-sm">
           {% for m in months %}<option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m|month_label }}</option>{% endfor %}
         </select>
       </form>
       {% if next_month %}
-        <a href="?m={{ next_month }}" aria-label="{% trans 'Next month' %}" class="icon-btn !size-11 !rounded-full !bg-white shadow-sm">
+        <a href="?m={{ next_month }}" aria-label="{% trans 'Next month' %}" class="icon-btn !size-11 !rounded-full !bg-surface shadow-sm">
           {% icon "chevron-right" "size-5" %}
         </a>
       {% else %}<span class="size-11"></span>{% endif %}
     </div>
   {% endif %}
   {% block page %}{% endblock page %}
-  <dialog id="logout-modal" class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-3xl bg-white p-6 text-ink shadow-2xl backdrop:bg-slate-900/40 backdrop:backdrop-blur-sm"
+  <dialog id="logout-modal" class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-3xl bg-surface p-6 text-ink shadow-2xl backdrop:bg-slate-900/40 backdrop:backdrop-blur-sm"
           onclick="if (event.target === this) this.close()">
     <h2 class="text-xl font-bold">{% trans "Sign out?" %}</h2>
-    <p class="mt-1 text-slate-600">{% trans "You will need to sign in again to continue." %}</p>
+    <p class="mt-1 text-muted">{% trans "You will need to sign in again to continue." %}</p>
     <form method="post" action="{% url 'account_logout' %}" class="mt-5 space-y-2">
       {% csrf_token %}
       <button type="submit" class="btn" data-loading-text="{% trans "Signing out..." %}">{% trans "Sign out" %}</button>
       <button type="button" class="btn-soft" onclick="this.closest('dialog').close()">{% trans "Cancel" %}</button>
     </form>
   </dialog>
-  <nav class="fixed inset-x-0 bottom-4 z-10 mx-auto flex w-[calc(100%-2rem)] max-w-md rounded-full bg-white/95 p-2 shadow-[0_10px_40px_rgba(60,60,120,0.18)] backdrop-blur">
+  <nav class="fixed inset-x-0 bottom-4 z-10 mx-auto flex w-[calc(100%-2rem)] max-w-md rounded-full bg-surface/95 p-2 shadow-[0_10px_40px_rgba(60,60,120,0.18)] backdrop-blur">
     {% for key, label, url, glyph in nav %}
       <a href="{{ url }}{% if month and key != 'settings' %}?m={{ month }}{% endif %}"
-         class="flex flex-1 flex-col items-center gap-0.5 rounded-full py-2 text-xs font-semibold {% if key == active %}bg-brand-50 text-brand-600{% else %}text-slate-600{% endif %}">
+         class="flex flex-1 flex-col items-center gap-0.5 rounded-full py-2 text-xs font-semibold {% if key == active %}bg-brand-tint text-brand-fg{% else %}text-muted{% endif %}">
         {% icon glyph "size-6" %}{{ label }}
       </a>
     {% endfor %}

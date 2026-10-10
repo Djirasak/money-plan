@@ -54,11 +54,19 @@ def test_every_thai_message_is_translated():
     assert not empty, empty
 
 
-def test_settings_has_language_toggle(client_in):
+def test_settings_language_toggle_is_one_icon_button_to_the_other_language(client_in):
     html = client_in.get(reverse("planner:settings")).content.decode()
-    assert 'name="language" value="th"' in html
-    assert 'name="language" value="en"' in html
-    assert 'aria-pressed="true"' in html
+    assert 'name="language" value="en"' in html  # Thai now -> offers English
+    assert 'name="language" value="th"' not in html
+    assert 'aria-label="เปลี่ยนภาษาเป็น English"' in html
+    assert "data-busy" in html  # shows the grey loading overlay on submit
+
+
+def test_language_toggle_round_trip(client_in):
+    client_in.post(reverse("set_language"), {"language": "en", "next": "/settings/"})
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    assert 'name="language" value="th"' in html  # English now -> offers Thai
+    assert 'aria-label="Switch language to ภาษาไทย"' in html
 
 
 def test_vendor_scripts_loaded_on_every_page(client_in):

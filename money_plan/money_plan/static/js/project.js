@@ -94,3 +94,64 @@
   document.addEventListener('DOMContentLoaded', () => init());
   document.addEventListener('htmx:afterSwap', (event) => init(event.target));
 })();
+
+/*
+ * Busy overlay: a grey screen with a spinner. Forms marked data-busy show it on
+ * submit (e.g. switching language reloads the page), so nothing looks frozen.
+ */
+const Busy = (() => {
+  const el = () => document.getElementById('busy-overlay');
+  return {
+    show() {
+      const overlay = el();
+      if (overlay) overlay.hidden = false;
+      return performance.now();
+    },
+    hide(since = 0, minMs = 0) {
+      const wait = Math.max(0, minMs - (performance.now() - since));
+      setTimeout(() => {
+        const overlay = el();
+        if (overlay) overlay.hidden = true;
+      }, wait);
+    },
+  };
+})();
+
+document.addEventListener('submit', (event) => {
+  const form = event.target;
+  if (form instanceof HTMLFormElement && 'busy' in form.dataset) {
+    setTimeout(() => {
+      if (!event.defaultPrevented) Busy.show();
+    }, 0);
+  }
+});
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) Busy.hide();
+});
+
+/*
+ * Light/dark theme. The initial theme is applied by an inline script in <head>;
+ * this wires the toggle button(s), remembers the choice and keeps ARIA in sync.
+ */
+(() => {
+  const root = document.documentElement;
+  const sync = () => {
+    const dark = root.dataset.theme === 'dark';
+    for (const button of document.querySelectorAll('[data-theme-toggle]')) {
+      button.setAttribute('aria-checked', String(dark));
+    }
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0d0e1b' : '#f6f7fb');
+  };
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-theme-toggle]');
+    if (!button) return;
+    const since = Busy.show(); // brief feedback so the switch never feels like a glitch
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    try {
+      localStorage.setItem('theme', root.dataset.theme);
+    } catch (e) { /* storage blocked: the choice just won't persist */ }
+    sync();
+    Busy.hide(since, 220);
+  });
+  sync();
+})();

@@ -5,10 +5,10 @@
   {# The calculation can be slow for far-away months, so it is lazy-loaded. #}
   <div hx-get="{% url 'planner:summary_content' %}?m={{ month }}" hx-trigger="load" hx-swap="outerHTML" role="status" aria-busy="true" aria-label="{% trans 'Loading...' %}">
     <div class="animate-pulse space-y-4">
-      <div class="h-44 rounded-[2rem] bg-slate-200/80"></div>
-      <div class="h-5 w-32 rounded-full bg-slate-200/80"></div>
-      <div class="h-48 rounded-3xl bg-slate-200/60"></div>
-      <div class="h-48 rounded-3xl bg-slate-200/60"></div>
+      <div class="h-44 rounded-[2rem] bg-skeleton"></div>
+      <div class="h-5 w-32 rounded-full bg-skeleton"></div>
+      <div class="h-48 rounded-3xl bg-skeleton"></div>
+      <div class="h-48 rounded-3xl bg-skeleton"></div>
     </div>
   </div>
 {% endblock page %}

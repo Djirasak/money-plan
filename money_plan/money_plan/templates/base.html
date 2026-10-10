@@ -11,6 +11,16 @@
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f6f7fb" />
+    {# Apply the saved/system theme before first paint to avoid a light flash in dark mode. #}
+    <script>
+      (() => {
+        try {
+          let theme = localStorage.getItem('theme');
+          if (!theme) theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.dataset.theme = theme;
+        } catch (e) { /* storage blocked: keep the light default */ }
+      })();
+    </script>
     <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}" />
     {% block css %}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -36,7 +46,7 @@
         {% if messages %}
           <div class="mb-3 space-y-2">
             {% for message in messages %}
-              <div class="rounded-2xl px-4 py-3 text-sm font-medium {% if message.tags == 'error' %}bg-rose-50 text-rose-700{% elif message.tags == 'success' %}bg-emerald-50 text-emerald-700{% else %}bg-brand-50 text-brand-700{% endif %}">
+              <div class="rounded-2xl px-4 py-3 text-sm font-medium {% if message.tags == 'error' %}bg-danger-soft text-danger{% elif message.tags == 'success' %}bg-success-soft text-success{% else %}bg-brand-tint text-brand-fg{% endif %}">
                 {{ message }}
               </div>
             {% endfor %}
@@ -50,6 +60,14 @@
     {% endblock body %}
     {% block modal %}
     {% endblock modal %}
+    {# Grey screen + spinner while a toggle round-trips to the server, so the page never feels frozen. #}
+    <div id="busy-overlay" hidden role="status" aria-live="polite"
+         class="fixed inset-0 z-50 grid place-items-center bg-slate-900/45 backdrop-blur-[2px]">
+      <span class="sr-only">{% trans "Loading..." %}</span>
+      <div class="grid size-20 place-items-center rounded-3xl bg-surface/90 text-brand-fg shadow-2xl">
+        <svg class="size-9 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      </div>
+    </div>
     {% block inline_javascript %}
     {% endblock inline_javascript %}
   </body>

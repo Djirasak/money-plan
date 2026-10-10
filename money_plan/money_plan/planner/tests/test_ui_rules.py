@@ -59,3 +59,23 @@ def test_bottom_nav_uses_icons_not_glyphs(client_in):
     html = client_in.get(reverse("planner:summary")).content.decode()
     nav = html[html.index("<nav") : html.index("</nav>")]
     assert nav.count("<svg") == 3
+
+
+def test_dark_mode_toggle_and_no_flash_script(client_in):
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    assert 'data-theme-toggle role="switch" aria-checked="false"' in html
+    assert 'aria-label="โหมดมืด"' in html
+    # the saved/system theme is applied by an inline script in <head>, before the CSS paints
+    assert html.index("dataset.theme") < html.index("project.min.css")
+    assert 'id="busy-overlay"' in html and 'role="status"' in html
+
+
+def test_ui_does_not_hardcode_light_only_colours():
+    """Surfaces and text use semantic tokens so dark mode can swap them."""
+    bad = re.compile(r"(?<![\w/-])(bg-white|bg-slate-\d+|text-slate-\d+|bg-(?:rose|emerald|amber)-(?:50|100|200))(?![\w/%-])")
+    offenders = {}
+    for path in (ROOT / "templates").rglob("*.html"):
+        found = bad.findall(path.read_text())
+        if found:
+            offenders[str(path.relative_to(ROOT))] = found
+    assert not offenders, offenders

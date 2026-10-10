@@ -11,7 +11,62 @@
   --color-brand-500: #5b5bf0;
   --color-brand-600: #4f46e5;
   --color-brand-700: #4338ca;
-  --color-ink: #1b1b3a;
+  /* semantic colours: the values live in :root / [data-theme="dark"] below */
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-field: var(--field);
+  --color-skeleton: var(--skeleton);
+  --color-brand-tint: var(--brand-tint);
+  --color-brand-tint-2: var(--brand-tint-2);
+  --color-brand-fg: var(--brand-fg);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+}
+
+:root {
+  color-scheme: light;
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --field: #f1f5f9;
+  --skeleton: #e2e8f0;
+  --ink: #1b1b3a;
+  --muted: #475569;
+  --brand-tint: #eef0ff;
+  --brand-tint-2: #e0e3ff;
+  --brand-fg: #4338ca;
+  --danger: #be123c;
+  --danger-soft: #fff1f2;
+  --success: #047857;
+  --success-soft: #d1fae5;
+  --warn: #92400e;
+  --warn-soft: #fef3c7;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d0e1b;
+  --surface: #181a2e;
+  --surface-2: #212341;
+  --field: #2a2c4c;
+  --skeleton: #2a2c4c;
+  --ink: #eceef9;
+  --muted: #b3b7d4;
+  --brand-tint: #272a5a;
+  --brand-tint-2: #353a7a;
+  --brand-fg: #c4c7ff;
+  --danger: #ffa3b8;
+  --danger-soft: #3f1c2c;
+  --success: #6ee7b7;
+  --success-soft: #11382c;
+  --warn: #fcd34d;
+  --warn-soft: #3b2f10;
 }
 
 @layer base {
@@ -20,13 +75,13 @@
     scroll-padding-bottom: 7rem;
   }
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-brand-600;
+    @apply outline-2 outline-offset-2 outline-brand-fg;
   }
   ::placeholder {
-    @apply text-slate-600 opacity-100;
+    @apply text-muted opacity-100;
   }
   body {
-    background: #f6f7fb;
+    background: var(--bg);
     color: var(--color-ink);
   }
 }
@@ -39,25 +94,25 @@
 
 @layer components {
   .card {
-    @apply rounded-3xl bg-white p-5 shadow-[0_8px_30px_rgba(60,60,120,0.06)];
+    @apply rounded-3xl bg-surface p-5 shadow-[0_8px_30px_rgba(60,60,120,0.06)];
   }
   .label {
-    @apply mb-1 block text-sm text-slate-600;
+    @apply mb-1 block text-sm text-muted;
   }
   .field,
   .auth-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
   .auth-fields select,
   .auth-fields textarea {
-    @apply w-full rounded-2xl border-0 bg-slate-100/80 px-4 py-3 text-base text-ink outline-none ring-0 focus:bg-brand-50 focus:ring-2 focus:ring-brand-500/40;
+    @apply w-full rounded-2xl border-0 bg-field px-4 py-3 text-base text-ink outline-none ring-0 focus:bg-brand-tint focus:ring-2 focus:ring-brand-500/40;
   }
   .btn {
     @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-violet-600 px-4 py-3.5 font-semibold text-white shadow-lg shadow-brand-500/30 hover:from-brand-700 hover:to-violet-700 active:scale-[0.99];
   }
   .btn-soft {
-    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-50 px-4 py-3 font-semibold text-brand-700 hover:bg-brand-100 active:scale-[0.99];
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-tint px-4 py-3 font-semibold text-brand-fg hover:bg-brand-tint-2 active:scale-[0.99];
   }
   .btn-danger {
-    @apply inline-flex min-h-11 items-center justify-center rounded-xl bg-rose-50 px-3 py-1.5 text-sm font-medium text-rose-700 hover:bg-rose-100;
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl bg-danger-soft px-3 py-1.5 text-sm font-medium text-danger hover:opacity-80;
   }
 }
 
@@ -66,10 +121,10 @@
     @apply text-2xl font-bold;
   }
   .auth a:not(.btn):not(.btn-soft):not(.btn-danger) {
-    @apply font-semibold text-brand-600;
+    @apply font-semibold text-brand-fg;
   }
   .auth p {
-    @apply text-slate-600;
+    @apply text-muted;
   }
   .auth-fields input[type="checkbox"],
   .auth-fields input[type="radio"] {
@@ -79,7 +134,10 @@
 
 @layer components {
   .icon-btn {
-    @apply grid size-12 place-items-center rounded-2xl bg-brand-50 text-brand-700 hover:bg-brand-100 active:scale-95;
+    @apply grid size-12 place-items-center rounded-2xl bg-brand-tint text-brand-fg hover:bg-brand-tint-2 active:scale-95;
+  }
+  .pref-btn {
+    @apply flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-2xl bg-brand-tint px-3 py-2 font-semibold text-brand-fg hover:bg-brand-tint-2 active:scale-[0.98];
   }
   .icon-btn-primary {
     @apply grid size-12 place-items-center rounded-2xl bg-gradient-to-r from-brand-600 to-violet-600 text-white shadow-lg shadow-brand-500/30 hover:from-brand-700 hover:to-violet-700 active:scale-95;
@@ -111,11 +169,11 @@
   @apply mb-0 text-base;
 }
 .choices__inner {
-  @apply min-h-0 rounded-2xl border-0 bg-slate-100/80 p-0 text-ink;
+  @apply min-h-0 rounded-2xl border-0 bg-field p-0 text-ink;
 }
 .choices.is-focused .choices__inner,
 .choices.is-open .choices__inner {
-  @apply bg-brand-50 ring-2 ring-brand-500/40;
+  @apply bg-brand-tint ring-2 ring-brand-500/40;
 }
 .choices.is-open .choices__inner {
   @apply rounded-b-2xl;
@@ -140,7 +198,7 @@
 }
 .choices__list--dropdown,
 .choices__list[aria-expanded] {
-  @apply z-20 mt-2 overflow-hidden rounded-2xl border-0 bg-white shadow-[0_16px_40px_rgba(60,60,120,0.18)];
+  @apply z-20 mt-2 overflow-hidden rounded-2xl border-0 bg-surface shadow-[0_16px_40px_rgba(60,60,120,0.18)];
 }
 .is-open .choices__list--dropdown {
   @apply rounded-2xl border-0;
@@ -150,19 +208,19 @@
 }
 .choices__list--dropdown .choices__item--selectable.is-highlighted,
 .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
-  @apply bg-brand-50 text-brand-700;
+  @apply bg-brand-tint text-brand-fg;
 }
 .choices__list--dropdown .choices__item--selectable.is-selected {
-  @apply font-semibold text-brand-600;
+  @apply font-semibold text-brand-fg;
 }
 .choices[data-type*="select-one"] .choices__input {
-  @apply m-2 w-[calc(100%-1rem)] rounded-xl border-0 bg-slate-100 px-3 py-2 text-base outline-none;
+  @apply m-2 w-[calc(100%-1rem)] rounded-xl border-0 bg-field px-3 py-2 text-base outline-none;
 }
 .month-bar .choices {
   @apply w-full;
 }
 .month-bar .choices__inner {
-  @apply bg-white pr-9 text-sm font-semibold shadow-sm;
+  @apply bg-surface pr-9 text-sm font-semibold shadow-sm;
 }
 .month-bar .choices__list--single .choices__item {
   @apply justify-center;
@@ -173,5 +231,32 @@
 
 /* the empty "—" option must stay readable (Choices dims placeholders to 50%) */
 .choices__placeholder {
-  @apply text-slate-600 opacity-100;
+  @apply text-muted opacity-100;
+}
+
+/* Light/dark toggle shows the icon + label of the CURRENT mode */
+.theme-icon-dark {
+  display: none;
+}
+[data-theme="dark"] .theme-icon-dark {
+  display: inline-flex;
+}
+[data-theme="dark"] .theme-icon-light {
+  display: none;
+}
+
+/* the colour picker was collapsing to a thin line inside .field */
+input[type="color"].field {
+  @apply h-12 cursor-pointer p-1.5;
+}
+input[type="color"].field::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+input[type="color"].field::-webkit-color-swatch {
+  border: 0;
+  border-radius: 0.75rem;
+}
+input[type="color"].field::-moz-color-swatch {
+  border: 0;
+  border-radius: 0.75rem;
 }

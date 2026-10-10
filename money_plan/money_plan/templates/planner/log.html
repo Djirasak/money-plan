@@ -13,17 +13,17 @@
         {{ f }}
       </div>
     {% endfor %}
-    <p class="text-sm text-slate-600">{% trans 'Spend: pick "From pile" · Transfer/Sweep: pick both · Adjust: pick one' %}</p>
+    <p class="text-sm text-muted">{% trans 'Spend: pick "From pile" · Transfer/Sweep: pick both · Adjust: pick one' %}</p>
     {% if editing %}{% url 'planner:log' as new_url %}{% include "planner/_actions.html" with add_href=new_url|add:"?m="|add:month save_label=_("Save changes") %}{% else %}{% include "planner/_actions.html" with save_label=_("Save entry") %}{% endif %}
   </form>
 
-  <h2 class="mb-3 mt-7 px-1 text-sm font-semibold tracking-wide text-slate-600">{% blocktrans with m=month|month_label %}Entries {{ m }}{% endblocktrans %}</h2>
+  <h2 class="mb-3 mt-7 px-1 text-sm font-semibold tracking-wide text-muted">{% blocktrans with m=month|month_label %}Entries {{ m }}{% endblocktrans %}</h2>
   <div class="space-y-3">
     {% for e in entries %}
       <article class="card flex items-center gap-3 !p-4">
         <div class="min-w-0 flex-1">
           <p class="font-semibold">{{ e.get_type_display }} · {{ e.amount|baht }}</p>
-          <p class="truncate text-sm text-slate-600">
+          <p class="truncate text-sm text-muted">
             {{ e.date|date:"j M" }} ·
             {% if e.from_pile %}{{ e.from_pile }}{% endif %}{% if e.from_pile and e.to_pile %} {% icon "arrow-right" "size-3.5 inline-block align-[-2px]" %} {% endif %}{% if e.to_pile %}{{ e.to_pile }}{% endif %}
             {% if e.note %}· {{ e.note }}{% endif %}
@@ -36,7 +36,7 @@
         </form>
       </article>
     {% empty %}
-      <p class="card text-center text-slate-600">{% trans "No entries this month yet" %}</p>
+      <p class="card text-center text-muted">{% trans "No entries this month yet" %}</p>
     {% endfor %}
   </div>
 {% endblock page %}

@@ -23,7 +23,7 @@
       {% block code %}{% endblock code %}
     </p>
     <h1 class="relative mt-4 text-2xl font-bold">{% block heading %}{% endblock heading %}</h1>
-    <p class="relative mx-auto mt-2 max-w-xs text-slate-600">{% block text %}{% endblock text %}</p>
+    <p class="relative mx-auto mt-2 max-w-xs text-muted">{% block text %}{% endblock text %}</p>
 
     <div class="relative mt-8 w-full max-w-xs space-y-3">
       {% block actions %}
@@ -31,6 +31,6 @@
         <button type="button" class="btn-soft" onclick="history.length > 1 ? history.back() : location.assign('/')">{% trans "Go back" %}</button>
       {% endblock actions %}
     </div>
-    <p class="relative mt-10 text-xs font-semibold uppercase tracking-[0.25em] text-brand-700">Money Plan</p>
+    <p class="relative mt-10 text-xs font-semibold uppercase tracking-[0.25em] text-brand-fg">Money Plan</p>
   </div>
 {% endblock main %}

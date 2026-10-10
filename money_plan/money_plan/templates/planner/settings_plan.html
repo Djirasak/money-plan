@@ -4,14 +4,14 @@
 {% block heading %}{% trans "Budget plan" %}{% endblock heading %}
 {% block page %}
   {% include "planner/_settings_tabs.html" %}
-  <p class="mb-4 px-1 text-sm text-slate-600">{% trans "Each plan applies from its start month onwards. A pile receives salary × % + fixed amount." %}</p>
+  <p class="mb-4 px-1 text-sm text-muted">{% trans "Each plan applies from its start month onwards. A pile receives salary × % + fixed amount." %}</p>
   <div class="space-y-4">
     {% for item in periods %}
       <form method="post" class="card space-y-3">
         {% csrf_token %}<input type="hidden" name="id" value="{{ item.period.pk }}" /><input type="hidden" name="action" value="save" />
         <div class="flex items-center justify-between">
           <p class="font-bold">{% blocktrans with m=item.period.effective_month|month_label %}From {{ m }}{% endblocktrans %}</p>
-          <div class="flex items-center gap-2"><span class="rounded-full px-3 py-1 text-xs font-semibold {% if item.total == 100 %}bg-emerald-100 text-emerald-700{% else %}bg-amber-100 text-amber-800{% endif %}">{% blocktrans with total=item.total|floatformat:"-2" %}Total {{ total }}{% endblocktrans %}%</span>{% include "planner/_trash.html" with confirm_text=_("Delete this plan?") %}</div>
+          <div class="flex items-center gap-2"><span class="rounded-full px-3 py-1 text-xs font-semibold {% if item.total == 100 %}bg-success-soft text-success{% else %}bg-warn-soft text-warn{% endif %}">{% blocktrans with total=item.total|floatformat:"-2" %}Total {{ total }}{% endblocktrans %}%</span>{% include "planner/_trash.html" with confirm_text=_("Delete this plan?") %}</div>
         </div>
         <input class="field" name="name" value="{{ item.period.name }}" placeholder="{% trans "Plan name (optional)" %}" aria-label="{% trans "Plan name" %}" />
         {% for pile, it in item.rows %}
@@ -21,7 +21,7 @@
             <input class="field !px-3 !py-2 text-right" name="fixed_{{ pile.pk }}" inputmode="decimal" value="{{ it.fixed|default:0|floatformat:"-2" }}" aria-label="{% trans "Fixed amount" %}" />
           </div>
         {% endfor %}
-        <p class="text-right text-xs text-slate-600">{% trans "Left field = % of salary · right field = fixed baht" %}</p>
+        <p class="text-right text-xs text-muted">{% trans "Left field = % of salary · right field = fixed baht" %}</p>
         {% include "planner/_actions.html" with add_href="#new-period" save_label=_("Save plan") %}
       </form>
     {% endfor %}
@@ -32,7 +32,7 @@
         <div><label class="label" for="new_period_month">{% trans "Start month (YYYY-MM)" %}</label><input class="field" id="new_period_month" name="effective_month" value="{{ default_month }}" pattern="\d{4}-(0[1-9]|1[0-2])" required /></div>
         <div><label class="label" for="new_period_name">{% trans "Plan name" %}</label><input class="field" id="new_period_name" name="name" /></div>
       </div>
-      <p class="text-sm text-slate-600">{% trans "Values are copied from the previous plan; adjust as needed." %}</p>
+      <p class="text-sm text-muted">{% trans "Values are copied from the previous plan; adjust as needed." %}</p>
       {% include "planner/_actions.html" with save_label=_("Add plan") %}
     </form>
   </div>
