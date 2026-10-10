@@ -181,15 +181,22 @@ class SalaryForm(forms.Form):
     effective_month = MonthField()
     amount = forms.DecimalField(min_value=0, max_digits=14, decimal_places=2)
 
-    def __init__(self, *args, user, **kwargs):
+    def __init__(self, *args, user, instance=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
+        self.instance = instance  # the salary being edited, or None when adding
 
     def clean(self):
         data = super().clean()
-        if Salary.objects.filter(user=self.user).count() >= MAX_SALARIES:
-            msg = _("You can add at most %(max)s salaries") % {"max": MAX_SALARIES}
-            raise forms.ValidationError(msg)
+        taken = Salary.objects.filter(user=self.user)
+        if self.instance is None:
+            if taken.count() >= MAX_SALARIES:
+                msg = _("You can add at most %(max)s salaries") % {"max": MAX_SALARIES}
+                raise forms.ValidationError(msg)
+        elif data.get("effective_month") and taken.filter(
+            effective_month=data["effective_month"],
+        ).exclude(pk=self.instance.pk).exists():
+            self.add_error("effective_month", _("A salary for this month already exists"))
         return data
 
 

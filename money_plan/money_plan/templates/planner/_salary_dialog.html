@@ -1,0 +1,26 @@
+{% load i18n planner_tags %}
+{# Add/edit a salary. Needs: d (month, amount, errors, auto_open, salary). #}
+{% with salary=d.salary sid=d.salary.pk|default:"new"|stringformat:"s" %}
+<dialog id="{% if salary %}salary-edit-{{ salary.pk }}{% else %}salary-new{% endif %}" class="modal"
+        aria-labelledby="salary-title-{{ sid }}" {% if d.auto_open %}data-auto-open{% endif %}>
+  <form method="post" class="flex flex-col gap-4">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="salary_save" />
+    {% if salary %}<input type="hidden" name="id" value="{{ salary.pk }}" />{% endif %}
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-xl font-bold" id="salary-title-{{ sid }}">{% if salary %}{% trans "Edit salary" %}{% else %}{% trans "Add salary" %}{% endif %}</h2>
+      <button type="button" class="icon-btn !size-10 !rounded-full" data-close-dialog aria-label="{% trans 'Close' %}">{% icon "x" "size-5" %}</button>
+    </div>
+    {% trans "Effective from" as from_label %}
+    {% month_picker "effective_month" d.month "sal"|add:sid from_label %}
+    <div>
+      <label class="label" for="salary-amount-{{ sid }}">{% trans "Amount (THB)" %}</label>
+      <input class="field" id="salary-amount-{{ sid }}" name="amount" inputmode="decimal" value="{{ d.amount }}" required />
+    </div>
+    {% for error in d.errors %}<p class="text-sm font-medium text-danger">{{ error }}</p>{% endfor %}
+    <div class="flex justify-end pt-1">
+      <button type="submit" class="icon-btn-primary" aria-label="{% trans 'Save salary' %}" title="{% trans 'Save salary' %}">{% icon "save" "size-6" %}</button>
+    </div>
+  </form>
+</dialog>
+{% endwith %}

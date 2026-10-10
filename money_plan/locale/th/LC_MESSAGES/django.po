@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 19:20+0700\n"
+"POT-Creation-Date: 2026-10-10 19:27+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -104,6 +104,9 @@ msgstr "ชื่อกองนี้มีอยู่แล้ว"
 #, python-format
 msgid "You can add at most %(max)s salaries"
 msgstr "เพิ่มเงินเดือนได้ไม่เกิน %(max)s แถว"
+
+msgid "A salary for this month already exists"
+msgstr "มีเงินเดือนของเดือนนี้อยู่แล้ว"
 
 msgid "This pile has no target. Set one on the Piles tab or enter an amount."
 msgstr "กองนี้ยังไม่ได้ตั้งเป้าหมาย ตั้งได้ที่แท็บกองเงิน หรือกรอกจำนวนเงินเอง"
@@ -289,6 +292,12 @@ msgstr "เพิ่มใหม่"
 msgid "Save"
 msgstr "บันทึก"
 
+msgid "Delete"
+msgstr "ลบ"
+
+msgid "Cancel"
+msgstr "ยกเลิก"
+
 msgid "Month"
 msgstr "เดือน"
 
@@ -322,6 +331,18 @@ msgstr "ใช้เป้าหมายของกองนี้"
 
 msgid "Checked at the start of each month. If the condition is not met, the next older plan is used."
 msgstr "ตรวจทุกต้นเดือน ถ้าไม่ตรงเงื่อนไข จะใช้แผนที่เก่ากว่าถัดไปแทน"
+
+msgid "Edit salary"
+msgstr "แก้ไขเงินเดือน"
+
+msgid "Add salary"
+msgstr "เพิ่มเงินเดือน"
+
+msgid "Effective from"
+msgstr "เดือนที่เริ่มใช้"
+
+msgid "Save salary"
+msgstr "บันทึกเงินเดือน"
 
 msgid "General"
 msgstr "ทั่วไป"
@@ -387,9 +408,6 @@ msgstr "ทบได้ไม่จำกัด"
 msgid "Overflow %(amount)s to %(target)s"
 msgstr "ล้น %(amount)s ไปยัง %(target)s"
 
-msgid "Delete"
-msgstr "ลบ"
-
 msgid "Sign out"
 msgstr "ออกจากระบบ"
 
@@ -407,9 +425,6 @@ msgstr "คุณต้องเข้าสู่ระบบใหม่อี
 
 msgid "Signing out..."
 msgstr "กำลังออกจากระบบ..."
-
-msgid "Cancel"
-msgstr "ยกเลิก"
 
 msgid "Save entry"
 msgstr "บันทึกรายการ"
@@ -469,14 +484,16 @@ msgstr "ตั้งแต่ %(m)s"
 msgid "Latest"
 msgstr "ล่าสุด"
 
+#, python-format
+msgid "Edit salary from %(m)s"
+msgstr "แก้ไขเงินเดือนตั้งแต่ %(m)s"
+
+#, python-format
+msgid "Delete salary from %(m)s"
+msgstr "ลบเงินเดือนตั้งแต่ %(m)s"
+
 msgid "Delete this salary?"
 msgstr "ลบเงินเดือนนี้?"
-
-msgid "Effective from"
-msgstr "เดือนที่เริ่มใช้"
-
-msgid "Save salary"
-msgstr "บันทึกเงินเดือน"
 
 msgid "Preferences"
 msgstr "การตั้งค่าส่วนตัว"

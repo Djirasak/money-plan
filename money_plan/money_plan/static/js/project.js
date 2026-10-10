@@ -186,6 +186,7 @@ window.addEventListener('pageshow', (event) => {
   document.addEventListener('DOMContentLoaded', () => {
     const id = document.querySelector('[data-auto-open-id]')?.dataset.autoOpenId;
     if (id) document.getElementById(id)?.showModal();
+    for (const dialog of document.querySelectorAll('dialog[data-auto-open]')) dialog.showModal();
   });
 })();
 

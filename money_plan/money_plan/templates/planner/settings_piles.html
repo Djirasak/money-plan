@@ -56,19 +56,8 @@
   {% trans "Add pile" as new_title %}
   {% include "planner/_pile_dialog.html" with title=new_title pile=None form=new_form auto_open=False %}
 
-  <dialog id="confirm-delete" class="modal !max-w-sm" aria-labelledby="confirm-delete-title">
-    <form method="post" class="flex flex-col gap-4">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="delete" />
-      <input type="hidden" name="id" value="" data-delete-field />
-      <h2 class="text-xl font-bold" id="confirm-delete-title">{% trans "Delete this pile?" %}</h2>
-      <p class="text-muted"><strong data-delete-label></strong></p>
-      <p class="text-sm text-muted">{% trans "Piles used by log entries or plan conditions cannot be deleted." %}</p>
-      <div class="flex flex-col gap-2">
-        <button type="submit" class="btn !from-rose-700 !to-rose-700" data-loading-text="{% trans 'Delete' %}">{% trans "Delete" %}</button>
-        <button type="button" class="btn-soft" data-close-dialog>{% trans "Cancel" %}</button>
-      </div>
-    </form>
-  </dialog>
+  {% trans "Delete this pile?" as confirm_title %}
+  {% trans "Piles used by log entries or plan conditions cannot be deleted." as confirm_note %}
+  {% include "planner/_confirm_dialog.html" with action="delete" title=confirm_title note=confirm_note %}
   {% if open_dialog %}<span data-auto-open-id="{{ open_dialog }}" hidden></span>{% endif %}
 {% endblock page %}

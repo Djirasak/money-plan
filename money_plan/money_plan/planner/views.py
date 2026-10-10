@@ -162,23 +162,64 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
             "cfg": self.cfg,
             "salary_percent": (self.cfg.salary_multiplier * 100).normalize(),
             "salaries": Salary.objects.filter(user=self.request.user),
-            "salary_months": services.month_window(self.cfg.start_month),
             "default_month": services.current_month(),
+            "salary_dialogs": self._salary_dialogs(),
         }
 
-    def do_salary_add(self, request):
+    bound_salary: tuple | None = None  # (salary or None, posted data, form) after a failed save
+
+    def _salary_dialogs(self) -> list[dict]:
+        """One entry per dialog (each salary, plus "new") with its field values/errors."""
+        rows = [*Salary.objects.filter(user=self.request.user), None]
+        dialogs = []
+        for salary in rows:
+            failed = self.bound_salary is not None and self.bound_salary[0] == salary
+            if failed:
+                _, data, form = self.bound_salary
+                month = data.get("effective_month") or services.current_month()
+                amount = data.get("amount", "")
+                errors = [e for errs in form.errors.values() for e in errs]
+            else:
+                month = salary.effective_month if salary else services.current_month()
+                amount = f"{salary.amount:f}".rstrip("0").rstrip(".") if salary else ""
+                errors = []
+            dialogs.append(
+                {
+                    "salary": salary,
+                    "month": month,
+                    "amount": amount,
+                    "errors": errors,
+                    "auto_open": failed,
+                },
+            )
+        return dialogs
+
+    def _salary(self, request) -> Salary | None:
+        pk = request.POST.get("id")
+        return get_object_or_404(Salary, pk=pk, user=request.user) if pk else None
+
+    def do_salary_save(self, request):
+        """Add a salary, or change an existing one (``id`` in the POST)."""
+        salary = self._salary(request)
         data = request.POST.copy()
         data["effective_month"] = month_from_post(request.POST, "effective_month")
-        form = SalaryForm(data, user=request.user)
+        form = SalaryForm(data, user=request.user, instance=salary)
         if not form.is_valid():
             _errors(request, form)
-            return
-        Salary.objects.update_or_create(
-            user=request.user,
-            effective_month=form.cleaned_data["effective_month"],
-            defaults={"amount": form.cleaned_data["amount"]},
-        )
+            self.bound_salary = (salary, data, form)
+            return self.render_to_response(self.get_context_data())
+        month, amount = form.cleaned_data["effective_month"], form.cleaned_data["amount"]
+        if salary is None:
+            Salary.objects.update_or_create(
+                user=request.user,
+                effective_month=month,
+                defaults={"amount": amount},
+            )
+        else:
+            salary.effective_month, salary.amount = month, amount
+            salary.save()
         messages.success(request, _("Salary saved"))
+        return None
 
     def do_salary_delete(self, request):
         Salary.objects.filter(user=request.user, pk=request.POST.get("id")).delete()

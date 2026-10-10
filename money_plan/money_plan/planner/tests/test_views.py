@@ -141,14 +141,6 @@ def test_edit_page_renders_with_add_link(client_in, user):
     assert b'aria-label="\xe0\xb9\x80\xe0\xb8\x9e\xe0\xb8\xb4\xe0\xb9\x88\xe0\xb8\xa1\xe0\xb9\x83\xe0\xb8\xab\xe0\xb8\xa1\xe0\xb9\x88"' in resp.content
 
 
-def test_salary_form_has_add_toggle_left_and_save_right(client_in):
-    html = client_in.get(reverse("planner:settings")).content.decode()
-    start = html.index('value="salary_add"')
-    section = html[start:]
-    assert section.index("@click=") < section.index('type="submit"')
-    assert 'x-data="{ open: false }"' in html  # salary exists -> collapsed
-
-
 def test_month_bar_navigation(client_in, user):
     start = user.planner_settings.start_month
     html = client_in.get(reverse("planner:summary"), {"m": start}).content.decode()
@@ -418,3 +410,81 @@ def test_plan_page_exposes_pile_targets_to_the_form(client_in, user):
     assert 'id="pile-targets"' in html
     assert f'"{reserve.pk}": "\\u0e3f120,000"' in html  # json_script escapes non-ASCII
     assert 'name="condition_use_target"' in html
+
+
+def _salary_dialog_post(user, **extra):
+    year, month = user.planner_settings.start_month.split("-")
+    return {
+        "action": "salary_save",
+        "effective_month_year": year,
+        "effective_month_month": str(int(month)),
+        "amount": "50000",
+    } | extra
+
+
+def test_salaries_are_cards_with_modals_and_icon_buttons(client_in, user):
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    salary = Salary.objects.get(user=user)
+    assert f'data-open-dialog="salary-edit-{salary.pk}"' in html
+    assert f'data-delete-id="{salary.pk}"' in html and 'data-open-dialog="salary-new"' in html
+    assert 'id="salary-new"' in html and f'id="salary-edit-{salary.pk}"' in html
+    assert 'class="btn-danger"' not in html  # no more text "ลบ" button
+    assert html.count('id="cond') == 0  # (plan page only) sanity
+
+
+def test_editing_a_salary_changes_amount_and_month(client_in, user):
+    salary = Salary.objects.get(user=user)
+    year, month = user.planner_settings.start_month.split("-")
+    resp = client_in.post(
+        reverse("planner:settings"),
+        _salary_dialog_post(user, id=salary.pk, amount="61000", effective_month_year=str(int(year) + 1)),
+    )
+    assert resp.status_code == 302
+    salary.refresh_from_db()
+    assert salary.amount == Decimal(61000)
+    assert salary.effective_month == f"{int(year) + 1}-{month}"
+
+
+def test_adding_a_salary_via_the_modal_form(client_in, user):
+    year = int(user.planner_settings.start_month[:4]) + 1
+    client_in.post(
+        reverse("planner:settings"),
+        _salary_dialog_post(user, effective_month_year=str(year), amount="70000"),
+    )
+    assert Salary.objects.filter(user=user, effective_month__startswith=str(year), amount=70000).exists()
+
+
+def test_moving_a_salary_onto_an_existing_month_is_rejected_and_the_modal_reopens(client_in, user):
+    first = Salary.objects.get(user=user)
+    year = int(user.planner_settings.start_month[:4]) + 1
+    other = Salary.objects.create(user=user, effective_month=f"{year}-03", amount=1)
+    resp = client_in.post(
+        reverse("planner:settings"),
+        {
+            "action": "salary_save",
+            "id": other.pk,
+            "effective_month_year": first.effective_month[:4],
+            "effective_month_month": str(int(first.effective_month[5:])),
+            "amount": "123",
+        },
+    )
+    assert resp.status_code == 200  # re-rendered with the error, not redirected
+    html = resp.content.decode()
+    assert "data-auto-open" in html and 'value="123"' in html  # modal open, input kept
+    other.refresh_from_db()
+    assert other.effective_month == f"{year}-03"
+
+
+def test_deleting_a_salary_uses_the_confirm_dialog_post(client_in, user):
+    salary = Salary.objects.get(user=user)
+    client_in.post(reverse("planner:settings"), {"action": "salary_delete", "id": salary.pk})
+    assert not Salary.objects.filter(pk=salary.pk).exists()
+
+
+def test_cannot_edit_another_users_salary(client_in, django_user_model):
+    other = django_user_model.objects.create_user("other4", password="x")  # noqa: S106
+    theirs = Salary.objects.create(user=other, effective_month="2030-01", amount=1)
+    resp = client_in.post(reverse("planner:settings"), {"action": "salary_save", "id": theirs.pk, "amount": "9"})
+    assert resp.status_code == 404
+    theirs.refresh_from_db()
+    assert theirs.amount == 1
