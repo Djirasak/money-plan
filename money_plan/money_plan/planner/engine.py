@@ -116,8 +116,13 @@ class PileMonth:
     target: Decimal | None = None  # this pile's goal for the month, if it has one
 
     @property
+    def budget(self) -> Decimal:
+        """What this month started with: the new allocation plus what carried in."""
+        return self.allocation + self.carry_in
+
+    @property
     def used_pct(self) -> Decimal:
-        budget = self.allocation + self.carry_in
+        budget = self.budget
         return (self.used / budget * 100) if budget > 0 else ZERO
 
 

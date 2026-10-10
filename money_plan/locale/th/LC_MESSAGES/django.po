@@ -66,7 +66,7 @@ msgid "Rollover cap (empty = unlimited)"
 msgstr "เพดานทบ (ว่าง = ไม่จำกัด)"
 
 msgid "Overflow pile"
-msgstr "กองที่ล้นไป"
+msgstr "กองที่รับส่วนที่เกิน"
 
 msgid "Target amount (THB)"
 msgstr "จำนวนเป้าหมาย (บาท)"
@@ -142,7 +142,7 @@ msgid "Savings fund"
 msgstr "กองสะสม"
 
 msgid "Sweep to another pile"
-msgstr "กวาดไปกองอื่น"
+msgstr "โอนส่วนเกินไปกองอื่น"
 
 msgid "Rollover"
 msgstr "ทบได้"
@@ -163,7 +163,7 @@ msgid "Transfer"
 msgstr "ย้ายเงิน"
 
 msgid "Sweep"
-msgstr "กวาดยอด"
+msgstr "โอนส่วนเกิน"
 
 msgid "Adjust"
 msgstr "ปรับยอด"
@@ -380,7 +380,7 @@ msgstr "ใช้แล้ว · %(pct)s"
 
 #, python-format
 msgid "Sweeps to %(name)s"
-msgstr "กวาดไป %(name)s"
+msgstr "ส่วนเกินโอนไป %(name)s"
 
 #, python-format
 msgid "Rollover up to %(cap)s"
@@ -391,7 +391,7 @@ msgstr "ทบได้ไม่จำกัด"
 
 #, python-format
 msgid "Overflow %(amount)s to %(target)s"
-msgstr "ล้น %(amount)s ไปยัง %(target)s"
+msgstr "ส่วนเกิน %(amount)s โอนไป %(target)s แล้ว"
 
 msgid "Sign out"
 msgstr "ออกจากระบบ"
@@ -424,7 +424,7 @@ msgid "Add entry"
 msgstr "เพิ่มรายการ"
 
 msgid "Spend: pick \"From pile\" · Transfer/Sweep: pick both · Adjust: pick one"
-msgstr "จ่าย: เลือก \"จากกอง\" · ย้าย/กวาด: เลือกทั้งสอง · ปรับยอด: เลือกอย่างใดอย่างหนึ่ง"
+msgstr "จ่าย: เลือก \"จากกอง\" · ย้าย/โอนส่วนเกิน: เลือกทั้งสอง · ปรับยอด: เลือกอย่างใดอย่างหนึ่ง"
 
 msgid "Save changes"
 msgstr "บันทึกการแก้ไข"
@@ -612,3 +612,12 @@ msgstr "โหลดเพิ่ม"
 
 msgid "No more entries"
 msgstr "ไม่มีรายการเพิ่มแล้ว"
+
+msgid "Goal %(t)s · %(prog)s%%"
+msgstr "เป้าหมาย %(t)s · %(prog)s%%"
+
+msgid "+%(a)s this month"
+msgstr "+%(a)s เดือนนี้"
+
+msgid "Spent %(used)s of %(budget)s"
+msgstr "ใช้ไป %(used)s จาก %(budget)s"
