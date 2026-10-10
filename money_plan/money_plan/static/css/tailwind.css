@@ -249,3 +249,94 @@ input[type="color"].input {
     animation: none;
   }
 }
+
+/* ---- Depth: layered soft shadows, a glowing hero, lift on hover ----------------------------- */
+:root {
+  --lift-1: 0 1px 2px rgb(30 27 75 / 0.06), 0 6px 18px -6px rgb(79 70 229 / 0.16);
+  --lift-2: 0 2px 4px rgb(30 27 75 / 0.07), 0 14px 30px -10px rgb(79 70 229 / 0.28);
+}
+.dark {
+  --lift-1: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 8px 22px -8px rgb(0 0 0 / 0.7);
+  --lift-2: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 16px 34px -10px rgb(0 0 0 / 0.85);
+}
+.card,
+.entry,
+.item {
+  box-shadow: var(--lift-1);
+}
+.hero {
+  box-shadow: 0 2px 4px rgb(55 48 163 / 0.2), 0 18px 36px -12px rgb(109 40 217 / 0.55);
+}
+.hero::before,
+.hero::after {
+  content: "";
+  @apply pointer-events-none absolute rounded-full;
+}
+.hero::before {
+  width: 15rem; height: 15rem; right: -5rem; top: -7rem;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.28), transparent);
+}
+.hero::after {
+  width: 13rem; height: 13rem; left: -4rem; bottom: -8rem;
+  background: radial-gradient(closest-side, rgb(236 72 153 / 0.4), transparent);
+}
+.hero > * {
+  @apply relative;
+}
+.app-nav {
+  box-shadow: 0 2px 6px rgb(30 27 75 / 0.08), 0 18px 40px -8px rgb(30 27 75 / 0.3);
+}
+.pile-bar > div {
+  box-shadow: 0 0 10px -1px var(--pc);
+}
+
+/* ---- Motion (all of it off when the user asks for reduced motion) --------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  .app-nav { view-transition-name: app-nav; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.18s; }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(12px) scale(0.985); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  .hero, .card, .entry, .item {
+    animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .pile-summary:nth-child(2), .entry:nth-child(2) { animation-delay: 0.05s; }
+  .pile-summary:nth-child(3), .entry:nth-child(3) { animation-delay: 0.1s; }
+  .pile-summary:nth-child(4), .entry:nth-child(4) { animation-delay: 0.15s; }
+  .pile-summary:nth-child(5), .entry:nth-child(5) { animation-delay: 0.2s; }
+  .pile-summary:nth-child(n + 6), .entry:nth-child(n + 6) { animation-delay: 0.25s; }
+  .pile-bar > div {
+    transform-origin: left center;
+    animation: grow 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both;
+  }
+  .card, .entry, .item, .btn, .app-nav a {
+    transition-property: color, background-color, border-color, box-shadow, filter, transform;
+    transition-duration: 0.2s;
+  }
+  .pile-summary:hover, .entry:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--lift-2);
+  }
+  .btn:active {
+    transform: scale(0.96);
+  }
+  .app-nav a:active {
+    transform: scale(0.92);
+  }
+  :root { interpolate-size: allow-keywords; }
+  @supports (selector(::details-content)) {
+    details::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition: block-size 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), content-visibility 0.3s allow-discrete;
+    }
+    details[open]::details-content { block-size: auto; }
+  }
+}
