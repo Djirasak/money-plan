@@ -115,10 +115,10 @@ class TestAccountChanges:
             "account-username",
             "account-email",
             "account-password",
+            "account-photo",
             "logout-modal",
         ):
             assert f'id="{dialog}"' in html
-        assert "disabled" in html  # profile photo button is not available yet
 
     def test_change_username(self, client, user: User):
         client.force_login(user)
@@ -219,3 +219,77 @@ class TestAccountChanges:
         )
         html = client.get(user.get_absolute_url()).content.decode()
         assert 'id="account-name"' in html
+
+
+def _png(size=(300, 200), color="red") -> bytes:
+    from io import BytesIO
+
+    from PIL import Image
+
+    out = BytesIO()
+    Image.new("RGB", size, color).save(out, "PNG")
+    return out.getvalue()
+
+
+class TestProfilePhoto:
+    def upload(self, client, data: bytes, name="me.png"):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        return client.post(
+            reverse("users:change_photo"),
+            {"photo": SimpleUploadedFile(name, data, content_type="image/png")},
+        )
+
+    def test_upload_stores_a_small_square_jpeg(self, client, user: User):
+        from PIL import Image
+
+        client.force_login(user)
+        resp = self.upload(client, _png())
+        assert resp.status_code == HTTPStatus.FOUND
+        user.refresh_from_db()
+        assert user.photo.name.startswith(f"avatars/{user.pk}/")
+        with user.photo.open("rb") as f, Image.open(f) as img:
+            assert img.width == img.height == 200  # cropped to the short side
+
+    def test_page_shows_the_photo_and_serves_it(self, client, user: User):
+        client.force_login(user)
+        self.upload(client, _png())
+        user.refresh_from_db()
+        assert user.photo_url in client.get(user.get_absolute_url()).content.decode()
+        resp = client.get(reverse("users:photo"))
+        assert resp.status_code == HTTPStatus.OK
+        assert b"".join(resp.streaming_content)[:2] == b"\xff\xd8"  # JPEG
+
+    def test_new_upload_replaces_and_deletes_the_old_file(self, client, user: User):
+        client.force_login(user)
+        self.upload(client, _png())
+        user.refresh_from_db()
+        first = user.photo.name
+        self.upload(client, _png(color="blue"))
+        user.refresh_from_db()
+        assert user.photo.name != first
+        assert not user.photo.storage.exists(first)
+
+    def test_not_an_image_reopens_the_dialog(self, client, user: User):
+        client.force_login(user)
+        resp = self.upload(client, b"just text", name="x.png")
+        assert resp.status_code == HTTPStatus.OK
+        assert "data-auto-open" in resp.content.decode()
+        user.refresh_from_db()
+        assert not user.photo
+
+    def test_remove_deletes_the_file(self, client, user: User):
+        client.force_login(user)
+        self.upload(client, _png())
+        user.refresh_from_db()
+        name = user.photo.name
+        resp = client.post(reverse("users:remove_photo"))
+        assert resp.status_code == HTTPStatus.FOUND
+        user.refresh_from_db()
+        assert not user.photo
+        assert not user.photo.storage.exists(name)
+
+    def test_no_photo_is_404_and_anonymous_is_redirected(self, client, user: User):
+        assert client.get(reverse("users:photo")).status_code == HTTPStatus.FOUND
+        client.force_login(user)
+        assert client.get(reverse("users:photo")).status_code == HTTPStatus.NOT_FOUND

@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import FileResponse
+from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -17,6 +19,7 @@ from django.views.generic import View
 from money_plan.users.forms import AccountPasswordChangeForm
 from money_plan.users.forms import EmailChangeForm
 from money_plan.users.forms import NameChangeForm
+from money_plan.users.forms import PhotoChangeForm
 from money_plan.users.forms import UsernameChangeForm
 from money_plan.users.models import User
 
@@ -41,6 +44,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
             "email_form": bound.get("email")
             or EmailChangeForm(initial={"email": user.email}, user=user),
             "name_form": bound.get("name") or NameChangeForm(instance=user),
+            "photo_form": bound.get("photo") or PhotoChangeForm(user=user),
             "password_form": bound.get("password") or AccountPasswordChangeForm(user),
             "open_dialog": kwargs.get("open_dialog", ""),
         }
@@ -147,3 +151,40 @@ class NameChangeView(AccountChangeView):
             self.request.POST,
             instance=User.objects.get(pk=self.request.user.pk),
         )
+
+
+class PhotoChangeView(AccountChangeView):
+    key = "photo"
+    success_message = _("Profile photo updated")
+
+    def get_form(self):
+        return PhotoChangeForm(
+            self.request.POST,
+            self.request.FILES,
+            user=User.objects.get(pk=self.request.user.pk),
+        )
+
+
+class PhotoRemoveView(LoginRequiredMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request):
+        user = request.user
+        if user.photo:
+            user.photo.delete(save=True)
+            messages.success(request, _("Profile photo removed"))
+        return redirect(user.get_absolute_url())
+
+
+class PhotoView(LoginRequiredMixin, View):
+    """Stream the signed-in user's photo from the object store."""
+
+    http_method_names = ["get"]
+
+    def get(self, request):
+        photo = request.user.photo
+        if not photo:
+            raise Http404
+        response = FileResponse(photo.open("rb"))
+        response["Cache-Control"] = "private, max-age=86400"
+        return response

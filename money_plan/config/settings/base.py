@@ -96,6 +96,7 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "drf_spectacular",
+    "storages",
 ]
 
 LOCAL_APPS = [
@@ -181,6 +182,28 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = str(APPS_DIR / "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
+# Uploaded files (profile photos) go to an S3-compatible bucket (SeaweedFS locally)
+# when AWS_S3_ENDPOINT_URL is set; otherwise they stay on the local disk.
+AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default="")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="money-plan-media")
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
+AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="us-east-1")
+AWS_S3_ADDRESSING_STYLE = "path"  # SeaweedFS has no bucket subdomains
+AWS_S3_FILE_OVERWRITE = False
+AWS_QUERYSTRING_AUTH = False  # files are never linked directly: Django streams them
+_DEFAULT_STORAGE = (
+    {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {"endpoint_url": AWS_S3_ENDPOINT_URL},
+    }
+    if AWS_S3_ENDPOINT_URL
+    else {"BACKEND": "django.core.files.storage.FileSystemStorage"}
+)
+STORAGES = {
+    "default": _DEFAULT_STORAGE,
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
 
 # TEMPLATES
 # ------------------------------------------------------------------------------

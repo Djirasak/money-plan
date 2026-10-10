@@ -1,3 +1,5 @@
+from io import BytesIO
+
 from allauth.account.forms import SignupForm
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.forms import SignupForm as SocialSignupForm
@@ -5,6 +7,12 @@ from django import forms
 from django.contrib.auth import forms as admin_forms
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
+from PIL import ImageOps
+from PIL import UnidentifiedImageError
+
+from money_plan.utils import ImageError
+from money_plan.utils import compress_image
 
 from .models import User
 
@@ -132,3 +140,59 @@ class NameChangeForm(forms.ModelForm):
         user = self.instance
         user.save_name(self.cleaned_data["first_name"], self.cleaned_data["last_name"])
         return user
+
+
+MAX_PHOTO_UPLOAD = 10_000_000  # 10 MB before compression
+PHOTO_SIDE = 512  # px, square
+PHOTO_MAX_BYTES = 200_000
+
+
+class PhotoChangeForm(forms.Form):
+    photo = forms.FileField(
+        label=_("Profile photo"),
+        widget=forms.ClearableFileInput(
+            attrs=INPUT | {"accept": "image/*", "data-photo-input": ""},
+        ),
+    )
+
+    def __init__(self, *args, user, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_photo(self):
+        upload = self.cleaned_data["photo"]
+        if upload.size > MAX_PHOTO_UPLOAD:
+            raise forms.ValidationError(_("The photo must be 10 MB or smaller."))
+        try:
+            squared = _square(upload.read())
+            return compress_image(
+                squared,
+                max_bytes=PHOTO_MAX_BYTES,
+                max_side=PHOTO_SIDE,
+            ).as_content_file("photo")
+        except ImageError as exc:
+            raise forms.ValidationError(_("Choose a valid image file.")) from exc
+
+    def save(self):
+        user = self.user
+        old = user.photo.name
+        user.photo.save(self.cleaned_data["photo"].name, self.cleaned_data["photo"])
+        if old and old != user.photo.name:
+            user.photo.storage.delete(old)
+        return user
+
+
+def _square(data: bytes) -> bytes:
+    """Centre-crop to a square (after EXIF rotation) so the circle never shows bars."""
+    try:
+        with Image.open(BytesIO(data)) as opened:
+            img = ImageOps.exif_transpose(opened)
+            img.load()
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as exc:
+        msg = "Not a valid image"
+        raise ImageError(msg) from exc
+    side = min(img.size)
+    left, top = (img.width - side) // 2, (img.height - side) // 2
+    out = BytesIO()
+    img.crop((left, top, left + side, top + side)).save(out, "PNG")
+    return out.getvalue()

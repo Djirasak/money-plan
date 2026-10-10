@@ -658,14 +658,32 @@ msgstr "เปลี่ยนอีเมลแล้ว"
 msgid "Password changed"
 msgstr "เปลี่ยนรหัสผ่านแล้ว"
 
-msgid "Change profile photo (coming soon)"
-msgstr "เปลี่ยนรูปโปรไฟล์ (เร็วๆ นี้)"
+msgid "Profile photo"
+msgstr "รูปโปรไฟล์"
 
-msgid "Coming soon"
-msgstr "เร็วๆ นี้"
+msgid "Change profile photo"
+msgstr "เปลี่ยนรูปโปรไฟล์"
 
-msgid "Profile photo: coming soon"
-msgstr "รูปโปรไฟล์: เร็วๆ นี้"
+msgid "Upload photo"
+msgstr "อัปโหลดรูป"
+
+msgid "Remove photo"
+msgstr "ลบรูป"
+
+msgid "JPG, PNG or WebP, up to 10 MB. It is cropped to a square and shrunk automatically."
+msgstr "JPG, PNG หรือ WebP ขนาดไม่เกิน 10 MB ระบบจะครอบเป็นสี่เหลี่ยมจัตุรัสและลดขนาดให้อัตโนมัติ"
+
+msgid "Profile photo updated"
+msgstr "เปลี่ยนรูปโปรไฟล์แล้ว"
+
+msgid "Profile photo removed"
+msgstr "ลบรูปโปรไฟล์แล้ว"
+
+msgid "The photo must be 10 MB or smaller."
+msgstr "รูปต้องมีขนาดไม่เกิน 10 MB"
+
+msgid "Choose a valid image file."
+msgstr "เลือกไฟล์รูปภาพที่ใช้ได้"
 
 msgid "Edit username"
 msgstr "แก้ไขชื่อผู้ใช้"

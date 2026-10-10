@@ -15,6 +15,7 @@ services:
       - postgres
       - redis
       - node
+      - seaweedfs
     volumes:
       - /app/.venv
       - .:/app:z

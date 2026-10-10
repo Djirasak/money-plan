@@ -18,17 +18,27 @@
 
   <div class="card" data-size="sm">
     <header class="flex flex-col items-center gap-3 px-4 text-center">
-      {# Profile photo: layout only for now, uploading is not available yet. #}
       <div class="relative">
-        <div class="avatar-lg" aria-hidden="true">{{ object.username|slice:":1"|upper }}</div>
-        <button type="button" class="btn absolute -bottom-1 -right-1 rounded-full" data-variant="outline" data-size="icon-sm" disabled aria-disabled="true"
-                aria-label="{% trans 'Change profile photo (coming soon)' %}" title="{% trans 'Coming soon' %}">
-          {% icon "camera" "size-4" %}
-        </button>
+        {% if object.photo %}
+          <img class="avatar-lg object-cover" src="{{ object.photo_url }}" alt="" width="80" height="80" />
+        {% else %}
+          <div class="avatar-lg" aria-hidden="true">{{ object.username|slice:":1"|upper }}</div>
+        {% endif %}
+        {% if object == request.user %}
+          <button type="button" class="btn absolute -bottom-1 -right-1 rounded-full" data-variant="outline" data-size="icon-sm" data-open-dialog="account-photo"
+                  aria-label="{% trans 'Change profile photo' %}" title="{% trans 'Change profile photo' %}">
+            {% icon "camera" "size-4" %}
+          </button>
+        {% endif %}
       </div>
       <div class="min-w-0">
         <h2 class="truncate text-base font-semibold">{{ object.name|default:object.username }}</h2>
-        <p class="text-xs text-muted-foreground">{% trans "Profile photo: coming soon" %}</p>
+        {% if object == request.user and object.photo %}
+          <form method="post" action="{% url 'users:remove_photo' %}" class="mt-1">
+            {% csrf_token %}
+            <button type="submit" class="btn text-xs text-destructive" data-variant="link" data-size="sm">{% trans "Remove photo" %}</button>
+          </form>
+        {% endif %}
       </div>
     </header>
   </div>
@@ -68,6 +78,9 @@
       </li>
     </ul>
 
+    {% trans "Change profile photo" as t_photo %}{% trans "Upload photo" as s_photo %}{% trans "JPG, PNG or WebP, up to 10 MB. It is cropped to a square and shrunk automatically." as h_photo %}
+    {% url 'users:change_photo' as a_photo %}
+    {% include "users/_account_dialog.html" with dialog_id="account-photo" title=t_photo form=photo_form action=a_photo submit=s_photo hint=h_photo multipart=True %}
     {% trans "Change username" as t_user %}{% trans "Save username" as s_user %}
     {% url 'users:change_username' as a_user %}
     {% include "users/_account_dialog.html" with dialog_id="account-username" title=t_user form=username_form action=a_user submit=s_user %}

@@ -1,7 +1,7 @@
 {% load i18n planner_tags %}
-{# Edit one account field in a dialog. Needs: dialog_id, title, form, action, submit, hint(optional). Opens itself when open_dialog matches. #}
+{# Edit one account field in a dialog. Needs: dialog_id, title, form, action, submit, hint(optional), multipart(optional). Opens itself when open_dialog matches. #}
 <dialog id="{{ dialog_id }}" class="dialog w-full sm:max-w-[400px]" aria-labelledby="{{ dialog_id }}-title" {% if open_dialog == dialog_id %}data-auto-open{% endif %}>
-  <form method="post" action="{{ action }}" class="overflow-y-auto">
+  <form method="post" action="{{ action }}" class="overflow-y-auto"{% if multipart %} enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
     <header><h2 id="{{ dialog_id }}-title">{{ title }}</h2></header>
     <section class="grid gap-4">

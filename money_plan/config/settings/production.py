@@ -1,4 +1,5 @@
 from .base import *  # noqa: F403
+from .base import _DEFAULT_STORAGE
 from .base import DATABASES
 from .base import INSTALLED_APPS
 from .base import REDIS_URL
@@ -65,9 +66,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
 # STATIC & MEDIA
 # ------------------------
 STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
+    "default": _DEFAULT_STORAGE,
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },

@@ -20,3 +20,9 @@ INITIAL_USER_EMAIL=4.1.jirasak@gmail.com
 
 # Show django-debug-toolbar (hidden by default)
 # DJANGO_DEBUG_TOOLBAR=True
+
+# Object storage for profile photos (SeaweedFS S3 API, see docker-compose.local.yml)
+AWS_S3_ENDPOINT_URL=http://seaweedfs:8333
+AWS_STORAGE_BUCKET_NAME=money-plan-media
+AWS_ACCESS_KEY_ID=money_plan_local
+AWS_SECRET_ACCESS_KEY=money_plan_local_secret
