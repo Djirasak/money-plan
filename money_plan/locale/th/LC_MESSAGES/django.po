@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 18:18+0700\n"
+"POT-Creation-Date: 2026-10-10 18:23+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -452,15 +452,24 @@ msgstr "ชื่อแผน (ไม่บังคับ)"
 msgid "Plan name"
 msgstr "ชื่อแผน"
 
-msgid "Percent"
-msgstr "เปอร์เซ็นต์"
+#, python-format
+msgid "%% of salary"
+msgstr "%% ของเงินเดือน"
 
-msgid "Fixed amount"
-msgstr "จำนวนคงที่"
+msgid "+ Fixed amount (THB)"
+msgstr "+ บาทคงที่"
 
 #, python-format
-msgid "Left field = %% of salary · right field = fixed baht"
-msgstr "ช่องซ้าย = %% ของเงินเดือน · ช่องขวา = บาทคงที่"
+msgid "%(pile)s: %% of salary"
+msgstr "%(pile)s: %% ของเงินเดือน"
+
+#, python-format
+msgid "%(pile)s: fixed amount (THB)"
+msgstr "%(pile)s: บาทคงที่"
+
+#, python-format
+msgid "Each pile gets its %% of your salary, plus an optional fixed amount. Example: Reserve 10%% + ฿2,000 puts aside ฿2,000 more every month on top of 10%%."
+msgstr "แต่ละกองได้ตาม %% ของเงินเดือน บวกจำนวนเงินคงที่ (ใส่หรือไม่ใส่ก็ได้) เช่น เงินสำรอง 10%% + ฿2,000 คือแบ่งเงินเข้ากองนี้เพิ่มอีก ฿2,000 ทุกเดือนนอกเหนือจาก 10%%"
 
 msgid "Save plan"
 msgstr "บันทึกแผน"

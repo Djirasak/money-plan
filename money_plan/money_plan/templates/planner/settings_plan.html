@@ -14,14 +14,25 @@
           <div class="flex items-center gap-2"><span class="rounded-full px-3 py-1 text-xs font-semibold {% if item.total == 100 %}bg-success-soft text-success{% else %}bg-warn-soft text-warn{% endif %}">{% blocktrans with total=item.total|floatformat:"-2" %}Total {{ total }}{% endblocktrans %}%</span>{% include "planner/_trash.html" with confirm_text=_("Delete this plan?") %}</div>
         </div>
         <input class="field" name="name" value="{{ item.period.name }}" placeholder="{% trans "Plan name (optional)" %}" aria-label="{% trans "Plan name" %}" />
+        <div class="grid grid-cols-[minmax(0,1fr)_5rem_6rem] items-end gap-2 text-xs font-semibold text-muted" aria-hidden="true">
+          <span></span>
+          <span class="text-center leading-tight">{% trans "% of salary" %}</span>
+          <span class="text-center leading-tight">{% trans "+ Fixed amount (THB)" %}</span>
+        </div>
         {% for pile, it in item.rows %}
-          <div class="grid grid-cols-[minmax(0,1fr)_4.5rem_5.5rem] items-center gap-2">
-            <span class="flex items-center gap-2 font-medium"><span class="size-3 rounded-full" style="background:{{ pile.color }}"></span>{{ pile.name }}</span>
-            <input class="field !px-3 !py-2 text-right" name="percent_{{ pile.pk }}" inputmode="decimal" value="{{ it.percent|default:0|floatformat:"-2" }}" aria-label="{% trans "Percent" %}" />
-            <input class="field !px-3 !py-2 text-right" name="fixed_{{ pile.pk }}" inputmode="decimal" value="{{ it.fixed|default:0|floatformat:"-2" }}" aria-label="{% trans "Fixed amount" %}" />
+          <div class="grid grid-cols-[minmax(0,1fr)_5rem_6rem] items-center gap-2">
+            <span class="flex min-w-0 items-center gap-2 font-medium"><span class="size-3 shrink-0 rounded-full" style="background:{{ pile.color }}"></span><span class="truncate">{{ pile.name }}</span></span>
+            <span class="relative">
+              <input class="field !py-2 !pl-3 !pr-7 text-right" name="percent_{{ pile.pk }}" inputmode="decimal" value="{{ it.percent|default:0|floatformat:"-2" }}" aria-label="{% blocktrans with pile=pile.name %}{{ pile }}: % of salary{% endblocktrans %}" />
+              <span class="pointer-events-none absolute inset-y-0 right-3 grid place-items-center text-sm text-muted" aria-hidden="true">%</span>
+            </span>
+            <span class="relative">
+              <input class="field !py-2 !pl-7 !pr-3 text-right" name="fixed_{{ pile.pk }}" inputmode="decimal" value="{{ it.fixed|default:0|floatformat:"-2" }}" aria-label="{% blocktrans with pile=pile.name %}{{ pile }}: fixed amount (THB){% endblocktrans %}" />
+              <span class="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-sm text-muted" aria-hidden="true">฿</span>
+            </span>
           </div>
         {% endfor %}
-        <p class="text-right text-xs text-muted">{% trans "Left field = % of salary · right field = fixed baht" %}</p>
+        <p class="text-sm text-muted">{% trans "Each pile gets its % of your salary, plus an optional fixed amount. Example: Reserve 10% + ฿2,000 puts aside ฿2,000 more every month on top of 10%." %}</p>
         {% include "planner/_actions.html" with add_href="#new-period" save_label=_("Save plan") %}
       </form>
     {% endfor %}

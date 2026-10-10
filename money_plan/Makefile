@@ -17,7 +17,7 @@ RESET  := \033[0m
 say = @printf "$(1)%b$(RESET)\n" "$(2)"
 
 .DEFAULT_GOAL := help
-.PHONY: help build up start restart stop prune logs bash rebuild-node manage pytest
+.PHONY: help build up start restart stop prune logs bash rebuild-node messages manage pytest
 
 # help: List all available commands.
 help:
@@ -72,6 +72,12 @@ rebuild-node:
 	$(call say,$(YELLOW),📦 Rebuilding node image and resetting node_modules...)
 	@docker compose build node
 	@docker compose up -d -V --force-recreate --no-deps node
+
+# messages: Update the Thai .po file from the code, then compile it (restart django to pick it up).
+messages:
+	$(call say,$(CYAN),🌐 Updating and compiling translations...)
+	@docker compose run --rm django python ./manage.py makemessages -l th --ignore=.venv --ignore=node_modules --ignore=staticfiles --no-location --no-wrap
+	@docker compose run --rm django python ./manage.py compilemessages -l th
 
 # manage: Executes `manage.py` command.
 manage:
