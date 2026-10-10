@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 16:20+0700\n"
+"POT-Creation-Date: 2026-10-10 17:09+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -266,8 +266,8 @@ msgstr "แผน: %(name)s"
 msgid "Allocated %(amount)s"
 msgstr "แบ่งแล้ว %(amount)s"
 
-msgid "Set your salary first →"
-msgstr "ตั้งเงินเดือนก่อน →"
+msgid "Set your salary first"
+msgstr "ตั้งเงินเดือนก่อน"
 
 msgid "Saved so far"
 msgstr "สะสมแล้ว"
@@ -307,8 +307,8 @@ msgid "Rollover, unlimited"
 msgstr "ทบได้ไม่จำกัด"
 
 #, python-format
-msgid "Overflow %(amount)s → %(target)s"
-msgstr "ล้น %(amount)s → %(target)s"
+msgid "Overflow %(amount)s to %(target)s"
+msgstr "ล้น %(amount)s ไปยัง %(target)s"
 
 msgid "Delete"
 msgstr "ลบ"
@@ -369,7 +369,7 @@ msgid "Start month"
 msgstr "เดือนเริ่มระบบ"
 
 msgid "First month of the table (covers 3 years ahead), format YYYY-MM"
-msgstr "เดือนแรกของตาราง (ครอบคลุม 30 ปี) รูปแบบ YYYY-MM"
+msgstr "เดือนแรกของตาราง (วางแผนล่วงหน้าได้ 3 ปี) รูปแบบ YYYY-MM"
 
 #, python-format
 msgid "Salary multiplier (1 = 100%%, 0.6 = 60%%)"
@@ -457,8 +457,8 @@ msgstr "สรุปรายเดือน"
 msgid "Loading..."
 msgstr "กำลังโหลด..."
 
-msgid "← Back to summary"
-msgstr "← กลับหน้าสรุป"
+msgid "Back to summary"
+msgstr "กลับหน้าสรุป"
 
 msgid "Personal info"
 msgstr "ข้อมูลส่วนตัว"

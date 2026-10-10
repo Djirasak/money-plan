@@ -6,9 +6,9 @@ from django.utils.translation import gettext_lazy as _
 from . import services
 
 NAV = [
-    ("summary", _("Summary"), "/", "▦"),
-    ("log", _("Log"), "/log/", "✎"),
-    ("settings", _("Settings"), "/settings/", "⚙"),
+    ("summary", _("Summary"), "/", "layout-dashboard"),
+    ("log", _("Log"), "/log/", "square-pen"),
+    ("settings", _("Settings"), "/settings/", "settings"),
 ]
 
 

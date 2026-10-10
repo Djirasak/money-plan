@@ -1,7 +1,11 @@
 from decimal import Decimal
+from functools import lru_cache
+from pathlib import Path
 
 from django import template
 from django.utils.dates import MONTHS_3
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -32,3 +36,23 @@ def tint(color: str, pct: int = 12) -> str:
 @register.filter
 def pct(value) -> str:
     return f"{min(max(Decimal(value), 0), 100):.0f}"
+
+
+ICON_DIR = Path(__file__).resolve().parents[2] / "templates" / "icons"
+
+
+@lru_cache(maxsize=None)
+def _icon_svg(name: str) -> str:
+    return (ICON_DIR / f"{name}.svg").read_text().strip()
+
+
+@register.simple_tag
+def icon(name: str, css_class: str = "size-5") -> str:
+    """Inline lucide icon (``pnpm run icons`` syncs the set). Decorative by default:
+    the control that holds it must carry the accessible name."""
+    svg = _icon_svg(name).replace(
+        "<svg",
+        f'<svg class="{escape(css_class)}" aria-hidden="true" focusable="false"',
+        1,
+    )
+    return mark_safe(svg)  # noqa: S308 - files we ship, class is escaped

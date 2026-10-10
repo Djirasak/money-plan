@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load planner_tags %}
 {% load i18n %}
 
 {% block title %}
@@ -8,14 +9,14 @@
   <div class="card space-y-4">
     <div>
       <h2 class="text-2xl font-bold">{{ object.username }}</h2>
-      {% if object.name %}<p class="text-slate-500">{{ object.name }}</p>{% endif %}
+      {% if object.name %}<p class="text-slate-600">{{ object.name }}</p>{% endif %}
     </div>
     {% if object == request.user %}
       <div class="space-y-2">
         <a class="btn" href="{% url 'users:update' %}">My Info</a>
         <a class="btn-soft" href="{% url 'account_email' %}">E-Mail</a>
         <a class="btn-soft" href="{% url 'mfa_index' %}">MFA</a>
-        <a class="btn-soft" href="{% url 'planner:summary' %}">{% trans "← Back to summary" %}</a>
+        <a class="btn-soft" href="{% url 'planner:summary' %}">{% icon "arrow-left" "size-4" %}{% trans "Back to summary" %}</a>
       </div>
     {% endif %}
   </div>

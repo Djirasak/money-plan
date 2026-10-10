@@ -15,6 +15,16 @@
 }
 
 @layer base {
+  html {
+    /* keep focused elements clear of the floating bottom nav (WCAG 2.4.11) */
+    scroll-padding-bottom: 7rem;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-600;
+  }
+  ::placeholder {
+    @apply text-slate-600 opacity-100;
+  }
   body {
     background: #f6f7fb;
     color: var(--color-ink);
@@ -32,7 +42,7 @@
     @apply rounded-3xl bg-white p-5 shadow-[0_8px_30px_rgba(60,60,120,0.06)];
   }
   .label {
-    @apply mb-1 block text-sm text-slate-500;
+    @apply mb-1 block text-sm text-slate-600;
   }
   .field,
   .auth-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
@@ -41,13 +51,13 @@
     @apply w-full rounded-2xl border-0 bg-slate-100/80 px-4 py-3 text-base text-ink outline-none ring-0 focus:bg-brand-50 focus:ring-2 focus:ring-brand-500/40;
   }
   .btn {
-    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-500 to-violet-500 px-4 py-3.5 font-semibold text-white shadow-lg shadow-brand-500/30 active:scale-[0.99];
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-violet-600 px-4 py-3.5 font-semibold text-white shadow-lg shadow-brand-500/30 hover:from-brand-700 hover:to-violet-700 active:scale-[0.99];
   }
   .btn-soft {
-    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-50 px-4 py-3 font-semibold text-brand-600 active:scale-[0.99];
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-50 px-4 py-3 font-semibold text-brand-700 hover:bg-brand-100 active:scale-[0.99];
   }
   .btn-danger {
-    @apply inline-flex items-center justify-center rounded-xl bg-rose-50 px-3 py-1.5 text-sm font-medium text-rose-600;
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl bg-rose-50 px-3 py-1.5 text-sm font-medium text-rose-700 hover:bg-rose-100;
   }
 }
 
@@ -69,10 +79,10 @@
 
 @layer components {
   .icon-btn {
-    @apply grid size-12 place-items-center rounded-2xl bg-brand-50 text-brand-600 active:scale-95;
+    @apply grid size-12 place-items-center rounded-2xl bg-brand-50 text-brand-700 hover:bg-brand-100 active:scale-95;
   }
   .icon-btn-primary {
-    @apply grid size-12 place-items-center rounded-2xl bg-gradient-to-r from-brand-500 to-violet-500 text-white shadow-lg shadow-brand-500/30 active:scale-95;
+    @apply grid size-12 place-items-center rounded-2xl bg-gradient-to-r from-brand-600 to-violet-600 text-white shadow-lg shadow-brand-500/30 hover:from-brand-700 hover:to-violet-700 active:scale-95;
   }
 }
 
@@ -101,7 +111,7 @@
   @apply mb-0 text-base;
 }
 .choices__inner {
-  @apply min-h-0 rounded-2xl border-0 bg-slate-100/80 px-4 py-3 text-ink;
+  @apply min-h-0 rounded-2xl border-0 bg-slate-100/80 p-0 text-ink;
 }
 .choices.is-focused .choices__inner,
 .choices.is-open .choices__inner {
@@ -113,8 +123,9 @@
 .choices__list--single {
   @apply p-0;
 }
-.choices[data-type*="select-one"] .choices__inner {
-  @apply pb-3;
+/* the item fills the control, so the whole 48px box is the touch target */
+.choices__list--single .choices__item {
+  @apply flex min-h-12 items-center px-4 py-3;
 }
 /* Replace the CSS-triangle arrow with a clean chevron */
 .choices[data-type*="select-one"]::after,
@@ -151,8 +162,16 @@
   @apply w-full;
 }
 .month-bar .choices__inner {
-  @apply bg-white py-3 pr-9 text-center text-sm font-semibold shadow-sm;
+  @apply bg-white pr-9 text-sm font-semibold shadow-sm;
+}
+.month-bar .choices__list--single .choices__item {
+  @apply justify-center;
 }
 .month-bar .choices__list--dropdown {
   @apply left-0 right-0 w-full;
+}
+
+/* the empty "—" option must stay readable (Choices dims placeholders to 50%) */
+.choices__placeholder {
+  @apply text-slate-600 opacity-100;
 }

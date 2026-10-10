@@ -1,19 +1,19 @@
 {% load i18n %}
 {% load planner_tags %}
-  <section class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-500 via-violet-500 to-fuchsia-500 p-6 text-white shadow-xl shadow-brand-500/25">
-    <div class="absolute -right-16 -top-16 size-64 rounded-full bg-white/15"></div>
-    <p class="relative text-sm text-white/80">{% trans "Salary" %}</p>
+  <section class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-700 via-violet-700 to-fuchsia-700 p-6 text-white shadow-xl shadow-brand-500/25">
+    <div class="absolute -right-16 -top-16 size-64 rounded-full bg-white/10"></div>
+    <p class="relative text-sm text-white">{% trans "Salary" %}</p>
     <p class="relative mt-1 text-5xl font-bold tracking-tight">{{ current.salary|baht }}</p>
     <div class="relative mt-5 flex flex-wrap gap-2 text-sm">
-      {% if plan_name %}<span class="rounded-full bg-white/20 px-4 py-2">{% blocktrans with name=plan_name %}Plan: {{ name }}{% endblocktrans %}</span>{% endif %}
-      <span class="rounded-full bg-white/20 px-4 py-2">{% blocktrans with amount=allocated|baht %}Allocated {{ amount }}{% endblocktrans %}</span>
+      {% if plan_name %}<span class="rounded-full bg-black/20 px-4 py-2">{% blocktrans with name=plan_name %}Plan: {{ name }}{% endblocktrans %}</span>{% endif %}
+      <span class="rounded-full bg-black/20 px-4 py-2">{% blocktrans with amount=allocated|baht %}Allocated {{ amount }}{% endblocktrans %}</span>
     </div>
     {% if not current.salary %}
-      <a href="{% url 'planner:settings' %}" class="relative mt-4 inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-brand-600">{% trans "Set your salary first →" %}</a>
+      <a href="{% url 'planner:settings' %}" class="relative mt-4 inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-brand-600">{% trans "Set your salary first" %}{% icon "arrow-right" "size-4 inline-block align-[-2px] ms-1" %}</a>
     {% endif %}
   </section>
 
-  <h2 class="mb-3 mt-7 px-1 text-sm font-semibold tracking-wide text-slate-500">{% trans "Monthly budget" %}</h2>
+  <h2 class="mb-3 mt-7 px-1 text-sm font-semibold tracking-wide text-slate-600">{% trans "Monthly budget" %}</h2>
   <div class="space-y-4">
     {% for c in cards %}
       {% with p=c.pile pm=c.pm %}
@@ -23,7 +23,7 @@
               <span class="size-3.5 rounded-full" style="background:{{ p.color }}"></span>{{ p.name }}
             </div>
             <div class="text-right">
-              <p class="text-xs text-slate-500">{% if p.kind == 'fund' %}{% trans "Saved so far" %}{% else %}{% trans "Left" %}{% endif %}</p>
+              <p class="text-xs text-slate-600">{% if p.kind == 'fund' %}{% trans "Saved so far" %}{% else %}{% trans "Left" %}{% endif %}</p>
               <p class="text-3xl font-bold">{{ pm.before|baht }}</p>
             </div>
           </div>
@@ -33,9 +33,9 @@
                 <div class="h-full rounded-full" style="width:{{ prog }}%;background:{{ p.color }}"></div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2 text-sm">
-                <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-500">{% blocktrans %}Target · {{ prog }}{% endblocktrans %}%</p><p class="mt-1 font-bold">{% if p.target %}{{ p.target|baht }}{% else %}—{% endif %}</p></div>
-                <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-500">{% trans "In this month" %}</p><p class="mt-1 font-bold">{{ c.incoming|baht }}</p></div>
-                <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-500">{% trans "Remaining" %}</p><p class="mt-1 font-bold">{% if c.remaining is not None %}{{ c.remaining|baht }}{% else %}—{% endif %}</p></div>
+                <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-600">{% blocktrans %}Target · {{ prog }}{% endblocktrans %}%</p><p class="mt-1 font-bold">{% if p.target %}{{ p.target|baht }}{% else %}—{% endif %}</p></div>
+                <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-600">{% trans "In this month" %}</p><p class="mt-1 font-bold">{{ c.incoming|baht }}</p></div>
+                <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-600">{% trans "Remaining" %}</p><p class="mt-1 font-bold">{% if c.remaining is not None %}{{ c.remaining|baht }}{% else %}—{% endif %}</p></div>
               </div>
             {% endwith %}
           {% else %}
@@ -43,9 +43,9 @@
               <div class="h-full rounded-full" style="width:{{ pm.used_pct|pct }}%;background:{{ p.color }}"></div>
             </div>
             <div class="mt-4 grid grid-cols-3 gap-2 text-sm">
-              <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-500">{% trans "This month's budget" %}</p><p class="mt-1 font-bold">{{ pm.allocation|baht }}</p></div>
-              <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-500">{% trans "Carried in" %}</p><p class="mt-1 font-bold">{{ pm.carry_in|baht }}</p></div>
-              <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-500">{% blocktrans with pct=pm.used_pct|pct %}Used · {{ pct }}{% endblocktrans %}%</p><p class="mt-1 font-bold">{{ pm.used|baht }}</p></div>
+              <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-600">{% trans "This month's budget" %}</p><p class="mt-1 font-bold">{{ pm.allocation|baht }}</p></div>
+              <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-600">{% trans "Carried in" %}</p><p class="mt-1 font-bold">{{ pm.carry_in|baht }}</p></div>
+              <div class="rounded-2xl p-3" style="background:{{ p.color|tint:10 }}"><p class="text-slate-600">{% blocktrans with pct=pm.used_pct|pct %}Used · {{ pct }}{% endblocktrans %}%</p><p class="mt-1 font-bold">{{ pm.used|baht }}</p></div>
             </div>
             <div class="mt-3 flex flex-wrap gap-2 text-sm font-semibold">
               {% if p.mode == 'sweep' %}
@@ -56,7 +56,7 @@
                 <span class="rounded-full px-3 py-1.5" style="background:{{ p.color|tint:15 }}">{% trans "Rollover, unlimited" %}</span>
               {% endif %}
               {% if pm.overflow %}
-                <span class="rounded-full bg-amber-100 px-3 py-1.5 text-amber-800">{% blocktrans with amount=pm.overflow|baht target=pm.overflow_to %}Overflow {{ amount }} → {{ target }}{% endblocktrans %}</span>
+                <span class="rounded-full bg-amber-100 px-3 py-1.5 text-amber-800">{% blocktrans with amount=pm.overflow|baht target=pm.overflow_to %}Overflow {{ amount }} to {{ target }}{% endblocktrans %}</span>
               {% endif %}
             </div>
           {% endif %}

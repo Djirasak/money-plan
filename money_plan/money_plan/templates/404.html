@@ -1,9 +1,10 @@
 {% extends "error_base.html" %}
+{% load planner_tags %}
 {% load i18n %}
 
 {% block title %}{% trans "Page not found (404)" %}{% endblock title %}
 {% block icon %}
-  <svg viewBox="0 0 24 24" class="size-14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.9-4.9"/><path d="M8 10.5c.6-1.6 1.6-2.4 2.5-2.4s1.9.8 2.5 2.4"/></svg>
+  {% icon "search" "size-14" %}
 {% endblock icon %}
 {% block code %}404{% endblock code %}
 {% block heading %}{% trans "We can't find that page" %}{% endblock heading %}

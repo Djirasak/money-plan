@@ -7,7 +7,8 @@
   "scripts": {
     "vendor": "mkdir -p money_plan/static/js/vendor && cp node_modules/choices.js/public/assets/scripts/choices.min.js money_plan/static/js/vendor/choices.min.js && cp node_modules/htmx.org/dist/htmx.min.js money_plan/static/js/vendor/htmx.min.js && cp node_modules/alpinejs/dist/cdn.min.js money_plan/static/js/vendor/alpine.min.js",
     "dev": "pnpm run vendor && (esbuild money_plan/static/js/project.js --minify --target=es2020 --outfile=money_plan/static/js/project.min.js --watch=forever &) && tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --watch=always",
-    "build": "pnpm run vendor && esbuild money_plan/static/js/project.js --minify --target=es2020 --outfile=money_plan/static/js/project.min.js && tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --minify"
+    "build": "pnpm run vendor && esbuild money_plan/static/js/project.js --minify --target=es2020 --outfile=money_plan/static/js/project.min.js && tailwindcss -i money_plan/static/css/tailwind.css -o money_plan/static/css/project.min.css --minify",
+    "icons": "node bin/sync-icons.mjs"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.3",
@@ -15,6 +16,7 @@
     "choices.js": "^11.2.4",
     "esbuild": "^0.28.2",
     "htmx.org": "^2.0.11",
+    "lucide-static": "^1.55.0",
     "tailwindcss": "^4.3.3"
   },
   "packageManager": "pnpm@10.30.2"
