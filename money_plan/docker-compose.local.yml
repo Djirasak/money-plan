@@ -2,6 +2,7 @@ volumes:
   money_plan_local_postgres_data: {}
   money_plan_local_postgres_data_backups: {}
   money_plan_local_redis_data: {}
+  money_plan_local_seaweedfs_data: {}
 
 services:
   django: &django
@@ -84,3 +85,26 @@ services:
       # http://jdlm.info/articles/2016/03/06/lessons-building-node-app-docker.html
       - /app/node_modules
     command: npm run dev
+
+  # S3-compatible object storage (attachments). Master/volume/filer/S3 all in one process.
+  # Host ports are bound to 127.0.0.1 only and picked to avoid common clashes:
+  #   9333 master UI · 8888 filer UI · 8333 S3 API
+  # The volume server (8080) stays internal to the compose network on purpose.
+  seaweedfs:
+    image: docker.io/chrislusf/seaweedfs:4.48
+    container_name: money_plan_local_seaweedfs
+    command: >
+      server -dir=/data -master.volumeSizeLimitMB=1024
+      -filer -s3 -s3.config=/etc/seaweedfs/s3.json
+    volumes:
+      - money_plan_local_seaweedfs_data:/data
+      - ./compose/local/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro,z
+    ports:
+      - '127.0.0.1:9333:9333'
+      - '127.0.0.1:8888:8888'
+      - '127.0.0.1:8333:8333'
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://127.0.0.1:9333/cluster/status']
+      interval: 10s
+      timeout: 3s
+      retries: 5

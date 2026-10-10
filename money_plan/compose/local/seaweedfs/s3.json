@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "money_plan_local",
+      "credentials": [
+        { "accessKey": "money_plan_local", "secretKey": "money_plan_local_secret" }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}
