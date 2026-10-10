@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Max
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -82,7 +83,7 @@ class PileForm(forms.ModelForm):
         model = Pile
         fields = [
             "name", "color", "kind", "mode", "cap", "overflow_to",
-            "target", "target_percent", "target_months", "order",
+            "target", "target_percent", "target_months",
         ]  # fmt: skip
         widgets = {
             "name": forms.TextInput(attrs=FIELD),
@@ -94,7 +95,6 @@ class PileForm(forms.ModelForm):
             "target": forms.NumberInput(attrs=FIELD | {"placeholder": example("100000")}),
             "target_percent": forms.NumberInput(attrs=FIELD | {"placeholder": example("60"), "step": "0.01"}),
             "target_months": forms.NumberInput(attrs=FIELD | {"placeholder": example("6"), "min": "1", "max": "120"}),
-            "order": forms.NumberInput(attrs=FIELD),
         }
         labels = {
             "name": _("Pile name"),
@@ -106,7 +106,6 @@ class PileForm(forms.ModelForm):
             "target": _("Target amount (THB)"),
             "target_percent": _("Share of salary (%)"),
             "target_months": _("Months of salary"),
-            "order": _("Order"),
         }
 
     TARGET_MODES = [
@@ -136,7 +135,7 @@ class PileForm(forms.ModelForm):
         )
         self.order_fields([
             "name", "color", "kind", "mode", "cap", "overflow_to",
-            "target_mode", "target", "target_percent", "target_months", "order",
+            "target_mode", "target", "target_percent", "target_months",
         ])  # fmt: skip
 
     def clean(self):
@@ -168,6 +167,9 @@ class PileForm(forms.ModelForm):
 
     def save(self, commit=True):  # noqa: FBT002
         self.instance.user = self.user
+        if self.instance.pk is None:  # new piles go to the end of the list
+            last = Pile.objects.filter(user=self.user).aggregate(Max("order"))["order__max"]
+            self.instance.order = 0 if last is None else last + 1
         return super().save(commit=commit)
 
 

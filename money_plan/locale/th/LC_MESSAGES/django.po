@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Money Plan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 19:04+0700\n"
+"POT-Creation-Date: 2026-10-10 19:11+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: Thai\n"
@@ -76,9 +76,6 @@ msgstr "สัดส่วนของเงินเดือน (%)"
 
 msgid "Months of salary"
 msgstr "จำนวนเดือน"
-
-msgid "Order"
-msgstr "ลำดับ"
 
 msgid "No target"
 msgstr "ไม่มีเป้าหมาย"
@@ -298,6 +295,9 @@ msgstr "เดือน"
 msgid "Year"
 msgstr "ปี"
 
+msgid "Close"
+msgstr "ปิด"
+
 #, python-format
 msgid "The target follows your salary: it changes whenever your salary changes. Example: 60%% x 6 months = 6 months of 60%% of your salary."
 msgstr "เป้าหมายจะเปลี่ยนตามเงินเดือนของคุณ ทุกครั้งที่เงินเดือนเปลี่ยน เช่น 60%% × 6 เดือน = เงินเดือน 60%% เป็นเวลา 6 เดือน"
@@ -494,14 +494,29 @@ msgstr "สว่าง"
 msgid "Dark"
 msgstr "มืด"
 
-msgid "Delete this pile?"
-msgstr "ลบกองนี้?"
+#, python-format
+msgid "Target: %(target)s"
+msgstr "เป้าหมาย: %(target)s"
 
-msgid "+ Add a new pile"
-msgstr "+ เพิ่มกองใหม่"
+#, python-format
+msgid "Edit pile: %(name)s"
+msgstr "แก้ไขกอง: %(name)s"
+
+#, python-format
+msgid "Delete pile: %(name)s"
+msgstr "ลบกอง: %(name)s"
 
 msgid "Add pile"
 msgstr "เพิ่มกอง"
+
+msgid "Edit pile"
+msgstr "แก้ไขกอง"
+
+msgid "Delete this pile?"
+msgstr "ลบกองนี้?"
+
+msgid "Piles used by log entries or plan conditions cannot be deleted."
+msgstr "กองที่ถูกใช้ในรายการบันทึกหรือเงื่อนไขของแผนจะลบไม่ได้"
 
 msgid "Each plan applies from its start month onwards. Split your salary between your piles by percentage. Plans can also wait for a pile to reach an amount. The newest plan whose condition is met is used."
 msgstr "แต่ละแผนใช้ตั้งแต่เดือนที่กำหนดเป็นต้นไป แบ่งเงินเดือนให้แต่ละกองเป็นเปอร์เซ็นต์ และตั้งให้รอจนกองใดกองหนึ่งถึงยอดที่กำหนดได้ แผนใหม่สุดที่เงื่อนไขตรงจะถูกใช้"

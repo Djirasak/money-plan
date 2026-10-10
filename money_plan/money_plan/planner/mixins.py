@@ -68,5 +68,7 @@ class ActionPostMixin:
     def post(self, request, *args, **kwargs):
         handler = getattr(self, f"do_{request.POST.get('action', '')}", None)
         if handler:
-            handler(request)
+            response = handler(request)
+            if response is not None:  # e.g. re-render a form that has errors
+                return response
         return redirect(self.success_url_name)

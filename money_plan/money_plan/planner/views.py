@@ -205,15 +205,28 @@ class SettingsPilesView(ActionPostMixin, PlannerMixin, TemplateView):
     sub = "piles"
     success_url_name = "planner:piles"
 
+    bound_form: PileForm | None = None  # the form that failed validation, if any
+    bound_pile: Pile | None = None
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
+
+        def form_for(pile):
+            if self.bound_form is not None and self.bound_pile == pile:
+                return self.bound_form
+            prefix = f"p{pile.pk}" if pile else "new"
+            return PileForm(instance=pile, user=user, prefix=prefix)
+
         return ctx | {
-            "forms": [
-                (p, PileForm(instance=p, user=user, prefix=f"p{p.pk}"))
-                for p in user.piles.all()
-            ],
-            "new_form": PileForm(user=user, prefix="new"),
+            "forms": [(p, form_for(p)) for p in user.piles.all()],
+            "new_form": form_for(None),
+            # re-open the dialog whose form had errors
+            "open_dialog": (
+                None
+                if self.bound_form is None
+                else f"pile-edit-{self.bound_pile.pk}" if self.bound_pile else "pile-new"
+            ),
         }
 
     def _pile(self, request) -> Pile | None:
@@ -228,8 +241,10 @@ class SettingsPilesView(ActionPostMixin, PlannerMixin, TemplateView):
         if form.is_valid():
             form.save()
             messages.success(request, _("Pile saved"))
-        else:
-            _errors(request, form)
+            return None
+        _errors(request, form)
+        self.bound_form, self.bound_pile = form, pile
+        return self.render_to_response(self.get_context_data())
 
     def do_delete(self, request):
         pile = self._pile(request)

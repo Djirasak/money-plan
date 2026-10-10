@@ -152,3 +152,52 @@ def test_new_pile_form_is_prefixed_too(client_in, user):
     client_in.post(reverse("planner:piles"), new)
     trip = Pile.objects.get(user=user, name="Trip")
     assert trip.target_months == 3
+
+
+def test_piles_are_cards_with_edit_and_delete_buttons(client_in, user):
+    html = client_in.get(reverse("planner:piles")).content.decode()
+    for pile in Pile.objects.filter(user=user):
+        assert f'data-open-dialog="pile-edit-{pile.pk}"' in html  # edit opens its modal
+        assert f'data-delete-id="{pile.pk}"' in html  # delete asks for confirmation
+        assert f'id="pile-edit-{pile.pk}"' in html
+    assert 'data-open-dialog="pile-new"' in html and 'id="pile-new"' in html
+    assert 'id="confirm-delete"' in html
+
+
+def test_order_is_gone_from_the_forms_and_new_piles_go_last(client_in, user):
+    html = client_in.get(reverse("planner:piles")).content.decode()
+    assert "-order" not in html and "ลำดับ" not in html
+    forms = page_forms(client_in, "planner:piles")
+    new = next(f for f in forms if "new-name" in f)
+    client_in.post(reverse("planner:piles"), new | {"new-name": "Trip", "new-target_mode": "none"})
+    trip = Pile.objects.get(user=user, name="Trip")
+    assert trip.order == max(Pile.objects.filter(user=user).exclude(pk=trip.pk).values_list("order", flat=True)) + 1
+
+
+def test_invalid_pile_form_reopens_its_dialog_with_the_input_kept(client_in, user):
+    pile, data = form_for(client_in, "เงินสำรอง", user)
+    prefix = f"p{pile.pk}"
+    resp = client_in.post(
+        reverse("planner:piles"),
+        data | {f"{prefix}-name": "Keep me", f"{prefix}-target_mode": "salary"},  # percent/months missing
+    )
+    assert resp.status_code == 200  # re-rendered, not redirected
+    html = resp.content.decode()
+    assert f'data-auto-open-id="pile-edit-{pile.pk}"' in html
+    assert 'value="Keep me"' in html  # what the user typed is still there
+    assert "กรอกเปอร์เซ็นต์ของเงินเดือน" in html  # inline error + toast
+    pile.refresh_from_db()
+    assert pile.name != "Keep me"
+
+
+def test_invalid_new_pile_reopens_the_create_dialog(client_in, user):
+    forms = page_forms(client_in, "planner:piles")
+    new = next(f for f in forms if "new-name" in f)
+    resp = client_in.post(reverse("planner:piles"), new | {"new-name": "", "new-color": "#ff0000"})
+    assert resp.status_code == 200
+    assert 'data-auto-open-id="pile-new"' in resp.content.decode()
+
+
+def test_cards_summarise_each_pile(client_in):
+    html = client_in.get(reverse("planner:piles")).content.decode()
+    assert "ทบได้ไม่เกิน ฿20,000" in html  # starter "free" pile has a 20,000 cap

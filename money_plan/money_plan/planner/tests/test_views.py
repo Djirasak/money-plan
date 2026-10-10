@@ -125,7 +125,7 @@ def test_every_page_renders(client_in, name):
     assert client_in.get(reverse(name)).status_code == 200
 
 
-@pytest.mark.parametrize("name", ["planner:piles", "planner:plan"])
+@pytest.mark.parametrize("name", ["planner:plan"])
 def test_action_bar_has_add_left_and_save_right(client_in, name):
     html = client_in.get(reverse(name)).content.decode()
     assert html.index('aria-label="เพิ่มใหม่"') < html.index('aria-label="บันทึก')

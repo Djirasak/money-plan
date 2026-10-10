@@ -4,20 +4,61 @@
 {% block heading %}{% trans "Piles" %}{% endblock heading %}
 {% block page %}
   {% include "planner/_settings_tabs.html" %}
-  <div class="space-y-4">
+  <ul class="flex flex-col gap-3">
     {% for pile, form in forms %}
-      <form method="post" class="card space-y-3">
-        {% csrf_token %}<input type="hidden" name="id" value="{{ pile.pk }}" /><input type="hidden" name="action" value="save" />
-        <div class="flex items-center justify-between"><div class="flex items-center gap-2 font-bold"><span class="size-3.5 rounded-full" style="background:{{ pile.color }}"></span>{{ pile.name }}</div>{% include "planner/_trash.html" with confirm_text=_("Delete this pile?") %}</div>
-        {% for f in form %}{% if f.name == "target_mode" %}{% include "planner/_pile_target.html" %}{% elif f.name == "target" or f.name == "target_percent" or f.name == "target_months" %}{% else %}<div><label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endif %}{% endfor %}
-        {% include "planner/_actions.html" with add_href="#new-pile" %}
-      </form>
+      <li class="card flex items-center gap-3 !p-4">
+        <span class="size-4 shrink-0 rounded-full" style="background:{{ pile.color }}" aria-hidden="true"></span>
+        <div class="min-w-0 flex-1">
+          <p class="truncate font-bold">{{ pile.name }}</p>
+          <p class="mt-0.5 flex flex-wrap gap-x-2 text-sm text-muted [&>span:not(:first-child)]:before:me-2 [&>span:not(:first-child)]:before:content-['·']">
+            <span>{{ pile.get_kind_display }}</span>
+            {% if pile.kind == "budget" %}
+              <span>
+                {% if pile.mode == "sweep" %}{% blocktrans with name=pile.overflow_to.name|default:"—" %}Sweeps to {{ name }}{% endblocktrans %}
+                {% elif pile.cap %}{% blocktrans with cap=pile.cap|baht %}Rollover up to {{ cap }}{% endblocktrans %}
+                {% else %}{% trans "Rollover, unlimited" %}{% endif %}
+              </span>
+            {% endif %}
+            {% if pile.has_target %}<span>{% blocktrans with target=pile|target_label %}Target: {{ target }}{% endblocktrans %}</span>{% endif %}
+          </p>
+        </div>
+        <button type="button" class="icon-btn" data-open-dialog="pile-edit-{{ pile.pk }}"
+                aria-label="{% blocktrans with name=pile.name %}Edit pile: {{ name }}{% endblocktrans %}" title="{% trans 'Edit' %}">
+          {% icon "square-pen" "size-5" %}
+        </button>
+        <button type="button" class="icon-btn !bg-danger-soft !text-danger" data-confirm-delete data-delete-id="{{ pile.pk }}" data-delete-name="{{ pile.name }}"
+                aria-label="{% blocktrans with name=pile.name %}Delete pile: {{ name }}{% endblocktrans %}" title="{% trans 'Delete' %}">
+          {% icon "trash-2" "size-5" %}
+        </button>
+      </li>
     {% endfor %}
-    <form method="post" class="card space-y-3" id="new-pile">
-      {% csrf_token %}<input type="hidden" name="action" value="save" />
-      <h2 class="text-lg font-bold">{% trans "+ Add a new pile" %}</h2>
-      {% for f in new_form %}{% if f.name == "target_mode" %}{% include "planner/_pile_target.html" with form=new_form %}{% elif f.name == "target" or f.name == "target_percent" or f.name == "target_months" %}{% else %}<div><label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endif %}{% endfor %}
-      {% include "planner/_actions.html" with save_label=_("Add pile") %}
+    <li>
+      <button type="button" class="flex w-full items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-brand-fg/40 px-4 py-4 font-semibold text-brand-fg hover:bg-brand-tint" data-open-dialog="pile-new">
+        {% icon "plus" "size-5" %}{% trans "Add pile" %}
+      </button>
+    </li>
+  </ul>
+
+  {% for pile, form in forms %}
+    {% trans "Edit pile" as edit_title %}
+    {% include "planner/_pile_dialog.html" with title=edit_title pile=pile form=form auto_open=False %}
+  {% endfor %}
+  {% trans "Add pile" as new_title %}
+  {% include "planner/_pile_dialog.html" with title=new_title pile=None form=new_form auto_open=False %}
+
+  <dialog id="confirm-delete" class="modal !max-w-sm" aria-labelledby="confirm-delete-title">
+    <form method="post" class="flex flex-col gap-4">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="delete" />
+      <input type="hidden" name="id" value="" data-delete-field />
+      <h2 class="text-xl font-bold" id="confirm-delete-title">{% trans "Delete this pile?" %}</h2>
+      <p class="text-muted"><strong data-delete-label></strong></p>
+      <p class="text-sm text-muted">{% trans "Piles used by log entries or plan conditions cannot be deleted." %}</p>
+      <div class="flex flex-col gap-2">
+        <button type="submit" class="btn !from-rose-700 !to-rose-700" data-loading-text="{% trans 'Delete' %}">{% trans "Delete" %}</button>
+        <button type="button" class="btn-soft" data-close-dialog>{% trans "Cancel" %}</button>
+      </div>
     </form>
-  </div>
+  </dialog>
+  {% if open_dialog %}<span data-auto-open-id="{{ open_dialog }}" hidden></span>{% endif %}
 {% endblock page %}

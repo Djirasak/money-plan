@@ -155,3 +155,36 @@ window.addEventListener('pageshow', (event) => {
   });
   sync();
 })();
+
+/*
+ * Dialogs: [data-open-dialog="id"] opens, [data-close-dialog] closes, a click on the
+ * backdrop closes, and [data-auto-open-id] re-opens a dialog whose form had errors.
+ * [data-confirm-delete] fills the shared delete-confirmation dialog.
+ */
+(() => {
+  document.addEventListener('click', (event) => {
+    const opener = event.target.closest('[data-open-dialog]');
+    if (opener) {
+      document.getElementById(opener.dataset.openDialog)?.showModal();
+      return;
+    }
+    const closer = event.target.closest('[data-close-dialog]');
+    if (closer) {
+      closer.closest('dialog')?.close();
+      return;
+    }
+    const del = event.target.closest('[data-confirm-delete]');
+    if (del) {
+      const dialog = document.getElementById('confirm-delete');
+      dialog.querySelector('[data-delete-field]').value = del.dataset.deleteId;
+      dialog.querySelector('[data-delete-label]').textContent = del.dataset.deleteName;
+      dialog.showModal();
+      return;
+    }
+    if (event.target instanceof HTMLDialogElement) event.target.close(); // backdrop
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    const id = document.querySelector('[data-auto-open-id]')?.dataset.autoOpenId;
+    if (id) document.getElementById(id)?.showModal();
+  });
+})();

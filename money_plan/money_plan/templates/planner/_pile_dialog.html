@@ -1,0 +1,27 @@
+{% load i18n planner_tags %}
+{# Create/edit dialog. Needs: title, form, pile (None when creating), auto_open. #}
+<dialog id="{% if pile %}pile-edit-{{ pile.pk }}{% else %}pile-new{% endif %}" class="modal" aria-labelledby="pile-title-{{ pile.pk|default:'new' }}" {% if auto_open %}data-auto-open{% endif %}>
+  <form method="post" class="flex flex-col gap-4" x-data="{ kind: '{{ form.kind.value|default:'budget' }}' }">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save" />
+    {% if pile %}<input type="hidden" name="id" value="{{ pile.pk }}" />{% endif %}
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-xl font-bold" id="pile-title-{{ pile.pk|default:'new' }}">{{ title }}</h2>
+      <button type="button" class="icon-btn !size-10 !rounded-full" data-close-dialog aria-label="{% trans 'Close' %}">{% icon "x" "size-5" %}</button>
+    </div>
+    {% include "planner/_field.html" with f=form.name %}
+    {% include "planner/_field.html" with f=form.color %}
+    <div @change="if ($event.target.name.endsWith('-kind')) kind = $event.target.value">
+      {% include "planner/_field.html" with f=form.kind %}
+    </div>
+    <div x-show="kind === 'budget'" x-cloak class="flex flex-col gap-4">
+      {% include "planner/_field.html" with f=form.mode %}
+      {% include "planner/_field.html" with f=form.cap %}
+      {% include "planner/_field.html" with f=form.overflow_to %}
+    </div>
+    {% include "planner/_pile_target.html" %}
+    <div class="flex justify-end pt-1">
+      <button type="submit" class="icon-btn-primary" aria-label="{% trans 'Save' %}" title="{% trans 'Save' %}">{% icon "save" "size-6" %}</button>
+    </div>
+  </form>
+</dialog>

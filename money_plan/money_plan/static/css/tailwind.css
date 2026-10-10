@@ -139,6 +139,9 @@
   .pref-btn {
     @apply flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-2xl bg-brand-tint px-3 py-2 font-semibold text-brand-fg hover:bg-brand-tint-2 active:scale-[0.98];
   }
+  .modal {
+    @apply m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-3xl bg-surface p-6 text-ink shadow-2xl backdrop:bg-slate-900/45 backdrop:backdrop-blur-sm;
+  }
   .icon-btn-primary {
     @apply grid size-12 place-items-center rounded-2xl bg-gradient-to-r from-brand-600 to-violet-600 text-white shadow-lg shadow-brand-500/30 hover:from-brand-700 hover:to-violet-700 active:scale-95;
   }
