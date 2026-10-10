@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 @pytest.fixture(scope="session", autouse=True)
 def _compiled_messages() -> None:
     """The .mo files are not committed; build them so translations work."""
-    call_command("compilemessages", verbosity=0)
+    call_command("compilemessages", verbosity=0, ignore=[".venv", "node_modules"])
 
 
 @pytest.fixture(autouse=True)
