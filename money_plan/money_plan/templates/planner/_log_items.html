@@ -1,5 +1,5 @@
 {% load i18n planner_tags %}
-{# A page of log rows; the last item loads the next page in place of itself. Needs: entries, month, next_offset. #}
+{# A page of log rows; the last item loads the next 10 when scrolled into view (or clicked) in place of itself. Needs: entries, month, next_offset. #}
 {% for e in entries %}
       <li class="item entry entry-{{ e.tone }}" data-variant="outline">
         <span class="entry-icon" aria-hidden="true">{% if e.tone == "out" %}{% icon "arrow-up-right" "size-4" %}{% elif e.tone == "in" %}{% icon "arrow-down-left" "size-4" %}{% else %}{% icon "arrow-left-right" "size-4" %}{% endif %}</span>
@@ -27,6 +27,6 @@
 {% if next_offset %}
   <li class="list-none">
     <button type="button" class="btn w-full" data-variant="outline" hx-get="{% url 'planner:log' %}?m={{ month }}&offset={{ next_offset }}"
-            hx-target="closest li" hx-swap="outerHTML">{% icon "chevron-down" "size-4" %}{% trans "Load more" %}</button>
+            hx-trigger="click, revealed" hx-target="closest li" hx-swap="outerHTML">{% icon "chevron-down" "size-4" %}{% trans "Load more" %}</button>
   </li>
 {% endif %}

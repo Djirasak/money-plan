@@ -101,7 +101,8 @@ class LogView(PlannerMixin, TemplateView):
     template_name = "planner/log.html"
     active = "log"
     show_month = True
-    PAGE_SIZE = 25
+    FIRST_PAGE = 25
+    NEXT_PAGE = 10
 
     def get_template_names(self):
         if self.request.headers.get("HX-Request") and "offset" in self.request.GET:
@@ -130,12 +131,13 @@ class LogView(PlannerMixin, TemplateView):
             offset = max(int(self.request.GET.get("offset", 0)), 0)
         except ValueError:
             offset = 0
-        page = list(entries[offset : offset + self.PAGE_SIZE + 1])
-        more = len(page) > self.PAGE_SIZE
+        size = self.FIRST_PAGE if offset == 0 else self.NEXT_PAGE
+        page = list(entries[offset : offset + size + 1])
+        more = len(page) > size
         return ctx | {
             "form": kwargs.get("form") or self.get_form(),
-            "entries": page[: self.PAGE_SIZE],
-            "next_offset": offset + self.PAGE_SIZE if more else None,
+            "entries": page[:size],
+            "next_offset": offset + size if more else None,
             "editing": self.entry,
         }
 

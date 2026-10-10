@@ -505,10 +505,10 @@ def test_log_entry_tone_colours(client_in, user):
     assert 'id="entry-dialog"' in html and "data-auto-open" not in html
 
 
-def test_log_loads_25_at_a_time(client_in, user):
+def test_log_loads_25_then_10_at_a_time(client_in, user):
     pile = Pile.objects.filter(user=user).first()
     month = user.planner_settings.start_month
-    for i in range(30):
+    for i in range(40):
         LogEntry.objects.create(
             user=user, date=f"{month}-05", type="spend", from_pile=pile, amount=i + 1,
         )
@@ -517,5 +517,7 @@ def test_log_loads_25_at_a_time(client_in, user):
     assert html.count('class="item entry') == 25 and "offset=25" in html
     resp = client_in.get(url, {"m": month, "offset": 25}, headers={"HX-Request": "true"})
     html = resp.content.decode()
+    assert html.count('class="item entry') == 10 and "offset=35" in html
+    html = client_in.get(url, {"m": month, "offset": 35}, headers={"HX-Request": "true"}).content.decode()
     assert html.count('class="item entry') == 5
     assert "Load more" not in html and "<html" not in html
