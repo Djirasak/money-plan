@@ -131,6 +131,33 @@ window.addEventListener('pageshow', (event) => {
 })();
 
 /*
+ * Colour theme: the swatches on the settings page set <html data-color> (indigo is the default,
+ * i.e. no attribute) and remember the choice, like the light/dark switch above.
+ */
+(() => {
+  const root = document.documentElement;
+  const COLORS = ['indigo', 'violet', 'pink', 'rose', 'red', 'orange', 'amber', 'green', 'emerald', 'teal', 'sky', 'blue'];
+  const current = () => (COLORS.includes(root.dataset.color) ? root.dataset.color : 'indigo');
+  const sync = () => {
+    for (const swatch of document.querySelectorAll('[data-color-choice]')) {
+      swatch.setAttribute('aria-checked', String(swatch.dataset.colorChoice === current()));
+    }
+  };
+  document.addEventListener('click', (event) => {
+    const swatch = event.target.closest('[data-color-choice]');
+    if (!swatch || !COLORS.includes(swatch.dataset.colorChoice)) return;
+    const color = swatch.dataset.colorChoice;
+    if (color === 'indigo') delete root.dataset.color;
+    else root.dataset.color = color;
+    try {
+      localStorage.setItem('color', color);
+    } catch { /* storage blocked: the choice just won't persist */ }
+    sync();
+  });
+  sync();
+})();
+
+/*
  * Dialogs: [data-open-dialog="id"] opens, [data-close-dialog] closes, a click on the
  * backdrop closes, and [data-auto-open-id] re-opens a dialog whose form had errors.
  * [data-confirm-delete] fills the shared delete-confirmation dialog.

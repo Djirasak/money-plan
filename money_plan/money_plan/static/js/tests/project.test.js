@@ -84,4 +84,27 @@ describe('project.js', () => {
     expect(document.getElementById('reorder-status').textContent).toBe('B 1/2');
     expect(fetchMock).toHaveBeenCalledWith('/reorder/', expect.objectContaining({ method: 'POST' }));
   });
+
+  it('picks a colour theme, remembers it, and indigo clears the attribute', () => {
+    document.documentElement.removeAttribute('data-color');
+    document.body.innerHTML = `
+      <button data-color-choice="indigo" aria-checked="false"></button>
+      <button data-color-choice="rose" aria-checked="false"></button>`;
+    const [indigo, rose] = document.querySelectorAll('[data-color-choice]');
+    rose.click();
+    expect(document.documentElement.dataset.color).toBe('rose');
+    expect(localStorage.getItem('color')).toBe('rose');
+    expect(rose.getAttribute('aria-checked')).toBe('true');
+    expect(indigo.getAttribute('aria-checked')).toBe('false');
+    indigo.click();
+    expect(document.documentElement.dataset.color).toBeUndefined();
+    expect(indigo.getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('ignores a colour that is not in the list', () => {
+    document.documentElement.removeAttribute('data-color');
+    document.body.innerHTML = '<button data-color-choice="hotpink"></button>';
+    document.querySelector('button').click();
+    expect(document.documentElement.dataset.color).toBeUndefined();
+  });
 });

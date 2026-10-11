@@ -44,6 +44,10 @@
   --ring: #6366f1;
   --brand-from: #4f46e5;
   --brand-to: #7c3aed;
+  --hero-from: #3730a3;
+  --hero-via: #6d28d9;
+  --hero-to: #a21caf;
+  --hero-glow: rgb(236 72 153 / 0.4);
   --success: oklch(0.527 0.154 150);
   --success-soft: oklch(0.982 0.018 155);
   --warn: oklch(0.476 0.114 61);
@@ -71,6 +75,89 @@
   --success-soft: oklch(0.266 0.065 153);
   --warn: oklch(0.905 0.182 98);
   --warn-soft: oklch(0.286 0.066 53);
+}
+
+/*
+ * Colour themes: <html data-color="rose"> swaps the whole palette. Each theme is only a hue;
+ * every token is derived from it in OKLCH, in a light and a dark variant. Lightness values
+ * were checked for WCAG AA (white on primary >= 4.5, text on surfaces >= 4.5). Without
+ * data-color the indigo defaults above apply.
+ */
+[data-color="violet"] { --hue: 300; }
+[data-color="pink"] { --hue: 350; }
+[data-color="rose"] { --hue: 15; }
+[data-color="red"] { --hue: 27; }
+[data-color="orange"] { --hue: 50; }
+[data-color="amber"] { --hue: 75; }
+[data-color="green"] { --hue: 145; }
+[data-color="emerald"] { --hue: 165; }
+[data-color="teal"] { --hue: 190; }
+[data-color="sky"] { --hue: 235; }
+[data-color="blue"] { --hue: 255; }
+
+:root[data-color] {
+  --background: oklch(0.975 0.008 var(--hue));
+  --foreground: oklch(0.25 0.05 var(--hue));
+  --card: #fff;
+  --card-foreground: var(--foreground);
+  --popover: #fff;
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.5 0.2 var(--hue));
+  --primary-foreground: #fff;
+  --secondary: oklch(0.955 0.025 var(--hue));
+  --secondary-foreground: oklch(0.4 0.12 var(--hue));
+  --muted: oklch(0.96 0.012 var(--hue));
+  --muted-foreground: oklch(0.47 0.03 var(--hue));
+  --accent: oklch(0.94 0.035 var(--hue));
+  --accent-foreground: oklch(0.36 0.13 var(--hue));
+  --border: oklch(0.92 0.015 var(--hue));
+  --input: oklch(0.88 0.02 var(--hue));
+  --ring: oklch(0.6 0.19 var(--hue));
+  --brand-from: oklch(0.5 0.2 var(--hue));
+  --brand-to: oklch(0.5 0.2 calc(var(--hue) + 30));
+  --hero-from: oklch(0.4 0.17 var(--hue));
+  --hero-via: oklch(0.48 0.22 calc(var(--hue) + 25));
+  --hero-to: oklch(0.45 0.2 calc(var(--hue) + 60));
+  --hero-glow: oklch(0.7 0.2 calc(var(--hue) + 70) / 0.4);
+}
+:root.dark[data-color] {
+  --background: oklch(0.17 0.03 var(--hue));
+  --foreground: oklch(0.95 0.01 var(--hue));
+  --card: oklch(0.21 0.035 var(--hue));
+  --popover: oklch(0.23 0.04 var(--hue));
+  --primary: oklch(0.5 0.2 var(--hue));
+  --secondary: oklch(0.29 0.06 var(--hue));
+  --secondary-foreground: oklch(0.88 0.07 var(--hue));
+  --muted: oklch(0.24 0.04 var(--hue));
+  --muted-foreground: oklch(0.8 0.02 var(--hue));
+  --accent: oklch(0.32 0.08 var(--hue));
+  --accent-foreground: oklch(0.88 0.07 var(--hue));
+  --border: oklch(0.3 0.04 var(--hue));
+  --input: oklch(0.34 0.05 var(--hue));
+  --ring: oklch(0.68 0.16 var(--hue));
+}
+
+/* Colour picker swatches (settings) */
+.swatch {
+  @apply relative grid size-10 shrink-0 place-items-center rounded-full text-white shadow-sm transition-transform active:scale-95;
+  background-image: linear-gradient(135deg, oklch(0.5 0.2 var(--hue)), oklch(0.5 0.2 calc(var(--hue) + 30)));
+}
+
+.swatch .swatch-check {
+  @apply hidden;
+}
+
+.swatch[aria-checked="true"] {
+  @apply ring-[3px] ring-offset-2 ring-offset-card;
+  --tw-ring-color: oklch(0.5 0.2 var(--hue));
+}
+
+.swatch[aria-checked="true"] .swatch-check {
+  @apply block;
+}
+
+.swatch:focus-visible {
+  @apply outline-none ring-[3px] ring-ring/60 ring-offset-2 ring-offset-card;
 }
 
 @layer base {
@@ -156,7 +243,7 @@ input[type="color"].input {
 /* ---- Summary ------------------------------------------------------------------------------ */
 .hero {
   @apply relative overflow-hidden rounded-xl p-5 text-white shadow-sm;
-  background-image: linear-gradient(135deg, #3730a3 0%, #6d28d9 55%, #a21caf 100%);
+  background-image: linear-gradient(135deg, var(--hero-from) 0%, var(--hero-via) 55%, var(--hero-to) 100%);
 }
 /* primary buttons and the logo tile keep the old purple gradient */
 .btn:not([data-variant]),
@@ -278,8 +365,8 @@ input[type="color"].input {
 
 /* ---- Depth: layered soft shadows, a glowing hero, lift on hover ----------------------------- */
 :root {
-  --lift-1: 0 1px 2px rgb(30 27 75 / 0.06), 0 6px 18px -6px rgb(79 70 229 / 0.16);
-  --lift-2: 0 2px 4px rgb(30 27 75 / 0.07), 0 14px 30px -10px rgb(79 70 229 / 0.28);
+  --lift-1: 0 1px 2px rgb(30 27 75 / 0.06), 0 6px 18px -6px color-mix(in srgb, var(--brand-from) 16%, transparent);
+  --lift-2: 0 2px 4px rgb(30 27 75 / 0.07), 0 14px 30px -10px color-mix(in srgb, var(--brand-from) 28%, transparent);
 }
 .dark {
   --lift-1: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 8px 22px -8px rgb(0 0 0 / 0.7);
@@ -291,7 +378,7 @@ input[type="color"].input {
   box-shadow: var(--lift-1);
 }
 .hero {
-  box-shadow: 0 2px 4px rgb(55 48 163 / 0.2), 0 18px 36px -12px rgb(109 40 217 / 0.55);
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--hero-from) 20%, transparent), 0 18px 36px -12px color-mix(in srgb, var(--hero-via) 55%, transparent);
 }
 .hero::before,
 .hero::after {
@@ -304,7 +391,7 @@ input[type="color"].input {
 }
 .hero::after {
   width: 13rem; height: 13rem; left: -4rem; bottom: -8rem;
-  background: radial-gradient(closest-side, rgb(236 72 153 / 0.4), transparent);
+  background: radial-gradient(closest-side, var(--hero-glow), transparent);
 }
 .hero > * {
   @apply relative;

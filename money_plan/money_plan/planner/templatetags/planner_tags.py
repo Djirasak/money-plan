@@ -9,6 +9,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_noop
 
 register = template.Library()
 
@@ -55,6 +56,30 @@ ICON_DIR = Path(__file__).resolve().parents[2] / "templates" / "icons"
 @cache
 def _icon_svg(name: str) -> str:
     return (ICON_DIR / f"{name}.svg").read_text().strip()
+
+
+# (key, OKLCH hue, label) - keep in step with [data-color] in tailwind.css; indigo is the default
+COLOR_THEMES = [
+    ("indigo", 277, gettext_noop("Indigo")),
+    ("violet", 300, gettext_noop("Violet")),
+    ("pink", 350, gettext_noop("Pink")),
+    ("rose", 15, gettext_noop("Rose")),
+    ("red", 27, gettext_noop("Red")),
+    ("orange", 50, gettext_noop("Orange")),
+    ("amber", 75, gettext_noop("Amber")),
+    ("green", 145, gettext_noop("Green")),
+    ("emerald", 165, gettext_noop("Emerald")),
+    ("teal", 190, gettext_noop("Teal")),
+    ("sky", 235, gettext_noop("Sky")),
+    ("blue", 255, gettext_noop("Blue")),
+]
+
+
+@register.simple_tag
+def color_themes() -> list[dict]:
+    return [
+        {"key": key, "hue": hue, "label": _(label)} for key, hue, label in COLOR_THEMES
+    ]
 
 
 @register.simple_tag

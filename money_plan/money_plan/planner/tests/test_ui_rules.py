@@ -122,3 +122,15 @@ def test_placeholders_read_as_examples_not_values(client_in):
     html = client_in.get(reverse("planner:piles")).content.decode()
     assert 'placeholder="เช่น 60"' in html
     assert 'placeholder="60"' not in html and 'placeholder="6"' not in html
+
+
+def test_settings_offers_twelve_colour_themes(client_in):
+    html = client_in.get(reverse("planner:settings")).content.decode()
+    assert html.count("data-color-choice=") == 12
+    assert 'data-color-choice="indigo"' in html
+    assert 'role="radiogroup"' in html
+
+
+def test_default_theme_is_light_not_the_system_setting(client_in):
+    html = client_in.get(reverse("planner:summary")).content.decode()
+    assert "prefers-color-scheme" not in html

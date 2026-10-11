@@ -83,6 +83,18 @@
           <span class="text-xs"><span class="theme-icon-light">{% trans "Light" %}</span><span class="theme-icon-dark">{% trans "Dark" %}</span></span>
         </button>
       </div>
+      <div class="mt-4">
+        <h3 class="mb-2 text-xs font-medium text-muted-foreground" id="color-heading">{% trans "Colour theme" %}</h3>
+        <div class="flex flex-wrap gap-3 p-1" role="radiogroup" aria-labelledby="color-heading">
+          {% color_themes as themes %}
+          {% for t in themes %}
+            <button type="button" class="swatch" style="--hue: {{ t.hue }}" role="radio" aria-checked="false" data-color-choice="{{ t.key }}"
+                    aria-label="{{ t.label }}" title="{{ t.label }}">
+              <span class="swatch-check">{% icon "check" "size-5" %}</span>
+            </button>
+          {% endfor %}
+        </div>
+      </div>
     </section>
   </section>
 

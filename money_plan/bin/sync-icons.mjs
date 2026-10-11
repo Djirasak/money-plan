@@ -10,7 +10,7 @@ const ICONS = [
   'plus', 'save', 'trash-2', 'log-out', 'chevron-left', 'chevron-right',
   'layout-dashboard', 'square-pen', 'settings', 'search', 'lock', 'timer',
   'wrench', 'coins', 'piggy-bank', 'wallet', 'arrow-left', 'arrow-right',
-  'sun', 'moon', 'languages', 'circle-check', 'circle-alert', 'info', 'x', 'grip-vertical', 'palette', 'chevron-down', 'arrow-up-right', 'arrow-down-left', 'arrow-left-right', 'user', 'mail', 'shield-check', 'camera',
+  'sun', 'moon', 'languages', 'circle-check', 'circle-alert', 'info', 'x', 'grip-vertical', 'palette', 'chevron-down', 'arrow-up-right', 'arrow-down-left', 'arrow-left-right', 'user', 'mail', 'shield-check', 'camera', 'check',
 ];
 const src = 'node_modules/lucide-static/icons';
 const out = 'money_plan/templates/icons';

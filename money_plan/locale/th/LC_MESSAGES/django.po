@@ -765,3 +765,42 @@ msgstr "พิมพ์คำยืนยันให้ถูกต้อง �
 
 msgid "All your data was cleared"
 msgstr "ล้างข้อมูลทั้งหมดแล้ว"
+
+msgid "Colour theme"
+msgstr "ธีมสี"
+
+msgid "Indigo"
+msgstr "อินดิโก"
+
+msgid "Violet"
+msgstr "ม่วง"
+
+msgid "Pink"
+msgstr "ชมพู"
+
+msgid "Rose"
+msgstr "กุหลาบ"
+
+msgid "Red"
+msgstr "แดง"
+
+msgid "Orange"
+msgstr "ส้ม"
+
+msgid "Amber"
+msgstr "อำพัน"
+
+msgid "Green"
+msgstr "เขียว"
+
+msgid "Emerald"
+msgstr "มรกต"
+
+msgid "Teal"
+msgstr "เขียวอมฟ้า"
+
+msgid "Sky"
+msgstr "ฟ้า"
+
+msgid "Blue"
+msgstr "น้ำเงิน"
