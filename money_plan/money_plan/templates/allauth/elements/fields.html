@@ -1,4 +1,4 @@
-{% load allauth %}
+{% load allauth planner_tags %}
 
 <div class="auth-fields flex flex-col gap-4">
   {% for field in attrs.form %}
@@ -12,7 +12,11 @@
           <label class="label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="text-destructive"> *</span>{% endif %}</label>
           {{ field }}
         {% endif %}
-        {% if field.help_text %}<p class="text-xs text-muted-foreground">{{ field.help_text|safe }}</p>{% endif %}
+        {% if field.html_name == "password1" or field.html_name == "new_password1" %}
+          {% password_rules %}
+        {% elif field.help_text %}
+          <p class="text-xs text-muted-foreground">{{ field.help_text|safe }}</p>
+        {% endif %}
         {% for error in field.errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}
       </div>
     {% endif %}

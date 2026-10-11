@@ -3,6 +3,7 @@ from functools import cache
 from pathlib import Path
 
 from django import template
+from django.contrib.auth import password_validation
 from django.utils import timezone
 from django.utils.dates import MONTHS
 from django.utils.html import escape
@@ -92,6 +93,19 @@ def icon(name: str, css_class: str = "size-5") -> str:
         1,
     )
     return mark_safe(svg)  # noqa: S308 - files we ship, class is escaped
+
+
+@register.inclusion_tag("users/_password_rules.html")
+def password_rules() -> dict:
+    """The password rules from AUTH_PASSWORD_VALIDATORS as a checklist that turns
+    green or red while typing (project.js); the server still has the last word."""
+    return {
+        "rules": [
+            {"text": validator.get_help_text(), "min": validator.min_length}
+            for validator in password_validation.get_default_password_validators()
+            if hasattr(validator, "min_length")
+        ],
+    }
 
 
 @register.inclusion_tag("planner/_month_picker.html")

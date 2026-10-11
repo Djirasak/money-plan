@@ -900,3 +900,18 @@ msgstr "รหัสผ่านนี้เป็นตัวเลขล้ว
 
 msgid "Your password can’t be entirely numeric."
 msgstr "รหัสผ่านต้องไม่เป็นตัวเลขล้วน"
+
+msgid "Your password must:"
+msgstr "รหัสผ่านต้อง:"
+
+msgid "The two passwords do not match."
+msgstr "รหัสผ่านทั้งสองช่องไม่ตรงกัน"
+
+msgid "checked when you save"
+msgstr "ตรวจตอนบันทึก"
+
+msgid "met"
+msgstr "ผ่านเงื่อนไข"
+
+msgid "not met"
+msgstr "ไม่ผ่านเงื่อนไข"

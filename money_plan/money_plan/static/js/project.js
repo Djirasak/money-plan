@@ -131,6 +131,50 @@ window.addEventListener('pageshow', (event) => {
 })();
 
 /*
+ * Live password rule: next to a new-password field the server renders the rule(s) as a list
+ * ([data-password-rules]). While typing it turns green (met) or red (not met), and the
+ * confirmation field says at once when it differs. The server still validates on submit.
+ */
+(() => {
+  const setup = (rules) => {
+    const form = rules.closest('form');
+    if (!form) return;
+    const [first, second] = form.querySelectorAll('input[autocomplete="new-password"]');
+    if (!first) return;
+
+    const mismatch = document.createElement('p');
+    mismatch.className = 'text-xs font-medium text-destructive';
+    mismatch.setAttribute('role', 'alert');
+    mismatch.hidden = true;
+    mismatch.textContent = rules.dataset.mismatchText || '';
+    if (second) second.insertAdjacentElement('afterend', mismatch);
+
+    const update = () => {
+      const pw = first.value;
+      for (const item of rules.querySelectorAll('li[data-min]')) {
+        const met = [...pw].length >= Number(item.dataset.min); // characters, not bytes (Thai)
+        const state = !pw ? 'idle' : met ? 'ok' : 'bad';
+        item.dataset.state = state;
+        const status = item.querySelector('[data-rule-status]');
+        if (status) status.textContent = state === 'ok' ? rules.dataset.okText : state === 'bad' ? rules.dataset.badText : '';
+      }
+      if (second) {
+        const differs = second.value !== '' && second.value !== pw;
+        mismatch.hidden = !differs;
+        second.setAttribute('aria-invalid', String(differs));
+      }
+    };
+    first.addEventListener('input', update);
+    if (second) second.addEventListener('input', update);
+    update();
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    for (const rules of document.querySelectorAll('[data-password-rules]')) setup(rules);
+  });
+})();
+
+/*
  * Colour theme: the swatches on the settings page set <html data-color> (indigo is the default,
  * i.e. no attribute) and remember the choice, like the light/dark switch above.
  */

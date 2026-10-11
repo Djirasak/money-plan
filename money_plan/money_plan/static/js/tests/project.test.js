@@ -107,4 +107,67 @@ describe('project.js', () => {
     document.querySelector('button').click();
     expect(document.documentElement.dataset.color).toBeUndefined();
   });
+
+  describe('live password rule', () => {
+    const mount = () => {
+      document.body.innerHTML = `
+        <form>
+          <input id="p1" autocomplete="new-password" />
+          <div data-password-rules data-mismatch-text="no match" data-ok-text="met" data-bad-text="not met">
+            <ul><li data-rule="length" data-min="8" data-state="idle"><span data-rule-status></span></li></ul>
+          </div>
+          <input id="p2" autocomplete="new-password" />
+        </form>`;
+      document.dispatchEvent(new Event('DOMContentLoaded'));
+      const type = (id, value) => {
+        const input = document.getElementById(id);
+        input.value = value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      const item = document.querySelector('[data-rule="length"]');
+      return { type, item };
+    };
+
+    it('stays neutral until something is typed', () => {
+      expect(mount().item.dataset.state).toBe('idle');
+    });
+
+    it('is red under 8 characters and green from 8', () => {
+      const { type, item } = mount();
+      type('p1', '1234567');
+      expect(item.dataset.state).toBe('bad');
+      expect(item.querySelector('[data-rule-status]').textContent).toBe('not met');
+      type('p1', '12345678');
+      expect(item.dataset.state).toBe('ok');
+      expect(item.querySelector('[data-rule-status]').textContent).toBe('met');
+      type('p1', '');
+      expect(item.dataset.state).toBe('idle');
+    });
+
+    it('counts characters, not bytes, so Thai works', () => {
+      const { type, item } = mount();
+      type('p1', 'รหัสผ่านใหม่');
+      expect(item.dataset.state).toBe('ok');
+    });
+
+    it('shows a message as soon as the confirmation differs, and hides it when it matches', () => {
+      const { type } = mount();
+      const message = () => document.querySelector('[role="alert"]');
+      type('p1', 'abcdefgh1');
+      type('p2', 'abc');
+      expect(message().hidden).toBe(false);
+      expect(message().textContent).toBe('no match');
+      expect(document.getElementById('p2').getAttribute('aria-invalid')).toBe('true');
+      type('p2', 'abcdefgh1');
+      expect(message().hidden).toBe(true);
+      type('p1', 'changed-after');
+      expect(message().hidden).toBe(false);
+    });
+
+    it('says nothing while the confirmation is still empty', () => {
+      const { type } = mount();
+      type('p1', 'abcdefgh1');
+      expect(document.querySelector('[role="alert"]').hidden).toBe(true);
+    });
+  });
 });

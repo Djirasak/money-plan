@@ -137,6 +137,33 @@
   --ring: oklch(0.68 0.16 var(--hue));
 }
 
+/* Live password rules: grey until typing starts, then green (met) or red (not met) */
+.password-rules {
+  @apply grid gap-1 text-xs;
+}
+
+.password-rules li {
+  @apply flex items-start gap-1.5 text-muted-foreground;
+}
+
+.password-rules .rule-icon {
+  @apply mt-0.5 hidden shrink-0;
+}
+
+.password-rules li[data-state="idle"] .rule-idle,
+.password-rules li[data-state="ok"] .rule-ok,
+.password-rules li[data-state="bad"] .rule-bad {
+  @apply block;
+}
+
+.password-rules li[data-state="ok"] {
+  @apply font-medium text-success;
+}
+
+.password-rules li[data-state="bad"] {
+  @apply font-medium text-destructive;
+}
+
 /* Colour picker swatches (settings) */
 .swatch {
   @apply relative grid size-10 shrink-0 place-items-center rounded-full text-white shadow-sm transition-transform active:scale-95;
