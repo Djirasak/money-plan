@@ -1,0 +1,20 @@
+{% load i18n planner_tags %}
+{% comment %}
+  A small language switch for pages without the settings page (shared link, sign in, sign up):
+  one button that offers the other language. Posts to Django's set_language and comes back here.
+{% endcomment %}
+{% get_current_language as current_language %}
+{% get_language_info_list for LANGUAGES as languages %}
+{% for lang in languages %}
+  {% if lang.code != current_language %}
+    <form method="post" action="{% url 'set_language' %}" class="shrink-0" data-busy>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+      <input type="hidden" name="language" value="{{ lang.code }}" />
+      <button type="submit" class="btn" data-variant="ghost" data-size="sm" lang="{{ lang.code }}"
+              aria-label="{% blocktrans with name=lang.name_local %}Switch language to {{ name }}{% endblocktrans %}">
+        {% icon "languages" "size-4" %}<span class="text-xs">{{ lang.name_local }}</span>
+      </button>
+    </form>
+  {% endif %}
+{% endfor %}

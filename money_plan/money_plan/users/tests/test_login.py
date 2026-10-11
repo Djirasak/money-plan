@@ -147,3 +147,64 @@ def test_the_lowercase_migration_fixes_old_rows_and_skips_collisions(db):
     assert Address.objects.get(user=one).email == "old.mixed@example.com"
     assert clash_b.email == "CLASH@example.com"  # would have collided: left as it was
     assert clash_a.email == "clash@example.com"
+
+
+class TestThaiFirst:
+    def test_a_browser_set_to_english_still_gets_thai(self, client):
+        html = client.get(
+            reverse("account_login"),
+            headers={"accept-language": "en-US,en;q=0.9"},
+        ).content.decode()
+        assert '<html lang="th">' in html
+
+    def test_the_language_button_switches_and_remembers_it(self, client):
+        page = client.get(reverse("account_login")).content.decode()
+        assert 'name="language" value="en"' in page  # offers the other language, small
+        resp = client.post(
+            reverse("set_language"),
+            {"language": "en", "next": reverse("account_login")},
+        )
+        assert resp.status_code == 302
+        english = client.get(
+            reverse("account_login"),
+            headers={"accept-language": "th"},
+        ).content.decode()
+        assert '<html lang="en">' in english
+        assert 'name="language" value="th"' in english  # and offers Thai back
+
+    def test_a_cookie_with_an_unknown_language_falls_back_to_thai(self, client):
+        client.cookies["django_language"] = "xx"
+        assert (
+            '<html lang="th">' in client.get(reverse("account_login")).content.decode()
+        )
+
+    def test_the_shared_link_page_has_the_switch_too(self, client):
+        from money_plan.planner.models import SharedTemplate
+
+        owner = UserFactory()
+        share = SharedTemplate.objects.create(
+            owner=owner,
+            title="T",
+            payload={
+                "schema": 1,
+                "piles": [
+                    {
+                        "key": "p1",
+                        "name": "A",
+                        "color": "#112233",
+                        "kind": "budget",
+                        "mode": "rollover",
+                        "icon": "",
+                        "has_cap": False,
+                        "overflow_to": None,
+                        "target": {"type": "none"},
+                    },
+                ],
+                "plans": [],
+            },
+        )
+        html = client.get(
+            reverse("planner:template", kwargs={"token": share.token}),
+        ).content.decode()
+        assert 'name="language" value="en"' in html
+        assert "แผนที่แชร์" in html  # Thai by default

@@ -12,6 +12,7 @@
       <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Money Plan</p>
       <h1 class="truncate text-lg font-semibold leading-tight">{% block heading %}{% endblock heading %}</h1>
     </div>
+    {% include "planner/_lang_switch.html" %}
   </header>
   {% block page %}{% endblock page %}
 {% endblock main %}
