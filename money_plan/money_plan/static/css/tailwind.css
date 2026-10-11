@@ -4,6 +4,73 @@
 @source "../../templates";
 @source "../js";
 
+/* Self-hosted Noto Sans Thai (no third-party request blocking first paint) */
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("../fonts/thai-400-normal.woff2") format("woff2");
+  unicode-range: U+0E01-0E5B,U+200C-200D,U+25CC;
+}
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("../fonts/thai-500-normal.woff2") format("woff2");
+  unicode-range: U+0E01-0E5B,U+200C-200D,U+25CC;
+}
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("../fonts/thai-600-normal.woff2") format("woff2");
+  unicode-range: U+0E01-0E5B,U+200C-200D,U+25CC;
+}
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("../fonts/thai-700-normal.woff2") format("woff2");
+  unicode-range: U+0E01-0E5B,U+200C-200D,U+25CC;
+}
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("../fonts/latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("../fonts/latin-500-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("../fonts/latin-600-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Noto Sans Thai";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("../fonts/latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+
 /*
  * Components come from Basecoat UI (the shadcn/ui design system in plain HTML + Tailwind):
  * .btn .card .input .select .dialog .toast .badge .item .tabs ... and its shadcn tokens
@@ -166,12 +233,20 @@
 
 /* Colour picker swatches (settings) */
 .swatch {
-  @apply relative grid size-10 shrink-0 place-items-center rounded-full text-white shadow-sm transition-transform active:scale-95;
+  @apply relative flex aspect-square flex-col items-center justify-end gap-0.5 rounded-xl p-2 text-white shadow-sm transition-transform active:scale-95;
   background-image: linear-gradient(135deg, oklch(0.5 0.2 var(--hue)), oklch(0.5 0.2 calc(var(--hue) + 30)));
 }
 
 .swatch .swatch-check {
-  @apply hidden;
+  @apply absolute top-1.5 right-1.5 hidden;
+}
+
+.swatch .swatch-check svg {
+  @apply size-4;
+}
+
+.swatch .swatch-name {
+  @apply max-w-full truncate text-xs font-medium;
 }
 
 .swatch[aria-checked="true"] {

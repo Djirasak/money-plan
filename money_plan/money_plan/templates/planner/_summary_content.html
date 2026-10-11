@@ -1,65 +1,33 @@
 {% load i18n %}
 {% load planner_tags %}
-  <section class="hero">
-    <p class="text-xs opacity-80">{% trans "Salary" %}</p>
-    <p class="mt-1 text-4xl font-semibold tracking-tight">{{ current.salary|baht }}</p>
-    <div class="mt-4 flex flex-wrap gap-2 text-xs font-medium">
-      {% if plan_name %}<span class="badge bg-black/20 px-2.5 py-1 text-white">{% blocktrans with name=plan_name %}Plan: {{ name }}{% endblocktrans %}</span>{% endif %}
-      <span class="badge bg-black/20 px-2.5 py-1 text-white">{% blocktrans with amount=allocated|baht %}Allocated {{ amount }}{% endblocktrans %}</span>
-    </div>
-    {% if not current.salary %}
-      <a href="{% url 'planner:settings' %}" class="btn mt-4" data-variant="secondary" data-size="sm">{% trans "Set your salary first" %}{% icon "arrow-right" "size-4" %}</a>
-    {% endif %}
-  </section>
-
-  <h2 class="mb-2 mt-6 px-1 text-xs font-medium text-muted-foreground">{% trans "Monthly budget" %}</h2>
-  <div class="grid grid-cols-2 items-stretch gap-2.5">
-    {% for c in cards %}
-      {% with p=c.pile pm=c.pm %}
-        <article class="card pile-summary" data-size="sm" style="--pc:{{ p.color }}">
-          <details class="group">
-            <summary class="flex cursor-pointer list-none flex-col items-stretch gap-2 px-3 text-left [&::-webkit-details-marker]:hidden">
-              <h3 class="flex items-center gap-2 text-sm font-medium">
-                <span class="size-2.5 shrink-0 rounded-full" style="background:{{ p.color }}" aria-hidden="true"></span><span class="truncate">{{ p.name }}</span>
-                {% icon "chevron-down" "ml-auto size-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" %}
-              </h3>
-              <p class="flex flex-col gap-0.5">
-                <span class="text-[11px] leading-none text-muted-foreground">{% if p.kind == 'fund' %}{% trans "Saved so far" %}{% else %}{% trans "Left" %}{% endif %}</span>
-                <span class="text-2xl font-semibold leading-none tracking-tight tabular-nums">{{ pm.before|baht }}</span>
-              </p>
-              {% if p.kind == 'fund' %}
-                {% with prog=c.progress|pct %}
-                  <div class="pile-bar"><div style="width:{{ prog }}%"></div></div>
-                  <p class="text-[11px] text-muted-foreground">{% if pm.target is not None %}{% blocktrans with t=pm.target|baht %}Goal {{ t }} · {{ prog }}%{% endblocktrans %}{% else %}{% blocktrans with a=c.incoming|baht %}+{{ a }} this month{% endblocktrans %}{% endif %}</p>
-                {% endwith %}
-              {% else %}
-                <div class="pile-bar"><div style="width:{{ pm.used_pct|pct }}%"></div></div>
-                <p class="text-[11px] text-muted-foreground">{% blocktrans with used=pm.used|baht budget=pm.budget|baht %}Spent {{ used }} of {{ budget }}{% endblocktrans %}</p>
-                {% if pm.overflow %}
-                  <p class="rounded-md bg-warn-soft px-2 py-1 text-[11px] font-medium leading-snug text-warn">{% blocktrans with amount=pm.overflow|baht target=pm.overflow_to %}Overflow {{ amount }} to {{ target }}{% endblocktrans %}</p>
-                {% endif %}
-              {% endif %}
-            </summary>
-            <dl class="pile-kv mx-3">
-              {% if p.kind == 'fund' %}
-                {% with prog=c.progress|pct %}
-                  <div><dt>{% blocktrans %}Target · {{ prog }}{% endblocktrans %}%</dt><dd>{% if pm.target is not None %}{{ pm.target|baht }}{% else %}—{% endif %}</dd></div>
-                {% endwith %}
-                <div><dt>{% trans "In this month" %}</dt><dd>{{ c.incoming|baht }}</dd></div>
-                <div><dt>{% trans "Remaining" %}</dt><dd>{% if c.remaining is not None %}{{ c.remaining|baht }}{% else %}—{% endif %}</dd></div>
-              {% else %}
-                <div><dt>{% trans "This month's budget" %}</dt><dd>{{ pm.allocation|baht }}</dd></div>
-                <div><dt>{% trans "Carried in" %}</dt><dd>{{ pm.carry_in|baht }}</dd></div>
-                <div><dt>{% blocktrans with pct=pm.used_pct|pct %}Used · {{ pct }}{% endblocktrans %}%</dt><dd>{{ pm.used|baht }}</dd></div>
-                <div class="!block text-[11px] text-muted-foreground">
-                  {% if p.mode == 'sweep' %}{% blocktrans with name=p.overflow_to.name|default:"—" %}Sweeps to {{ name }}{% endblocktrans %}
-                  {% elif p.cap %}{% blocktrans with cap=p.cap|baht %}Rollover up to {{ cap }}{% endblocktrans %}
-                  {% else %}{% trans "Rollover, unlimited" %}{% endif %}
-                </div>
-              {% endif %}
-            </dl>
-          </details>
-        </article>
-      {% endwith %}
-    {% endfor %}
+  <div class="relative mt-10">
+    <a class="avatar-link absolute -top-9 right-4 z-10 rounded-full ring-4 ring-background" href="{% url 'users:detail' request.user.pk %}" aria-label="{% trans 'My account' %}" title="{% trans 'My account' %}">
+      {% if request.user.photo %}
+        <img class="avatar-lg !size-24 object-cover" src="{{ request.user.photo_url }}" alt="" width="96" height="96" />
+      {% else %}
+        <span class="avatar-lg !size-24" aria-hidden="true">{{ request.user.username|slice:":1"|upper }}</span>
+      {% endif %}
+    </a>
+    <section class="hero !py-3 !pl-4 !pr-28">
+      <p class="text-xs opacity-80">{% trans "Salary" %}</p>
+      <p class="text-2xl font-semibold leading-tight tracking-tight">{{ current.salary|baht }}</p>
+      <p class="mt-1 truncate text-[11px] opacity-80">
+        {% if plan_name %}{% blocktrans with name=plan_name %}Plan: {{ name }}{% endblocktrans %} · {% endif %}{% blocktrans with amount=allocated|baht %}Allocated {{ amount }}{% endblocktrans %}
+      </p>
+      {% if not current.salary %}
+        <a href="{% url 'planner:settings' %}" class="btn mt-2" data-variant="secondary" data-size="sm">{% trans "Set your salary first" %}{% icon "arrow-right" "size-4" %}</a>
+      {% endif %}
+    </section>
   </div>
+
+  {% url "planner:summary" as summary_url %}
+  <div class="mt-6">{% include "planner/_month_bar.html" with base=summary_url %}</div>
+
+  {% for kind, heading in sections %}
+    <h2 class="mb-2 mt-2 px-1 text-xs font-medium text-muted-foreground">{{ heading }}</h2>
+    <div class="grid grid-cols-2 items-stretch gap-2.5">
+      {% for c in cards %}
+        {% if c.pile.kind == kind %}{% include "planner/_pile_summary_card.html" with c=c p=c.pile pm=c.pm %}{% endif %}
+      {% endfor %}
+    </div>
+  {% endfor %}

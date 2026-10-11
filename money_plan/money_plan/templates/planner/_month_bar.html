@@ -1,0 +1,19 @@
+{% load i18n planner_tags %}
+{# Prev / current / next month. Needs: month_text, prev_month, next_month; base = URL prefix for the links. #}
+<div class="month-bar mb-5 flex items-center justify-center gap-2">
+  {% if prev_month %}
+    <a href="{{ base }}?m={{ prev_month }}" class="btn" data-variant="outline" data-size="icon" aria-label="{% trans 'Previous month' %}">
+      {% icon "chevron-left" "size-4" %}
+    </a>
+  {% else %}
+    <span aria-hidden="true" class="btn pointer-events-none opacity-40" data-variant="outline" data-size="icon">{% icon "chevron-left" "size-4" %}</span>
+  {% endif %}
+  <span class="w-52 shrink-0 text-center font-medium" aria-live="polite">{{ month_text }}</span>
+  {% if next_month %}
+    <a href="{{ base }}?m={{ next_month }}" class="btn" data-variant="outline" data-size="icon" aria-label="{% trans 'Next month' %}">
+      {% icon "chevron-right" "size-4" %}
+    </a>
+  {% else %}
+    <span aria-hidden="true" class="btn pointer-events-none opacity-40" data-variant="outline" data-size="icon">{% icon "chevron-right" "size-4" %}</span>
+  {% endif %}
+</div>

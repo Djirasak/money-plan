@@ -85,12 +85,13 @@
       </div>
       <div class="mt-4">
         <h3 class="mb-2 text-xs font-medium text-muted-foreground" id="color-heading">{% trans "Colour theme" %}</h3>
-        <div class="flex flex-wrap gap-3 p-1" role="radiogroup" aria-labelledby="color-heading">
+        <div class="grid grid-cols-4 gap-2 p-1" role="radiogroup" aria-labelledby="color-heading">
           {% color_themes as themes %}
           {% for t in themes %}
             <button type="button" class="swatch" style="--hue: {{ t.hue }}" role="radio" aria-checked="false" data-color-choice="{{ t.key }}"
-                    aria-label="{{ t.label }}" title="{{ t.label }}">
+                    aria-label="{{ t.label }}">
               <span class="swatch-check">{% icon "check" "size-5" %}</span>
+              <span class="swatch-name">{{ t.label }}</span>
             </button>
           {% endfor %}
         </div>

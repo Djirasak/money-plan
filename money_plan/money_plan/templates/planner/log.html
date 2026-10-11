@@ -3,7 +3,11 @@
 {% load planner_tags %}
 {% block heading %}{% trans "Save entry" %}{% endblock heading %}
 {% block page %}
-  <button type="button" class="btn w-full" data-open-dialog="entry-dialog">{% icon "plus" "size-4" %}{% trans "Add entry" %}</button>
+  {# Floating add button: bottom right, above the floating nav, kept inside the centred column #}
+  <div class="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+6rem)] z-40 mx-auto flex max-w-md justify-end px-4">
+    <button type="button" class="btn pointer-events-auto size-14 rounded-full shadow-lg" data-size="icon" data-open-dialog="entry-dialog"
+            aria-label="{% trans 'Add entry' %}" title="{% trans 'Add entry' %}">{% icon "plus" "size-6" %}</button>
+  </div>
 
   <dialog id="entry-dialog" class="dialog w-full sm:max-w-[420px]" aria-labelledby="entry-title"
           {% if editing or form.errors %}data-auto-open{% endif %}

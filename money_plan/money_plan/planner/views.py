@@ -86,6 +86,11 @@ class SummaryContentView(PlannerMixin, TemplateView):
         ctx |= {
             "current": current,
             "cards": cards,
+            "sections": [
+                (kind, label)
+                for kind, label in Pile.KIND_CHOICES
+                if any(c["pile"].kind == kind for c in cards)
+            ],
             "allocated": sum(pm.allocation for pm in current.piles.values()),
             "plan_name": dict(
                 user.plan_periods.values_list("pk", "name"),

@@ -10,33 +10,15 @@
       <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Money Plan</p>
       <h1 class="truncate text-lg font-semibold leading-tight">{% block heading %}{% endblock heading %}</h1>
     </div>
-    <a class="avatar-link" href="{% url 'users:detail' request.user.pk %}" aria-label="{% trans 'My account' %}" title="{% trans 'My account' %}">
+    {% if active != "summary" %}<a class="avatar-link" href="{% url 'users:detail' request.user.pk %}" aria-label="{% trans 'My account' %}" title="{% trans 'My account' %}">
       {% if request.user.photo %}
         <img class="avatar-sm object-cover" src="{{ request.user.photo_url }}" alt="" width="40" height="40" />
       {% else %}
         <span class="avatar-sm" aria-hidden="true">{{ request.user.username|slice:":1"|upper }}</span>
       {% endif %}
-    </a>
+    </a>{% endif %}
   </header>
-  {% if months %}
-    <div class="month-bar mb-5 flex items-center justify-center gap-2">
-      {% if prev_month %}
-        <a href="?m={{ prev_month }}" class="btn" data-variant="outline" data-size="icon" aria-label="{% trans 'Previous month' %}">
-          {% icon "chevron-left" "size-4" %}
-        </a>
-      {% else %}
-        <span aria-hidden="true" class="btn pointer-events-none opacity-40" data-variant="outline" data-size="icon">{% icon "chevron-left" "size-4" %}</span>
-      {% endif %}
-      <span class="w-52 shrink-0 text-center font-medium" aria-live="polite">{{ month_text }}</span>
-      {% if next_month %}
-        <a href="?m={{ next_month }}" class="btn" data-variant="outline" data-size="icon" aria-label="{% trans 'Next month' %}">
-          {% icon "chevron-right" "size-4" %}
-        </a>
-      {% else %}
-        <span aria-hidden="true" class="btn pointer-events-none opacity-40" data-variant="outline" data-size="icon">{% icon "chevron-right" "size-4" %}</span>
-      {% endif %}
-    </div>
-  {% endif %}
+  {% if months and active != "summary" %}{% include "planner/_month_bar.html" with base="" %}{% endif %}
   {% block page %}{% endblock page %}
   <nav class="app-nav" aria-label="{% trans 'Main' %}">
     {% for key, label, url, glyph in nav %}

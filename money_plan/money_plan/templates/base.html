@@ -26,10 +26,8 @@
     <link rel="icon" sizes="any" href="{% static 'images/favicons/favicon.ico' %}" />
     <link rel="apple-touch-icon" href="{% static 'images/favicons/apple-touch-icon.png' %}" />
     {% block css %}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
-            rel="stylesheet" />
+      <link rel="preload" href="{% static 'fonts/thai-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin />
+      <link rel="preload" href="{% static 'fonts/latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin />
       <link href="{% static_v 'css/project.min.css' %}" rel="stylesheet" />
     {% endblock css %}
     {% block javascript %}
