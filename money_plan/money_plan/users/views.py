@@ -42,7 +42,6 @@ class UserDetailView(LoginRequiredMixin, DetailView):
                 email__iexact=user.email,
                 verified=True,
             ).exists(),
-            "photo_form": bound.get("photo") or PhotoChangeForm(user=user),
             "password_form": bound.get("password") or AccountPasswordChangeForm(user),
             "open_dialog": kwargs.get("open_dialog", ""),
         }
@@ -137,16 +136,22 @@ class NameChangeView(AccountChangeView):
         )
 
 
-class PhotoChangeView(AccountChangeView):
-    key = "photo"
-    success_message = _("Profile photo updated")
+class PhotoChangeView(SelfOnlyMixin, View):
+    """The camera button uploads straight from the phone's picker, so there is no dialog:
+    success and problems both come back as a toast on the account page."""
 
-    def get_form(self):
-        return PhotoChangeForm(
-            self.request.POST,
-            self.request.FILES,
-            user=User.objects.get(pk=self.request.user.pk),
-        )
+    http_method_names = ["post"]
+
+    def post(self, request, pk):
+        user = User.objects.get(pk=request.user.pk)
+        form = PhotoChangeForm(request.POST, request.FILES, user=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Profile photo updated"))
+        else:
+            problems = form.errors.get("photo") or [_("Choose a valid image file.")]
+            messages.error(request, problems[0])
+        return redirect(user.get_absolute_url())
 
 
 class PhotoRemoveView(SelfOnlyMixin, View):

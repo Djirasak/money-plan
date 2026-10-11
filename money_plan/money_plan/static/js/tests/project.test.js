@@ -203,4 +203,23 @@ describe('project.js', () => {
     input.dispatchEvent(new Event('change', { bubbles: true }));
     expect(label.textContent).toBe('No file chosen');
   });
+
+  it('submits the form at once when a photo is picked, but not for other file inputs', () => {
+    document.body.innerHTML = `
+      <form id="a"><input type="file" id="auto" data-auto-submit /></form>
+      <form id="b"><input type="file" id="plain" /></form>`;
+    const submitA = vi.fn();
+    const submitB = vi.fn();
+    document.getElementById('a').requestSubmit = submitA;
+    document.getElementById('b').requestSubmit = submitB;
+    const pick = (id) => {
+      const input = document.getElementById(id);
+      Object.defineProperty(input, 'files', { value: [new File(['x'], 'p.jpg')], configurable: true });
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    pick('plain');
+    expect(submitB).not.toHaveBeenCalled();
+    pick('auto');
+    expect(submitA).toHaveBeenCalledOnce();
+  });
 });

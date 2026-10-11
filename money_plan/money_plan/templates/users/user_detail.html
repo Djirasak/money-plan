@@ -25,10 +25,16 @@
           <div class="avatar-lg" aria-hidden="true">{{ object.username|slice:":1"|upper }}</div>
         {% endif %}
         {% if object == request.user %}
-          <button type="button" class="btn absolute -bottom-1 -right-1 rounded-full" data-variant="outline" data-size="icon-sm" data-open-dialog="account-photo"
-                  aria-label="{% trans 'Change profile photo' %}" title="{% trans 'Change profile photo' %}">
-            {% icon "camera" "size-4" %}
-          </button>
+          {# Tapping the camera opens the phone's own picker (library / camera / files); picking a photo uploads it. #}
+          <form method="post" action="{% url 'users:change_photo' object.pk %}" enctype="multipart/form-data" data-busy>
+            {% csrf_token %}
+            <input type="file" id="photo-input" name="photo" accept="image/jpeg,image/png,image/webp" class="peer sr-only" data-auto-submit />
+            <label for="photo-input" class="btn absolute -bottom-1 -right-1 cursor-pointer rounded-full peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50" data-variant="outline" data-size="icon-sm"
+                   title="{% trans 'Change profile photo' %}">
+              {% icon "camera" "size-4" %}<span class="sr-only">{% trans "Change profile photo" %}</span>
+            </label>
+            <noscript><button type="submit" class="btn mt-2" data-variant="outline" data-size="sm">{% trans "Upload photo" %}</button></noscript>
+          </form>
         {% endif %}
       </div>
       <div class="min-w-0">
@@ -91,9 +97,6 @@
       </li>
     </ul>
 
-    {% trans "Change profile photo" as t_photo %}{% trans "Upload photo" as s_photo %}{% trans "JPG, PNG or WebP, up to 10 MB. It is cropped to a square and shrunk automatically." as h_photo %}
-    {% url 'users:change_photo' object.pk as a_photo %}
-    {% include "users/_account_dialog.html" with dialog_id="account-photo" title=t_photo form=photo_form action=a_photo submit=s_photo hint=h_photo multipart=True %}
     {% trans "Change username" as t_user %}{% trans "Save username" as s_user %}
     {% url 'users:change_username' object.pk as a_user %}
     {% include "users/_account_dialog.html" with dialog_id="account-username" title=t_user form=username_form action=a_user submit=s_user %}

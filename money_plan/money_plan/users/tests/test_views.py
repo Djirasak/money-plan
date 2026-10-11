@@ -47,7 +47,6 @@ class TestAccountChanges:
             "account-username",
             "account-email",
             "account-password",
-            "account-photo",
             "logout-modal",
         ):
             assert f'id="{dialog}"' in html
@@ -214,13 +213,32 @@ class TestProfilePhoto:
         assert user.photo.name != first
         assert not user.photo.storage.exists(first)
 
-    def test_not_an_image_reopens_the_dialog(self, client, user: User):
+    def test_not_an_image_comes_back_as_a_toast(self, client, user: User):
         client.force_login(user)
         resp = self.upload(client, user, b"just text", name="x.png")
-        assert resp.status_code == HTTPStatus.OK
-        assert "data-auto-open" in resp.content.decode()
+        assert resp.status_code == HTTPStatus.FOUND
+        assert resp.url == user.get_absolute_url()
         user.refresh_from_db()
         assert not user.photo
+        page = client.get(resp.url).content.decode()
+        assert "เลือกไฟล์รูปภาพที่ใช้ได้" in page
+
+    def test_the_camera_button_is_a_label_for_a_phone_friendly_file_input(
+        self,
+        client,
+        user: User,
+    ):
+        client.force_login(user)
+        html = client.get(user.get_absolute_url()).content.decode()
+        assert 'for="photo-input"' in html
+        assert (
+            'accept="image/jpeg,image/png,image/webp"' in html
+        )  # iOS converts HEIC for these
+        assert "data-auto-submit" in html
+        assert (
+            "capture" not in html.split('id="photo-input"')[1].split(">")[0]
+        )  # keep the full menu
+        assert 'id="account-photo"' not in html
 
     def test_remove_deletes_the_file(self, client, user: User):
         client.force_login(user)

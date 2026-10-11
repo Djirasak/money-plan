@@ -155,6 +155,16 @@ window.addEventListener('pageshow', (event) => {
 })();
 
 /*
+ * Pick-and-go: a file input marked data-auto-submit submits its form as soon as a file is chosen.
+ */
+document.addEventListener('change', (event) => {
+  const input = event.target;
+  if (input instanceof HTMLInputElement && input.type === 'file' && 'autoSubmit' in input.dataset && input.files?.length) {
+    input.form?.requestSubmit();
+  }
+});
+
+/*
  * File pickers: [data-file-input] holds a hidden <input type="file"> and a
  * [data-file-name] text that shows the chosen file (or its data-empty text).
  */
