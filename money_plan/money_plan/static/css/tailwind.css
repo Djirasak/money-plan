@@ -516,7 +516,13 @@ body:has(.fab) .toaster {
   --tone-in: #86efac; --tone-in-bg: #11301e;
   --tone-move: #93c5fd; --tone-move-bg: #14264a;
 }
-.entry { border-color: color-mix(in srgb, var(--tone) 35%, transparent); background-color: var(--tone-bg); }
+/* soft like the pile cards: a white card with a faint wash of the entry's colour, not a tinted box with a coloured border */
+.entry {
+  @apply rounded-xl;
+  border-color: var(--border);
+  background-color: var(--card);
+  background-image: linear-gradient(100deg, color-mix(in srgb, var(--tone) 9%, transparent), transparent 55%);
+}
 .entry-out { --tone: var(--tone-out); --tone-bg: var(--tone-out-bg); }
 .entry-in { --tone: var(--tone-in); --tone-bg: var(--tone-in-bg); }
 .entry-move { --tone: var(--tone-move); --tone-bg: var(--tone-move-bg); }

@@ -1295,3 +1295,26 @@ class TestDeleteLivesInTheEditDialog:
         assert resp.status_code == 302
         assert "m=2027-01" in resp.url
         assert not LogEntry.objects.filter(pk=entry.pk).exists()
+
+
+def test_the_summary_avatar_has_a_gear_badge_that_hints_at_the_account_settings(
+    client_in,
+    user,
+):
+    html = client_in.get(reverse("planner:summary_content")).content.decode()
+    link = html.split('class="avatar-link')[1].split("</a>")[0]
+    assert f'href="/users/{user.pk}/"' in link
+    assert "ring-2 ring-background" in link  # the badge
+    assert "M9.671 4.136a2.34" in link  # lucide settings (the gear) path
+
+
+def test_log_cards_are_soft_not_tinted_boxes():
+    from pathlib import Path
+
+    css = (
+        Path(__file__).resolve().parents[2] / "static" / "css" / "tailwind.css"
+    ).read_text()
+    rule = css.split("\n.entry {")[1].split("}")[0]
+    assert "border-color: var(--border)" in rule  # no coloured border
+    assert "var(--tone-bg)" not in rule  # no solid tinted fill
+    assert "linear-gradient" in rule  # just a faint wash
