@@ -873,3 +873,30 @@ msgstr "ส่งอีเมลยืนยันแล้ว โปรดต�
 
 msgid "Please wait a few minutes before asking again."
 msgstr "โปรดรอสักครู่ก่อนขออีกครั้ง"
+
+# Django's own Thai catalogue leaves the password rules untranslated
+msgid "The password is too similar to the %(verbose_name)s."
+msgstr "รหัสผ่านคล้ายกับ%(verbose_name)sมากเกินไป"
+
+msgid "Your password can’t be too similar to your other personal information."
+msgstr "รหัสผ่านต้องไม่คล้ายกับข้อมูลส่วนตัวอื่นๆ ของคุณมากเกินไป"
+
+msgid "This password is too short. It must contain at least %d character."
+msgid_plural "This password is too short. It must contain at least %d characters."
+msgstr[0] "รหัสผ่านสั้นเกินไป ต้องมีอย่างน้อย %d ตัวอักษร"
+
+msgid "Your password must contain at least %(min_length)d character."
+msgid_plural "Your password must contain at least %(min_length)d characters."
+msgstr[0] "รหัสผ่านต้องมีอย่างน้อย %(min_length)d ตัวอักษร"
+
+msgid "This password is too common."
+msgstr "รหัสผ่านนี้ถูกใช้กันทั่วไปเกินไป"
+
+msgid "Your password can’t be a commonly used password."
+msgstr "รหัสผ่านต้องไม่เป็นรหัสผ่านที่คนทั่วไปใช้กัน"
+
+msgid "This password is entirely numeric."
+msgstr "รหัสผ่านนี้เป็นตัวเลขล้วน"
+
+msgid "Your password can’t be entirely numeric."
+msgstr "รหัสผ่านต้องไม่เป็นตัวเลขล้วน"

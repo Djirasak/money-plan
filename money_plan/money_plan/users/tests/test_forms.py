@@ -39,3 +39,13 @@ class TestUserAdminCreationForm:
         assert len(form.errors) == 1
         assert "username" in form.errors
         assert form.errors["username"][0] == _("This username has already been taken.")
+
+
+def test_password_rules_are_shown_in_thai():
+    from django.contrib.auth.password_validation import password_validators_help_texts
+    from django.utils import translation
+
+    with translation.override("th"):
+        texts = password_validators_help_texts()
+    assert len(texts) == 4
+    assert all(any("฀" <= ch <= "๿" for ch in text) for text in texts)
