@@ -6,6 +6,7 @@ import ssl
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # money_plan/
@@ -269,7 +270,11 @@ EMAIL_BACKEND = env(
         else "django.core.mail.backends.smtp.EmailBackend"
     ),
 )
-ANYMAIL = {"RESEND_API_KEY": RESEND_API_KEY}
+ANYMAIL = {
+    "RESEND_API_KEY": RESEND_API_KEY,
+    # Svix signing secret of the Resend webhook (whsec_...); delivery events arrive at /webhooks/
+    "RESEND_SIGNING_SECRET": env("RESEND_SIGNING_SECRET", default=""),
+}
 # The sender must be on a domain verified in Resend (onboarding@resend.dev works for tests).
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-from-email
 DEFAULT_FROM_EMAIL = env(
@@ -350,6 +355,12 @@ CELERY_TASK_TIME_LIMIT = 5 * 60
 # TODO: set to whatever value is adequate in your circumstances
 CELERY_TASK_SOFT_TIME_LIMIT = 60
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#beat-scheduler
+CELERY_BEAT_SCHEDULE = {
+    "purge-old-email-logs": {
+        "task": "mailer.purge_old_logs",
+        "schedule": crontab(hour=3, minute=30),
+    },
+}
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-send-task-events
 CELERY_WORKER_SEND_TASK_EVENTS = True

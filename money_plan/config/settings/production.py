@@ -98,7 +98,10 @@ ADMIN_URL = env("DJANGO_ADMIN_URL")
 # https://anymail.readthedocs.io/en/stable/installation/#anymail-settings-reference
 # https://anymail.readthedocs.io/en/stable/esps/resend/
 EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
-ANYMAIL = {"RESEND_API_KEY": env("RESEND_API_KEY")}
+ANYMAIL = {
+    "RESEND_API_KEY": env("RESEND_API_KEY"),
+    "RESEND_SIGNING_SECRET": env("RESEND_SIGNING_SECRET"),
+}
 
 
 # LOGGING

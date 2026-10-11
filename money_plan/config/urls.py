@@ -1,3 +1,4 @@
+from anymail.webhooks.resend import ResendTrackingWebhookView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -22,6 +23,8 @@ urlpatterns = [
     # User management
     path("users/", include("money_plan.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
+    # Resend delivery events (signature-checked by django-anymail)
+    path("webhooks/", ResendTrackingWebhookView.as_view(), name="resend_webhook"),
     # Your stuff: custom urls includes go here
     # ...
     # Media files

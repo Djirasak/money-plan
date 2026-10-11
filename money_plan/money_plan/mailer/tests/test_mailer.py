@@ -10,7 +10,10 @@ from django.core.management import call_command
 
 from money_plan.mailer import services
 from money_plan.mailer.api import queue_email
+from money_plan.mailer.models import EmailLog
+from money_plan.mailer.tasks import purge_old_logs
 from money_plan.mailer.tasks import send_email
+from money_plan.users.tests.factories import UserFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -142,3 +145,198 @@ def test_send_test_email_command_queues_the_task(django_capture_on_commit_callba
         with django_capture_on_commit_callbacks(execute=True):
             call_command("send_test_email", "me@example.com")
     assert task.delay.call_args.kwargs["template"] == "test"
+
+
+def make_log(**fields) -> EmailLog:
+    return EmailLog.objects.create(
+        to=fields.pop("to", "a@example.com"),
+        template="test",
+        subject="S",
+        **fields,
+    )
+
+
+class TestEmailLog:
+    def test_queue_email_creates_a_queued_row_and_passes_its_id(
+        self,
+        django_capture_on_commit_callbacks,
+    ):
+        user = UserFactory()
+        with mock.patch("money_plan.mailer.api.send_email") as task:
+            with django_capture_on_commit_callbacks(execute=True):
+                log = queue_email(
+                    to=["a@example.com", "b@example.com"],
+                    subject="S",
+                    template="test",
+                    user=user,
+                )
+        assert log.status == EmailLog.Status.QUEUED
+        assert log.to == "a@example.com, b@example.com"
+        assert log.user == user
+        assert task.delay.call_args.kwargs["log_id"] == log.pk
+
+    def test_task_marks_sent_and_stores_the_provider_id(self):
+        log = make_log()
+        with mock.patch.object(services, "deliver", return_value="msg-1"):
+            send_email.apply(
+                kwargs={
+                    "to": ["a@example.com"],
+                    "subject": "S",
+                    "template": "test",
+                    "log_id": log.pk,
+                },
+            )
+        log.refresh_from_db()
+        assert (log.status, log.message_id, log.attempts) == ("sent", "msg-1", 1)
+        assert log.sent_at
+
+    def test_retry_keeps_it_queued_with_the_error(self):
+        log = make_log()
+        with mock.patch.object(services, "deliver", side_effect=api_error(503)):
+            with mock.patch.object(send_email, "retry", side_effect=RuntimeError):
+                send_email.apply(
+                    kwargs={
+                        "to": ["a@example.com"],
+                        "subject": "S",
+                        "template": "test",
+                        "log_id": log.pk,
+                    },
+                )
+        log.refresh_from_db()
+        assert log.status == "queued"
+        assert log.error
+
+    def test_permanent_failure_marks_failed(self):
+        log = make_log()
+        with mock.patch.object(services, "deliver", side_effect=api_error(422)):
+            send_email.apply(
+                kwargs={
+                    "to": ["a@example.com"],
+                    "subject": "S",
+                    "template": "test",
+                    "log_id": log.pk,
+                },
+            )
+        log.refresh_from_db()
+        assert log.status == "failed"
+        assert log.error
+
+
+class TestDedupe:
+    def queue(self, django_capture_on_commit_callbacks, key="monthly:2026-10:1"):
+        with mock.patch("money_plan.mailer.api.send_email") as task:
+            with django_capture_on_commit_callbacks(execute=True):
+                log = queue_email(
+                    to="a@example.com",
+                    subject="S",
+                    template="test",
+                    dedupe_key=key,
+                )
+        return log, task
+
+    def test_second_call_with_the_same_key_is_skipped(
+        self,
+        django_capture_on_commit_callbacks,
+    ):
+        first, _ = self.queue(django_capture_on_commit_callbacks)
+        second, task = self.queue(django_capture_on_commit_callbacks)
+        assert first
+        assert second is None
+        assert not task.delay.called
+        assert EmailLog.objects.count() == 1
+
+    def test_a_failed_mail_is_queued_again(self, django_capture_on_commit_callbacks):
+        first, _ = self.queue(django_capture_on_commit_callbacks)
+        first.advance("failed", error="x", attempts=3)
+        again, task = self.queue(django_capture_on_commit_callbacks)
+        assert again.pk == first.pk
+        assert (again.status, again.attempts, again.error) == ("queued", 0, "")
+        assert task.delay.called
+
+    def test_different_keys_do_not_collide(self, django_capture_on_commit_callbacks):
+        self.queue(django_capture_on_commit_callbacks, "k1")
+        other, _ = self.queue(django_capture_on_commit_callbacks, "k2")
+        assert other
+
+
+class TestWebhook:
+    def event(self, event_type, message_id="msg-1", description=None):
+        from anymail.signals import AnymailTrackingEvent
+
+        return AnymailTrackingEvent(
+            event_type=event_type,
+            message_id=message_id,
+            description=description,
+        )
+
+    def fire(self, event):
+        from anymail.signals import tracking
+
+        tracking.send(sender=object, event=event, esp_name="Resend")
+
+    def test_delivered_then_bounce_ends_as_bounced(self):
+        log = make_log(message_id="msg-1", status="sent")
+        self.fire(self.event("delivered"))
+        log.refresh_from_db()
+        assert log.status == "delivered"
+        self.fire(self.event("bounced", description="mailbox full"))
+        log.refresh_from_db()
+        assert (log.status, log.error) == ("bounced", "mailbox full")
+
+    def test_a_late_delivery_event_does_not_hide_a_bounce(self):
+        log = make_log(message_id="msg-1", status="bounced")
+        self.fire(self.event("delivered"))
+        log.refresh_from_db()
+        assert log.status == "bounced"
+
+    def test_delay_complaint_and_unknown_message(self):
+        log = make_log(message_id="msg-1", status="sent")
+        self.fire(self.event("deferred"))
+        log.refresh_from_db()
+        assert log.status == "delayed"
+        self.fire(self.event("complained"))
+        log.refresh_from_db()
+        assert log.status == "complained"
+        self.fire(self.event("delivered", message_id="nobody"))  # no row: ignored
+
+    def test_opens_and_clicks_are_ignored(self):
+        log = make_log(message_id="msg-1", status="delivered")
+        self.fire(self.event("opened"))
+        self.fire(self.event("clicked"))
+        log.refresh_from_db()
+        assert log.status == "delivered"
+
+    def test_webhook_lives_at_webhooks_and_rejects_unsigned_posts(
+        self,
+        client,
+        settings,
+    ):
+        from django.urls import reverse
+
+        settings.ANYMAIL = {
+            **settings.ANYMAIL,
+            "RESEND_SIGNING_SECRET": "whsec_dGVzdA==",
+        }
+        assert reverse("resend_webhook") == "/webhooks/"
+        resp = client.post("/webhooks/", data="{}", content_type="application/json")
+        assert resp.status_code in (400, 401, 403)
+
+
+def test_purge_removes_only_old_logs():
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    old, new = make_log(), make_log()
+    EmailLog.objects.filter(pk=old.pk).update(
+        created_at=timezone.now() - timedelta(days=100),
+    )
+    assert purge_old_logs() == 1
+    assert list(EmailLog.objects.all()) == [new]
+
+
+def test_deleting_a_user_deletes_their_mail_log():
+    user = UserFactory()
+    make_log(user=user)
+    user.delete()
+    assert not EmailLog.objects.exists()
