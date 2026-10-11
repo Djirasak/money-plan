@@ -4,7 +4,6 @@
       <li class="item entry entry-{{ e.tone }}" data-variant="outline">
         {# the pile's icon, big and faint, behind the row (like the summary cards) #}
         <span class="entry-watermark" aria-hidden="true">{% with p=e.from_pile|default:e.to_pile %}{% icon p.icon_name "size-full" %}{% endwith %}</span>
-        <span class="entry-icon" aria-hidden="true">{% if e.tone == "out" %}{% icon "arrow-up-right" "size-4" %}{% elif e.tone == "in" %}{% icon "arrow-down-left" "size-4" %}{% else %}{% icon "arrow-left-right" "size-4" %}{% endif %}</span>
         <section>
           <h3 class="entry-title"><span class="entry-type">{{ e.get_type_display }}</span><span class="entry-amount">{% if e.tone == "out" %}-{% elif e.tone == "in" %}+{% endif %}{{ e.amount|baht }}</span></h3>
           <p class="entry-meta">

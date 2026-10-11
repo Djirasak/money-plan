@@ -514,7 +514,6 @@ body:has(.app-nav) .toaster {
 .entry-out { --tone: var(--tone-out); --tone-bg: var(--tone-out-bg); }
 .entry-in { --tone: var(--tone-in); --tone-bg: var(--tone-in-bg); }
 .entry-move { --tone: var(--tone-move); --tone-bg: var(--tone-move-bg); }
-.entry-icon { color: var(--tone); @apply grid size-7 shrink-0 place-items-center rounded-full; background-color: color-mix(in srgb, var(--tone) 15%, transparent); }
 .entry-title { @apply flex flex-wrap items-baseline gap-x-2 leading-tight; }
 .entry-type { color: var(--tone); @apply text-sm font-bold; }
 .entry-amount { color: var(--tone); @apply text-sm font-semibold; }

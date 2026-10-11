@@ -767,3 +767,15 @@ class TestPlanLiveCheckAndLogRows:
         row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
         assert 'class="entry-watermark" aria-hidden="true"' in row
         assert "<svg" in row.split("entry-watermark")[1].split("</span>")[0]
+
+
+def test_log_rows_have_no_leading_arrow_icon_only_the_pile_watermark(client_in, user):
+    spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
+    LogEntry.objects.create(
+        user=user, date=date(2027, 1, 5), type="spend", from_pile=spend, amount=150
+    )
+    html = client_in.get(reverse("planner:log"), {"m": "2027-01"}).content.decode()
+    row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
+    assert "entry-icon" not in row
+    assert "entry-watermark" in row
+    assert "-฿150" in row  # the sign and the word still say what kind of entry it is
