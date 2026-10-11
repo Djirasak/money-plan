@@ -22,7 +22,7 @@
         {% if object.photo %}
           <img class="avatar-lg object-cover" src="{{ object.photo_url }}" alt="" width="80" height="80" />
         {% else %}
-          <div class="avatar-lg" aria-hidden="true">{{ object.username|slice:":1"|upper }}</div>
+          <div class="avatar-lg" aria-hidden="true">{{ object|initial }}</div>
         {% endif %}
         {% if object == request.user %}
           {# Tapping the camera opens the phone's own picker (library / camera / files); picking a photo uploads it. #}
@@ -38,7 +38,7 @@
         {% endif %}
       </div>
       <div class="min-w-0">
-        <h2 class="truncate text-base font-semibold">{{ object.name|default:object.username }}</h2>
+        <h2 class="truncate text-base font-semibold">{{ object.name|default:object.email }}</h2>
         {% if object == request.user and object.photo %}
           <form method="post" action="{% url 'users:remove_photo' object.pk %}" class="mt-1">
             {% csrf_token %}
@@ -51,13 +51,6 @@
 
   {% if object == request.user %}
     <ul class="mt-4 flex flex-col gap-2">
-      <li class="item" data-variant="outline">
-        <section>
-          <p class="text-xs text-muted-foreground">{% trans "Username" %}</p>
-          <h3 class="truncate text-sm font-semibold">{{ object.username }}</h3>
-        </section>
-        <aside><button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-open-dialog="account-username" aria-label="{% trans 'Edit username' %}" title="{% trans 'Edit' %}">{% icon "square-pen" "size-4" %}</button></aside>
-      </li>
       <li class="item" data-variant="outline">
         <section>
           <p class="text-xs text-muted-foreground">{% trans "Email" %}</p>
@@ -97,9 +90,6 @@
       </li>
     </ul>
 
-    {% trans "Change username" as t_user %}{% trans "Save username" as s_user %}
-    {% url 'users:change_username' object.pk as a_user %}
-    {% include "users/_account_dialog.html" with dialog_id="account-username" title=t_user form=username_form action=a_user submit=s_user %}
     {% trans "Change name" as t_name %}{% trans "Save name" as s_name %}
     {% url 'users:change_name' object.pk as a_name %}
     {% include "users/_account_dialog.html" with dialog_id="account-name" title=t_name form=name_form action=a_name submit=s_name %}

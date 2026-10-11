@@ -54,27 +54,6 @@ class UserSocialSignupForm(SocialSignupForm):
 INPUT = {"class": "input"}
 
 
-class UsernameChangeForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ["username"]
-        labels = {"username": _("Username")}
-        widgets = {
-            "username": forms.TextInput(attrs=INPUT | {"autocomplete": "username"}),
-        }
-        help_texts = {"username": ""}
-
-    def clean_username(self):
-        username = self.cleaned_data["username"]
-        taken = User.objects.filter(username__iexact=username).exclude(
-            pk=self.instance.pk,
-        )
-        if taken.exists():
-            msg = _("This username has already been taken.")
-            raise forms.ValidationError(msg)
-        return username
-
-
 class EmailChangeForm(forms.Form):
     email = forms.EmailField(
         label=_("Email"),
@@ -86,7 +65,7 @@ class EmailChangeForm(forms.Form):
         self.user = user
 
     def clean_email(self):
-        email = self.cleaned_data["email"].strip()
+        email = self.cleaned_data["email"].strip().lower()
         taken_user = User.objects.filter(email__iexact=email).exclude(pk=self.user.pk)
         taken_addr = EmailAddress.objects.filter(email__iexact=email).exclude(
             user=self.user,

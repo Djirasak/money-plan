@@ -7,16 +7,10 @@ from .views import PhotoChangeView
 from .views import PhotoRemoveView
 from .views import PhotoView
 from .views import ResendVerificationView
-from .views import UsernameChangeView
 from .views import user_detail_view
 
 app_name = "users"
 urlpatterns = [
-    path(
-        "<int:pk>/username/",
-        view=UsernameChangeView.as_view(),
-        name="change_username",
-    ),
     path("<int:pk>/name/", view=NameChangeView.as_view(), name="change_name"),
     path("<int:pk>/email/", view=EmailChangeView.as_view(), name="change_email"),
     path(

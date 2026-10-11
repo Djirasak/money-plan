@@ -102,6 +102,19 @@ def static_v(path: str) -> str:
     )
 
 
+@register.filter
+def initial(user) -> str:
+    """The letter on a user's avatar: first letter of their name, else of their email."""
+    text = (
+        getattr(user, "name", "")
+        or getattr(user, "first_name", "")
+        or getattr(user, "email", "")
+        or getattr(user, "username", "")
+        or "?"
+    ).strip()
+    return text[:1].upper() if text else "?"
+
+
 @register.simple_tag
 def pile_icon(pile, size: str = "md") -> str:
     """A pile's icon on a soft tile in the pile's colour (``pile`` is a Pile or the

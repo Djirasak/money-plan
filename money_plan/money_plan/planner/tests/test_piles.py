@@ -260,7 +260,7 @@ def test_reorder_ignores_other_users_piles_and_keeps_unlisted_ones(
     user,
     django_user_model,
 ):
-    other = django_user_model.objects.create_user("other3", password="x")  # noqa: S106
+    other = django_user_model.objects.create_user("other3", password="x")
     foreign = Pile.objects.create(user=other, name="theirs", order=0)
     mine = list(Pile.objects.filter(user=user))
     client_in.post(

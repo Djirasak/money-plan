@@ -10,7 +10,7 @@
       {% if request.user.photo %}
         <img class="avatar-lg !size-24 object-cover" src="{{ request.user.photo_url }}" alt="" width="96" height="96" />
       {% else %}
-        <span class="avatar-lg !size-24" aria-hidden="true">{{ request.user.username|slice:":1"|upper }}</span>
+        <span class="avatar-lg !size-24" aria-hidden="true">{{ request.user|initial }}</span>
       {% endif %}
       {# a small gear on the avatar: it hints that this opens the account settings #}
       <span class="absolute -bottom-0.5 -right-0.5 grid size-6 place-items-center rounded-full bg-card text-foreground shadow-md ring-2 ring-background" aria-hidden="true">{% icon "settings" "size-3.5" %}</span>

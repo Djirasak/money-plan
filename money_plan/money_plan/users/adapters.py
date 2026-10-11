@@ -26,7 +26,7 @@ class AccountAdapter(DefaultAccountAdapter):
         name = template_prefix.rsplit("/", 1)[-1]
         user = context.get("user")
         person = (
-            (getattr(user, "name", "") or getattr(user, "username", "")) if user else ""
+            (getattr(user, "name", "") or getattr(user, "email", "")) if user else ""
         )
         language = get_language()
         if name in ("email_confirmation", "email_confirmation_signup"):

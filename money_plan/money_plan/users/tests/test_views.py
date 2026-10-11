@@ -44,38 +44,11 @@ class TestAccountChanges:
         client.force_login(user)
         html = client.get(user.get_absolute_url()).content.decode()
         for dialog in (
-            "account-username",
             "account-email",
             "account-password",
             "logout-modal",
         ):
             assert f'id="{dialog}"' in html
-
-    def test_change_username(self, client, user: User):
-        client.force_login(user)
-        resp = client.post(
-            reverse("users:change_username", kwargs={"pk": user.pk}),
-            {"username": "brand_new"},
-        )
-        assert resp.status_code == HTTPStatus.FOUND
-        user.refresh_from_db()
-        assert user.username == "brand_new"
-        assert resp.url == f"/users/{user.pk}/"
-
-    def test_username_taken_ignoring_case_reopens_dialog(self, client, user: User):
-        other = UserFactory(username="Taken_Name")
-        client.force_login(user)
-        old = user.username
-        resp = client.post(
-            reverse("users:change_username", kwargs={"pk": user.pk}),
-            {"username": other.username.lower()},
-        )
-        assert resp.status_code == HTTPStatus.OK
-        html = resp.content.decode()
-        assert "data-auto-open" in html
-        assert "ถูกใช้แล้ว" in html or "already been taken" in html
-        user.refresh_from_db()
-        assert user.username == old
 
     def test_change_email_syncs_allauth_address(self, client, user: User):
         from allauth.account.models import EmailAddress
@@ -267,7 +240,7 @@ class TestOnlyYourOwnAccount:
     def test_other_users_endpoints_are_404(self, client, user: User):
         other = UserFactory()
         client.force_login(user)
-        for name in ("change_username", "change_photo", "remove_photo"):
+        for name in ("change_photo", "remove_photo"):
             resp = client.post(reverse(f"users:{name}", kwargs={"pk": other.pk}))
             assert resp.status_code == HTTPStatus.NOT_FOUND
         assert (

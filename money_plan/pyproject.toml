@@ -153,7 +153,7 @@ lint.ignore = [
 lint.isort.force-single-line = true
 lint.per-file-ignores."**/tests/**" = [ "PLR2004", "PT018", "PLC0415", "E501", "FBT003", "SIM117", "SLF001" ]
 lint.per-file-ignores."scripts/**" = [ "T201", "E501", "PLR2004", "C901", "PLR0912", "PLR0915", "PLR0913", "PLR0917", "PLR0911", "PERF401", "PLC0415", "EM101", "EM102", "TRY003", "FBT001", "FBT002", "PLW2901", "RUF001", "SIM110", "RET504", "UP028", "E741", "PLW0603", "PIE810", "FBT003" ]
-lint.per-file-ignores."**/test_*.py" = [ "N817", "RUF001", "TRY003", "EM101" ]
+lint.per-file-ignores."**/test_*.py" = [ "S105", "S106", "N817", "RUF001", "TRY003", "EM101" ]
 lint.per-file-ignores."tests/**" = [ "PLR2004", "PT018", "PLC0415", "E501", "FBT003", "SIM117", "SLF001" ]
 
 # ==== pyproject-fmt ====

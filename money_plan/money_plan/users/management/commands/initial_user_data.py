@@ -44,9 +44,10 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        username = options["username"]
+        # people sign in with their email now; the username is only an internal handle
+        username = options["username"] or options["email"]
         if not username:
-            msg = "Set INITIAL_USER_USERNAME or pass --username."
+            msg = "Set INITIAL_USER_EMAIL (or pass --email)."
             raise CommandError(msg)
 
         user_model = get_user_model()

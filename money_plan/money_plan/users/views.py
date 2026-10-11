@@ -18,7 +18,6 @@ from money_plan.users.forms import AccountPasswordChangeForm
 from money_plan.users.forms import EmailChangeForm
 from money_plan.users.forms import NameChangeForm
 from money_plan.users.forms import PhotoChangeForm
-from money_plan.users.forms import UsernameChangeForm
 from money_plan.users.models import User
 
 
@@ -33,7 +32,6 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         # a form posted to one of the account endpoints comes back bound, with its dialog open
         bound = kwargs.get("bound") or {}
         return ctx | {
-            "username_form": bound.get("username") or UsernameChangeForm(instance=user),
             "email_form": bound.get("email")
             or EmailChangeForm(initial={"email": user.email}, user=user),
             "name_form": bound.get("name") or NameChangeForm(instance=user),
@@ -86,18 +84,6 @@ class AccountChangeView(SelfOnlyMixin, View):
             open_dialog=f"account-{self.key}",
         )
         return detail.render_to_response(ctx)
-
-
-class UsernameChangeView(AccountChangeView):
-    key = "username"
-    success_message = _("Username updated")
-
-    def get_form(self):
-        # a fresh copy, so a rejected value never leaks into the signed-in user shown on the page
-        return UsernameChangeForm(
-            self.request.POST,
-            instance=User.objects.get(pk=self.request.user.pk),
-        )
 
 
 class EmailChangeView(AccountChangeView):

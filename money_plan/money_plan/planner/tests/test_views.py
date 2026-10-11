@@ -61,7 +61,7 @@ def test_log_validation_rejects_spend_without_pile(client_in, user):
 
 
 def test_cannot_touch_other_users_entries(client_in, django_user_model):
-    other = django_user_model.objects.create_user("other", password="x")  # noqa: S106
+    other = django_user_model.objects.create_user("other", password="x")
     pile = Pile.objects.create(user=other, name="x")
     entry = LogEntry.objects.create(
         user=other,
@@ -316,7 +316,7 @@ def test_cannot_use_another_users_pile_in_a_condition(
     user,
     django_user_model,
 ):
-    other = django_user_model.objects.create_user("other2", password="x")  # noqa: S106
+    other = django_user_model.objects.create_user("other2", password="x")
     foreign = Pile.objects.create(user=other, name="theirs")
     period = PlanPeriod.objects.get(user=user)
     client_in.post(
@@ -553,7 +553,7 @@ def test_deleting_a_salary_uses_the_confirm_dialog_post(client_in, user):
 
 
 def test_cannot_edit_another_users_salary(client_in, django_user_model):
-    other = django_user_model.objects.create_user("other4", password="x")  # noqa: S106
+    other = django_user_model.objects.create_user("other4", password="x")
     theirs = Salary.objects.create(user=other, effective_month="2030-01", amount=1)
     resp = client_in.post(
         reverse("planner:salary"),

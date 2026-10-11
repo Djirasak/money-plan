@@ -43,6 +43,11 @@ class User(AbstractUser):
         self.name = f"{self.first_name} {self.last_name}".strip()
         self.save(update_fields=["first_name", "last_name", "name"])
 
+    def save(self, *args, **kwargs):
+        # allauth looks an email login up by its lower-cased value, so store it that way
+        self.email = (self.email or "").strip().lower()
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self) -> str:
         """Get URL for user's detail view.
 
