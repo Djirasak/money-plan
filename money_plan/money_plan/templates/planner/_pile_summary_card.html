@@ -4,7 +4,7 @@
   <details class="group">
     <summary class="flex cursor-pointer list-none flex-col items-stretch gap-2 px-3 text-left [&::-webkit-details-marker]:hidden">
       <h3 class="flex items-center gap-2 text-sm font-medium">
-        <span class="size-2.5 shrink-0 rounded-full" style="background:{{ p.color }}" aria-hidden="true"></span><span class="truncate">{{ p.name }}</span>
+        {% pile_icon p %}<span class="truncate">{{ p.name }}</span>
         {% icon "chevron-down" "ml-auto size-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" %}
       </h3>
       <p class="flex flex-col gap-0.5">

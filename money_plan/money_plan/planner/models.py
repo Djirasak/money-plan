@@ -12,6 +12,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from . import engine
+from .pile_icons import DEFAULT_ICONS
 
 month_validator = RegexValidator(
     r"^\d{4}-(0[1-9]|1[0-2])$",
@@ -65,6 +66,8 @@ class Pile(models.Model):
         validators=[color_validator],
     )
     kind = models.CharField(max_length=10, choices=KIND_CHOICES, default=BUDGET)
+    # a key from pile_icons.PILE_ICONS; empty = the default for the pile's kind
+    icon = models.CharField(max_length=30, blank=True)
     mode = models.CharField(max_length=10, choices=MODE_CHOICES, default=ROLLOVER)
     cap = models.DecimalField(
         _("Rollover cap"),
@@ -113,6 +116,10 @@ class Pile(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def icon_name(self) -> str:
+        return self.icon or DEFAULT_ICONS.get(self.kind, "wallet")
 
     @property
     def has_target(self) -> bool:

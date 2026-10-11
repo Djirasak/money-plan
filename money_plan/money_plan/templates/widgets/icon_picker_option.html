@@ -1,0 +1,8 @@
+{% load i18n planner_tags %}
+<label class="icon-choice" title="{{ widget.label }}">
+  <input type="radio" name="{{ widget.name }}" value="{{ widget.value }}" class="peer sr-only"{% if widget.selected %} checked{% endif %} />
+  <span class="icon-tile">
+    {% if widget.value %}{% icon widget.value "size-5" %}{% else %}<span class="text-[10px] font-medium leading-none">{% trans "Auto" %}</span>{% endif %}
+  </span>
+  <span class="sr-only">{{ widget.label }}</span>
+</label>

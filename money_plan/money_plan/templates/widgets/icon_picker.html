@@ -1,0 +1,5 @@
+{% load i18n %}
+{# Radio buttons drawn as icon tiles. The inputs stay in the page (invisible, keyboard-focusable). #}
+<div class="icon-picker" role="radiogroup" id="{{ widget.attrs.id }}">
+  {% for group, options, index in widget.optgroups %}{% for option in options %}{% include option.template_name with widget=option %}{% endfor %}{% endfor %}
+</div>

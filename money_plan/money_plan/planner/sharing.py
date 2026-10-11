@@ -30,6 +30,7 @@ from .models import PlanPeriod
 from .models import color_validator
 from .models import month_validator
 from .models import validate_pile_name
+from .pile_icons import PILE_ICON_KEYS
 
 SCHEMA_VERSION = 1
 MAX_PILES = 30
@@ -88,6 +89,7 @@ def build_payload(user) -> dict:
                 "color": pile.color,
                 "kind": pile.kind,
                 "mode": pile.mode,
+                "icon": pile.icon,
                 "has_cap": pile.cap is not None,  # the amount stays private
                 "overflow_to": keys.get(pile.overflow_to_id),
                 "target": target,
@@ -209,6 +211,12 @@ def _clean_pile(raw, seen_keys: set[str], seen_names: set[str]) -> dict:
             "name": name,
         }
         raise TemplateError(msg)
+    icon = raw.get("icon") or ""
+    if not isinstance(icon, str) or (icon and icon not in PILE_ICON_KEYS):
+        msg = _("The template is damaged: pile “%(name)s” has an unknown icon.") % {
+            "name": name,
+        }
+        raise TemplateError(msg)
     target = _clean_target(raw.get("target"), name)
     overflow = raw.get("overflow_to")
     if overflow is not None and (not isinstance(overflow, str) or overflow == key):
@@ -221,6 +229,7 @@ def _clean_pile(raw, seen_keys: set[str], seen_names: set[str]) -> dict:
         "color": color,
         "kind": raw["kind"],
         "mode": raw["mode"],
+        "icon": icon,
         "has_cap": bool(raw.get("has_cap")),
         "overflow_to": overflow,
         "target": target,
@@ -426,6 +435,7 @@ def import_template(user, payload: dict, *, month: str, amounts: dict) -> Import
             color=raw["color"],
             kind=raw["kind"],
             mode=raw["mode"],
+            icon=raw["icon"],
             cap=amounts.get(f"cap_{raw['key']}") if raw["has_cap"] else None,
             target=amounts.get(f"target_{raw['key']}")
             if target["type"] == "fixed"

@@ -1164,3 +1164,99 @@ msgstr "เลือกไฟล์"
 
 msgid "No file chosen"
 msgstr "ยังไม่ได้เลือกไฟล์"
+
+msgid "Wallet"
+msgstr "กระเป๋าเงิน"
+
+msgid "Piggy bank"
+msgstr "กระปุกออมสิน"
+
+msgid "Coins"
+msgstr "เหรียญ"
+
+msgid "Banknote"
+msgstr "ธนบัตร"
+
+msgid "Bank"
+msgstr "ธนาคาร"
+
+msgid "Shopping"
+msgstr "ช้อปปิ้ง"
+
+msgid "Home"
+msgstr "บ้าน"
+
+msgid "Car"
+msgstr "รถยนต์"
+
+msgid "Transport"
+msgstr "เดินทาง"
+
+msgid "Food"
+msgstr "อาหาร"
+
+msgid "Coffee"
+msgstr "กาแฟ"
+
+msgid "Health"
+msgstr "สุขภาพ"
+
+msgid "Education"
+msgstr "การศึกษา"
+
+msgid "Travel"
+msgstr "ท่องเที่ยว"
+
+msgid "Gifts"
+msgstr "ของขวัญ"
+
+msgid "Games"
+msgstr "เกม"
+
+msgid "Clothes"
+msgstr "เสื้อผ้า"
+
+msgid "Phone"
+msgstr "โทรศัพท์"
+
+msgid "Utilities"
+msgstr "ค่าน้ำค่าไฟ"
+
+msgid "Family"
+msgstr "ครอบครัว"
+
+msgid "Pets"
+msgstr "สัตว์เลี้ยง"
+
+msgid "Work"
+msgstr "งาน"
+
+msgid "Investing"
+msgstr "ลงทุน"
+
+msgid "Insurance"
+msgstr "ประกัน"
+
+msgid "Treats"
+msgstr "ของรางวัล"
+
+msgid "Fitness"
+msgstr "ออกกำลังกาย"
+
+msgid "Fun"
+msgstr "ความสนุก"
+
+msgid "Safety"
+msgstr "ความปลอดภัย"
+
+msgid "Icon"
+msgstr "ไอคอน"
+
+msgid "Default"
+msgstr "ค่าเริ่มต้น"
+
+msgid "Auto"
+msgstr "อัตโนมัติ"
+
+msgid "The template is damaged: pile “%(name)s” has an unknown icon."
+msgstr "เทมเพลตเสียหาย: กอง “%(name)s” มีไอคอนที่ไม่รู้จัก"

@@ -20,7 +20,7 @@
           {% icon "grip-vertical" "size-4" %}
         </button>
         <section>
-          <h3>{{ pile.name }}</h3>
+          <h3 class="flex items-center gap-2">{% pile_icon pile "sm" %}<span class="truncate">{{ pile.name }}</span></h3>
           <p>
             {{ pile.get_kind_display }}
             {% if pile.kind == "budget" %}

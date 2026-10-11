@@ -17,7 +17,7 @@
       {% for pile in piles %}
         <li class="item" data-variant="outline">
           <section class="min-w-0">
-            <h3 class="flex items-center gap-2 truncate text-sm font-semibold"><span class="size-3 shrink-0 rounded-full" style="background: {{ pile.color }}" aria-hidden="true"></span>{{ pile.name }}</h3>
+            <h3 class="flex items-center gap-2 truncate text-sm font-semibold">{% pile_icon pile "sm" %}{{ pile.name }}</h3>
             <p class="text-xs text-muted-foreground">
               {% if pile.kind == "fund" %}{% trans "Savings fund" %}{% else %}{% trans "Monthly budget" %}{% endif %}
               · {% if pile.mode == "sweep" %}{% trans "Sweep to another pile" %}{% else %}{% trans "Rollover" %}{% endif %}

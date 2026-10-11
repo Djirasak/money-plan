@@ -12,6 +12,7 @@
     <section class="grid gap-4">
       {% include "planner/_field.html" with f=form.name %}
       {% include "planner/_field.html" with f=form.color %}
+      {% include "planner/_field.html" with f=form.icon %}
       <div @change="if ($event.detail && $event.target.id.endsWith('-kind')) kind = $event.detail.value">
         {% include "planner/_field.html" with f=form.kind %}
       </div>

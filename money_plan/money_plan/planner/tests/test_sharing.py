@@ -96,6 +96,22 @@ class TestPayload:
         assert plans[1]["condition"]["op"] == "gte"
         assert plans[1]["condition"]["use_target"] is False
 
+    def test_icons_travel_with_the_template_and_unknown_ones_are_refused(self, rich):
+        Pile.objects.filter(user=rich, name="Trip").update(icon="plane")
+        payload = sharing.build_payload(rich)
+        trip = next(p for p in payload["piles"] if p["name"] == "Trip")
+        assert trip["icon"] == "plane"
+        assert sharing.validate_payload(payload)
+        trip["icon"] = "<script>"
+        with pytest.raises(sharing.TemplateError):
+            sharing.validate_payload(payload)
+
+    def test_an_old_template_without_icons_still_imports_with_defaults(self, rich):
+        payload = sharing.build_payload(rich)
+        for pile in payload["piles"]:
+            del pile["icon"]
+        assert all(p["icon"] == "" for p in sharing.validate_payload(payload)["piles"])
+
     def test_a_built_payload_validates(self, rich):
         payload = sharing.build_payload(rich)
         assert sharing.validate_payload(payload)["piles"][0]["name"]

@@ -15,6 +15,9 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_noop
 
+from money_plan.planner.pile_icons import DEFAULT_ICONS
+from money_plan.planner.pile_icons import PILE_ICON_KEYS
+
 register = template.Library()
 
 
@@ -96,6 +99,26 @@ def static_v(path: str) -> str:
     found = finders.find(path)
     return (
         f"{url}?v={int(Path(found).stat().st_mtime)}" if isinstance(found, str) else url
+    )
+
+
+@register.simple_tag
+def pile_icon(pile, size: str = "md") -> str:
+    """A pile's icon on a soft tile in the pile's colour (``pile`` is a Pile or the
+    dict of a shared template). ``size``: md (cards) or sm (rows)."""
+    get = (
+        pile.get
+        if isinstance(pile, dict)
+        else lambda name, default="": getattr(pile, name, default)
+    )
+    color = get("color", "#5b5bf0")
+    name = get("icon") or DEFAULT_ICONS.get(get("kind", "budget"), "wallet")
+    if name not in PILE_ICON_KEYS:
+        name = "wallet"
+    tile = "pile-icon pile-icon-sm" if size == "sm" else "pile-icon"
+    svg = icon(name, "size-3.5" if size == "sm" else "size-4")
+    return mark_safe(  # noqa: S308 - color matches ^#rrggbb$, the icon is one of our files
+        f'<span class="{tile}" style="--pc:{escape(color)}" aria-hidden="true">{svg}</span>',
     )
 
 

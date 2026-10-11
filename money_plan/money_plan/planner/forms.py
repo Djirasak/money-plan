@@ -11,6 +11,7 @@ from .models import Pile
 from .models import PlanPeriod
 from .models import Salary
 from .models import month_validator
+from .pile_icons import PILE_ICONS
 
 FIELD = {"class": "input"}
 
@@ -28,6 +29,13 @@ class BasecoatSelect(forms.Select):
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
         return mark_safe(render_to_string("widgets/basecoat_select.html", context))  # noqa: S308
+
+
+class IconPicker(forms.RadioSelect):
+    """A grid of icon tiles (radio buttons); the first tile means "the default for this type"."""
+
+    template_name = "widgets/icon_picker.html"
+    option_template_name = "widgets/icon_picker_option.html"
 
 
 def example(value: str):
@@ -104,7 +112,7 @@ class PileForm(forms.ModelForm):
     class Meta:
         model = Pile
         fields = [
-            "name", "color", "kind", "mode", "cap", "overflow_to",
+            "name", "color", "icon", "kind", "mode", "cap", "overflow_to",
             "target", "target_percent", "target_months",
         ]  # fmt: skip
         widgets = {
@@ -136,6 +144,14 @@ class PileForm(forms.ModelForm):
             "target_months": _("Months of salary"),
         }
 
+    # a real ChoiceField (the model field is free text): only listed icons are accepted
+    icon = forms.ChoiceField(
+        choices=[("", _("Default")), *((key, _(label)) for key, label in PILE_ICONS)],
+        required=False,
+        label=_("Icon"),
+        widget=IconPicker,
+    )
+
     TARGET_MODES = [
         ("none", _("No target")),
         ("fixed", _("A fixed amount")),
@@ -166,7 +182,7 @@ class PileForm(forms.ModelForm):
             else "none"
         )
         self.order_fields([
-            "name", "color", "kind", "mode", "cap", "overflow_to",
+            "name", "color", "icon", "kind", "mode", "cap", "overflow_to",
             "target_mode", "target", "target_percent", "target_months",
         ])  # fmt: skip
 

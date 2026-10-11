@@ -32,7 +32,7 @@
             <p class="text-right text-xs font-medium text-muted-foreground" aria-hidden="true">{% trans "% of salary" %}</p>
             {% for pile, it in item.rows %}
               <div class="grid grid-cols-[minmax(0,1fr)_6rem] items-center gap-2">
-                <span class="flex min-w-0 items-center gap-2 text-sm"><span class="size-2.5 shrink-0 rounded-full" style="background:{{ pile.color }}" aria-hidden="true"></span><span class="truncate">{{ pile.name }}</span></span>
+                <span class="flex min-w-0 items-center gap-2 text-sm">{% pile_icon pile "sm" %}<span class="truncate">{{ pile.name }}</span></span>
                 <span class="relative">
                   <input class="input !pe-7 text-right" name="percent_{{ pile.pk }}" inputmode="decimal" value="{{ it.percent|default:0|floatformat:"-2" }}" aria-label="{% blocktrans with pile=pile.name %}{{ pile }}: % of salary{% endblocktrans %}" />
                   <span class="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground" aria-hidden="true">%</span>

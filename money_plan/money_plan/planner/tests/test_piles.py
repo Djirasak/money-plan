@@ -288,3 +288,65 @@ def test_cards_are_sortable_and_coloured_by_gradient_not_a_dot(client_in):
     assert "linear-gradient(100deg" in html  # faded colour background
     assert "size-4 shrink-0 rounded-full" not in html  # the old dot is gone
     assert "js/vendor/sortable.min.js" in html
+
+
+class TestPileIcons:
+    def test_a_pile_without_an_icon_wears_the_default_for_its_kind(self, user):
+        budget = Pile.objects.create(user=user, name="b1", kind=Pile.BUDGET)
+        fund = Pile.objects.create(user=user, name="f1", kind=Pile.FUND)
+        assert (budget.icon, budget.icon_name) == ("", "wallet")
+        assert fund.icon_name == "piggy-bank"
+        assert Pile.objects.create(user=user, name="c1", icon="car").icon_name == "car"
+
+    def test_every_listed_icon_has_its_svg_file(self):
+        from money_plan.planner.pile_icons import PILE_ICONS
+        from money_plan.planner.templatetags.planner_tags import ICON_DIR
+
+        assert len(PILE_ICONS) >= 20
+        for key, _label in PILE_ICONS:
+            assert (ICON_DIR / f"{key}.svg").is_file(), key
+
+    def test_the_summary_card_shows_the_icon_instead_of_a_dot(self, client_in, user):
+        Pile.objects.filter(user=user).update(icon="car")
+        html = client_in.get(reverse("planner:summary_content")).content.decode()
+        assert 'class="pile-icon"' in html
+        assert "size-2.5 shrink-0 rounded-full" not in html
+
+    def test_the_pile_dialog_offers_the_icons_with_default_first(self, client_in, user):
+        html = client_in.get(reverse("planner:piles")).content.decode()
+        assert 'class="icon-picker"' in html
+        assert (
+            html.count('class="icon-choice"')
+            >= 29 * Pile.objects.filter(user=user).count()
+        )
+        assert "อัตโนมัติ" in html  # the "Auto" tile is translated
+        assert "รถยนต์" in html  # tile labels too
+
+    def test_choosing_an_icon_saves_it_and_empty_means_default(self, client_in, user):
+        pile, data = form_for(client_in, "ค่าใช้จ่าย", user)
+        prefix = f"p{pile.pk}"
+        data[f"{prefix}-icon"] = "utensils"
+        assert client_in.post(reverse("planner:piles"), data).status_code == 302
+        pile.refresh_from_db()
+        assert pile.icon == "utensils"
+        data[f"{prefix}-icon"] = ""
+        client_in.post(reverse("planner:piles"), data)
+        pile.refresh_from_db()
+        assert (pile.icon, pile.icon_name) == ("", "wallet")
+
+    def test_an_unknown_icon_is_refused(self, client_in, user):
+        pile, data = form_for(client_in, "ค่าใช้จ่าย", user)
+        data[f"p{pile.pk}-icon"] = "<script>"
+        client_in.post(reverse("planner:piles"), data)
+        pile.refresh_from_db()
+        assert pile.icon == ""
+
+    def test_the_icon_tag_copes_with_unknown_names_and_shared_dicts(self):
+        from django.template import Context
+        from django.template import Template
+
+        out = Template(
+            "{% load planner_tags %}{% pile_icon p %}",
+        ).render(Context({"p": {"color": "#112233", "icon": "nope", "kind": "fund"}}))
+        assert "--pc:#112233" in out
+        assert "<svg" in out

@@ -11,6 +11,8 @@ const ICONS = [
   'layout-dashboard', 'square-pen', 'settings', 'search', 'lock', 'timer',
   'wrench', 'coins', 'piggy-bank', 'wallet', 'arrow-left', 'arrow-right',
   'sun', 'moon', 'languages', 'circle-check', 'circle-alert', 'info', 'x', 'grip-vertical', 'palette', 'chevron-down', 'arrow-up-right', 'arrow-down-left', 'arrow-left-right', 'user', 'mail', 'shield-check', 'camera', 'check', 'circle', 'copy', 'upload',
+  'banknote', 'landmark', 'shopping-cart', 'house', 'car', 'bus', 'utensils', 'coffee', 'heart-pulse', 'graduation-cap', 'plane', 'gift',
+  'gamepad-2', 'shirt', 'smartphone', 'zap', 'baby', 'paw-print', 'briefcase', 'trending-up', 'umbrella', 'gem', 'dumbbell', 'sparkles',
 ];
 const src = 'node_modules/lucide-static/icons';
 const out = 'money_plan/templates/icons';
