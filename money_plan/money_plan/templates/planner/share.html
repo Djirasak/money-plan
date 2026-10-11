@@ -34,21 +34,22 @@
     <ul class="flex flex-col gap-2 px-4">
       {% for link in links %}
         <li class="item" data-variant="outline">
-          <section class="min-w-0 flex-1">
-            <h3 class="truncate text-sm font-semibold">{{ link.obj.title }}</h3>
-            <div class="mt-2 flex items-center gap-2">
+          <div class="grid w-full gap-2">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="min-w-0 truncate text-sm font-semibold">{{ link.obj.title }}</h3>
+              <form method="post" class="shrink-0">
+                {% csrf_token %}<input type="hidden" name="action" value="delete" /><input type="hidden" name="id" value="{{ link.obj.pk }}" />
+                <button type="submit" class="btn text-destructive" data-variant="ghost" data-size="sm" aria-label="{% blocktrans with t=link.obj.title %}Stop sharing {{ t }}{% endblocktrans %}">
+                  {% icon "trash-2" "size-4" %}{% trans "Stop sharing" %}
+                </button>
+              </form>
+            </div>
+            <div class="flex items-center gap-2">
               <input class="input min-w-0 flex-1 text-xs" readonly value="{{ link.url }}" aria-label="{% trans 'Link' %}" data-select-on-focus />
-              <button type="button" class="btn shrink-0" data-variant="outline" data-size="icon-sm" data-copy="{{ link.url }}" data-copied="{% trans 'Copied' %}"
+              <button type="button" class="btn shrink-0" data-variant="outline" data-size="icon" data-copy="{{ link.url }}" data-copied="{% trans 'Copied' %}"
                       aria-label="{% trans 'Copy link' %}" title="{% trans 'Copy link' %}">{% icon "copy" "size-4" %}</button>
             </div>
-          </section>
-          <aside>
-            <form method="post">
-              {% csrf_token %}<input type="hidden" name="action" value="delete" /><input type="hidden" name="id" value="{{ link.obj.pk }}" />
-              <button type="submit" class="btn text-destructive" data-variant="ghost" data-size="icon-sm" aria-label="{% blocktrans with t=link.obj.title %}Stop sharing {{ t }}{% endblocktrans %}"
-                      title="{% trans 'Stop sharing' %}">{% icon "trash-2" "size-4" %}</button>
-            </form>
-          </aside>
+          </div>
         </li>
       {% empty %}
         <li class="px-1 text-xs text-muted-foreground">{% trans "No links yet." %}</li>
