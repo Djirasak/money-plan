@@ -622,7 +622,9 @@ class TestPreviewCards:
 
 
 def test_overflow_is_worded_as_excess_sent_on_not_spilling_over(
-    client_in, rich, client
+    client_in,
+    rich,
+    client,
 ):
     client_in.post(reverse("planner:share"), {"action": "create", "title": "Wording"})
     token = SharedTemplate.objects.get().token
