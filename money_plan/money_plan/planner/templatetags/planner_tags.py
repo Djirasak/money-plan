@@ -3,7 +3,10 @@ from functools import cache
 from pathlib import Path
 
 from django import template
+from django.conf import settings
 from django.contrib.auth import password_validation
+from django.contrib.staticfiles import finders
+from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.dates import MONTHS
 from django.utils.html import escape
@@ -81,6 +84,19 @@ def color_themes() -> list[dict]:
     return [
         {"key": key, "hue": hue, "label": _(label)} for key, hue, label in COLOR_THEMES
     ]
+
+
+@register.simple_tag
+def static_v(path: str) -> str:
+    """``{% static %}`` plus ``?v=<file modified time>`` while DEBUG is on, so an edited
+    CSS/JS file is fetched again at once instead of coming from the browser/CDN cache."""
+    url = static(path)
+    if not settings.DEBUG:
+        return url
+    found = finders.find(path)
+    return (
+        f"{url}?v={int(Path(found).stat().st_mtime)}" if isinstance(found, str) else url
+    )
 
 
 @register.simple_tag

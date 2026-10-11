@@ -30,13 +30,13 @@
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
             rel="stylesheet" />
-      <link href="{% static 'css/project.min.css' %}" rel="stylesheet" />
+      <link href="{% static_v 'css/project.min.css' %}" rel="stylesheet" />
     {% endblock css %}
     {% block javascript %}
       <script defer src="{% static 'js/vendor/basecoat.min.js' %}"></script>
       <script defer src="{% static 'js/vendor/htmx.min.js' %}"></script>
       <script defer src="{% static 'js/vendor/alpine.min.js' %}"></script>
-      <script defer src="{% static 'js/project.min.js' %}"></script>
+      <script defer src="{% static_v 'js/project.min.js' %}"></script>
     {% endblock javascript %}
   </head>
   <body class="font-sans {% block bodyclass %}{% endblock bodyclass %}"
