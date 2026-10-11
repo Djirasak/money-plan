@@ -291,12 +291,6 @@ ANYMAIL = {
     # Svix signing secret of the Resend webhook (whsec_...); delivery events arrive at /webhooks/
     "RESEND_SIGNING_SECRET": env("RESEND_SIGNING_SECRET", default=""),
 }
-# The sender must be on a domain verified in Resend (mpa.zercoms.com is).
-# https://docs.djangoproject.com/en/dev/ref/settings/#default-from-email
-DEFAULT_FROM_EMAIL = env(
-    "DJANGO_DEFAULT_FROM_EMAIL",
-    default="Money Plan <noreply@mpa.zercoms.com>",
-)
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-timeout
 EMAIL_TIMEOUT = 5
 
