@@ -412,7 +412,22 @@ body:has(.app-nav) .toaster {
 }
 /* Summary pile cards: faint colour wash, thin bar, three label/value pairs split by hairlines */
 .pile-summary {
+  @apply relative overflow-hidden;
   background-image: linear-gradient(100deg, color-mix(in srgb, var(--pc) 9%, transparent), transparent 55%);
+}
+
+/* the pile's icon as a watermark: big, faint, tilted, cropped by the card's corner */
+.pile-watermark {
+  @apply pointer-events-none absolute -bottom-5 -right-4 size-28 -rotate-12;
+  color: color-mix(in srgb, var(--pc) 16%, transparent);
+}
+
+.pile-watermark svg {
+  stroke-width: 1.4;
+}
+
+.pile-summary > details {
+  @apply relative;
 }
 .pile-bar {
   @apply h-1.5 overflow-hidden rounded-full;

@@ -1,6 +1,8 @@
 {% load i18n planner_tags %}
 {# One pile on the summary. Needs: c (card), p (pile), pm (pile month). #}
 <article class="card pile-summary" data-size="sm" style="--pc:{{ p.color }}">
+  {# the pile's icon, huge and faint, behind the numbers #}
+  <span class="pile-watermark" aria-hidden="true">{% icon p.icon_name "size-full" %}</span>
   <details class="group">
     <summary class="flex cursor-pointer list-none flex-col items-stretch gap-2 px-3 text-left [&::-webkit-details-marker]:hidden">
       <h3 class="flex items-center gap-2 text-sm font-medium">

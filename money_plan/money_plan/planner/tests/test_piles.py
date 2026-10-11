@@ -312,6 +312,19 @@ class TestPileIcons:
         assert 'class="pile-icon"' in html
         assert "size-2.5 shrink-0 rounded-full" not in html
 
+    def test_the_summary_card_also_has_the_icon_as_a_faint_watermark(
+        self, client_in, user
+    ):
+        Pile.objects.filter(user=user).update(icon="car")
+        html = client_in.get(reverse("planner:summary_content")).content.decode()
+        assert (
+            html.count('class="pile-watermark"')
+            == Pile.objects.filter(user=user).count()
+        )
+        assert (
+            'class="pile-watermark" aria-hidden="true"' in html
+        )  # decorative: hidden from screen readers
+
     def test_the_pile_dialog_offers_the_icons_with_default_first(self, client_in, user):
         html = client_in.get(reverse("planner:piles")).content.decode()
         assert 'class="icon-picker"' in html
