@@ -1076,3 +1076,112 @@ def test_log_entries_are_cards_like_the_pile_cards(client_in, user):
     assert "ข้าวเที่ยง" in row
     assert "log/" in row and "data-confirm-delete" in row  # edit + delete still there
     assert "pile-icon" not in row  # the pile is named, not drawn
+
+
+class TestAdjustHistory:
+    def test_an_adjustment_remembers_from_what_to_what(self, client_in, user):
+        from money_plan.planner import services
+
+        free = Pile.objects.get(user=user, name="เงินใช้ฟรี")
+        month = user.planner_settings.start_month
+        system = services.pile_balance(user, free, month)
+        real = system + 500
+        client_in.post(
+            reverse("planner:log"),
+            {
+                "date": f"{month}-05",
+                "type": "adjust",
+                "to_pile": free.pk,
+                "amount": f"{real:.2f}",
+                "m": month,
+            },
+        )
+        entry = LogEntry.objects.get(user=user)
+        assert (entry.balance_before, entry.balance_after) == (
+            system.quantize(Decimal("0.01")),
+            real,
+        )
+        assert entry.amount == 500  # the difference is still what moves the balance
+        html = client_in.get(reverse("planner:log"), {"m": month}).content.decode()
+        assert f"ปรับจาก ฿{system:,.0f} เป็น ฿{real:,.0f}" in html
+
+    def test_the_story_survives_later_changes_to_the_balance(self, client_in, user):
+        from money_plan.planner import services
+
+        free = Pile.objects.get(user=user, name="เงินใช้ฟรี")
+        month = user.planner_settings.start_month
+        system = services.pile_balance(user, free, month)
+        client_in.post(
+            reverse("planner:log"),
+            {
+                "date": f"{month}-05",
+                "type": "adjust",
+                "to_pile": free.pk,
+                "amount": f"{system + 500:.2f}",
+                "m": month,
+            },
+        )
+        LogEntry.objects.create(
+            user=user, date=f"{month}-09", type="spend", from_pile=free, amount=100
+        )
+        entry = LogEntry.objects.get(type="adjust")
+        assert entry.balance_before == system.quantize(
+            Decimal("0.01")
+        )  # not recomputed
+
+    def test_other_types_and_old_adjustments_show_no_from_to_line(
+        self, client_in, user
+    ):
+        free = Pile.objects.get(user=user, name="เงินใช้ฟรี")
+        month = user.planner_settings.start_month
+        client_in.post(
+            reverse("planner:log"),
+            {
+                "date": f"{month}-05",
+                "type": "income",
+                "to_pile": free.pk,
+                "amount": "100",
+                "m": month,
+            },
+        )
+        LogEntry.objects.create(
+            user=user, date=f"{month}-06", type="adjust", to_pile=free, amount=7
+        )  # made before snapshots
+        html = client_in.get(reverse("planner:log"), {"m": month}).content.decode()
+        assert "ปรับจาก" not in html
+        income = LogEntry.objects.get(type="income")
+        assert (income.balance_before, income.balance_after) == (None, None)
+
+    def test_editing_an_adjustment_refreshes_its_snapshot(self, client_in, user):
+        from money_plan.planner import services
+
+        free = Pile.objects.get(user=user, name="เงินใช้ฟรี")
+        month = user.planner_settings.start_month
+        system = services.pile_balance(user, free, month)
+        client_in.post(
+            reverse("planner:log"),
+            {
+                "date": f"{month}-05",
+                "type": "adjust",
+                "to_pile": free.pk,
+                "amount": f"{system + 500:.2f}",
+                "m": month,
+            },
+        )
+        entry = LogEntry.objects.get(type="adjust")
+        client_in.post(
+            reverse("planner:log_edit", args=[entry.pk]),
+            {
+                "date": f"{month}-05",
+                "type": "adjust",
+                "to_pile": free.pk,
+                "amount": f"{system - 200:.2f}",
+                "m": month,
+            },
+        )
+        entry.refresh_from_db()
+        assert (entry.balance_before, entry.balance_after) == (
+            system.quantize(Decimal("0.01")),
+            (system - 200).quantize(Decimal("0.01")),
+        )
+        assert (entry.from_pile, entry.to_pile, entry.amount) == (free, None, 200)

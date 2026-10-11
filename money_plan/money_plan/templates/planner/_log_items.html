@@ -24,6 +24,7 @@
           <div class="flex items-end justify-between gap-3">
             <p class="entry-meta grid min-w-0 gap-0.5">
               <span class="entry-type">{{ e.get_type_display }}</span>
+              {% if e.balance_before is not None %}<span class="font-medium text-foreground">{% blocktrans with a=e.balance_before|baht b=e.balance_after|baht %}Adjusted from {{ a }} to {{ b }}{% endblocktrans %}</span>{% endif %}
               <span>{{ e.date|date:"j F" }}</span>
               {% if e.note %}<span class="truncate">{{ e.note }}</span>{% endif %}
             </p>

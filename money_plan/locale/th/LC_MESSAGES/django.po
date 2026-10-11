@@ -1332,3 +1332,6 @@ msgstr "เดือนนี้อยู่นอกช่วงของแผ
 
 msgid "The system already shows this balance"
 msgstr "ในระบบมียอดเท่านี้อยู่แล้ว"
+
+msgid "Adjusted from %(a)s to %(b)s"
+msgstr "ปรับจาก %(a)s เป็น %(b)s"

@@ -143,6 +143,7 @@ class LogEntryForm(forms.ModelForm):
         if difference == 0:
             self.add_error("amount", _("The system already shows this balance"))
             return
+        self._snapshot = (system.quantize(Decimal("0.01")), data["amount"])
         data["amount"] = abs(difference)
         data["from_pile"], data["to_pile"] = (
             (None, pile) if difference > 0 else (pile, None)
@@ -150,6 +151,9 @@ class LogEntryForm(forms.ModelForm):
 
     def save(self, commit=True):  # noqa: FBT002
         self.instance.user = self.user
+        # only an adjustment keeps "from X to Y"; any other type clears it
+        before, after = getattr(self, "_snapshot", (None, None))
+        self.instance.balance_before, self.instance.balance_after = before, after
         return super().save(commit=commit)
 
 
