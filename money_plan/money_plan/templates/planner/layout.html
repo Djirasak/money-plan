@@ -27,9 +27,7 @@
       {% else %}
         <span aria-hidden="true" class="btn pointer-events-none opacity-40" data-variant="outline" data-size="icon">{% icon "chevron-left" "size-4" %}</span>
       {% endif %}
-      <form method="get" class="w-52 shrink-0" id="month-form">
-        {% include "planner/_select.html" with name="m" field_id="month-select" options=month_options selected=month label=_("Month") auto_submit=True %}
-      </form>
+      <span class="w-52 shrink-0 text-center font-medium" aria-live="polite">{{ month_text }}</span>
       {% if next_month %}
         <a href="?m={{ next_month }}" class="btn" data-variant="outline" data-size="icon" aria-label="{% trans 'Next month' %}">
           {% icon "chevron-right" "size-4" %}

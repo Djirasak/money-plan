@@ -252,6 +252,18 @@ input[type="color"].input {
 .select [data-popover][aria-hidden="true"] {
   display: none;
 }
+/* long option lists (months, years) scroll inside the popover, also within cards and dialogs */
+.select [role="listbox"] {
+  max-height: 14rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+/* while a select is open inside a dialog, let its popover overflow the dialog instead of growing a scroll area that hides the options */
+dialog.dialog:has(.select [data-popover]:not([aria-hidden="true"])),
+dialog.dialog:has(.select [data-popover]:not([aria-hidden="true"])) > form {
+  overflow: visible;
+}
 /* Toasts sit just above the screen edge; on pages with the floating bottom nav, above that */
 .toaster {
   bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem) !important;

@@ -45,7 +45,7 @@ class PlannerMixin(LoginRequiredMixin):
             ctx |= {
                 "month": self.month,
                 "months": self.months,
-                "month_options": [(m, month_label(m)) for m in self.months],
+                "month_text": month_label(self.month),
                 "prev_month": self.months[i - 1] if i > 0 else None,
                 "next_month": self.months[i + 1] if i < len(self.months) - 1 else None,
             }
