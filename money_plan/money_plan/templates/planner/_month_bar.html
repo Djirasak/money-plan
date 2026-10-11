@@ -1,6 +1,8 @@
 {% load i18n planner_tags %}
-{# Prev / current / next month. Needs: month_text, prev_month, next_month; base = URL prefix for the links.
-   With hx_url the links swap #summary-content in place (htmx) instead of reloading the page. #}
+{% comment %}
+  Prev / current / next month. Needs: month_text, prev_month, next_month; base = URL prefix for the links.
+  With hx_url the links swap #summary-content in place (htmx) instead of reloading the page.
+{% endcomment %}
 <div class="month-bar mb-5 flex items-center justify-center gap-2">
   {% if prev_month %}
     <a href="{{ base }}?m={{ prev_month }}" class="btn"

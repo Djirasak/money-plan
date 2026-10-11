@@ -64,6 +64,14 @@
         <p class="text-xs text-muted-foreground" x-text="hints[type]"></p>
       </section>
       <footer>
+        {% if editing %}
+          {# Deleting lives here, in the edit dialog, not on the cards. It opens the shared "are you sure" dialog. #}
+          <button type="button" class="btn me-auto text-destructive" data-variant="outline" data-confirm-delete data-delete-id="{{ editing.pk }}"
+                  data-delete-url="{% url 'planner:log_delete' editing.pk %}"
+                  data-delete-name="{{ editing.get_type_display }} · {{ editing.amount|baht }} · {{ editing.date|date:'j F' }}">
+            {% icon "trash-2" "size-4" %}{% trans "Delete" %}
+          </button>
+        {% endif %}
         <button type="button" class="btn" data-variant="outline" data-close-dialog>{% trans "Cancel" %}</button>
         <button type="submit" class="btn" data-loading-text="{% if editing %}{% trans 'Save changes' %}{% else %}{% trans 'Save entry' %}{% endif %}">{% icon "save" "size-4" %}{% if editing %}{% trans "Save changes" %}{% else %}{% trans "Save entry" %}{% endif %}</button>
       </footer>

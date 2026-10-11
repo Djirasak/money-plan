@@ -1074,7 +1074,8 @@ def test_log_entries_are_cards_like_the_pile_cards(client_in, user):
         'class="entry-amount',
     )  # type and date on the left, the amount on the right
     assert "ข้าวเที่ยง" in row
-    assert "log/" in row and "data-confirm-delete" in row  # edit + delete still there
+    assert "log/" in row  # the edit link is there
+    assert "data-confirm-delete" not in row  # deleting lives in the edit dialog
     assert "pile-icon" not in row  # the pile is named, not drawn
 
 
@@ -1247,3 +1248,50 @@ def services_next(month: str) -> str:
     from money_plan.planner import engine
 
     return engine.add_months(month, 1)
+
+
+class TestDeleteLivesInTheEditDialog:
+    def entry(self, user):
+        spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
+        return LogEntry.objects.create(
+            user=user,
+            date=date(2027, 1, 5),
+            type="spend",
+            from_pile=spend,
+            amount=150,
+        )
+
+    def test_cards_have_no_trash_button(self, client_in, user):
+        self.entry(user)
+        html = client_in.get(reverse("planner:log"), {"m": "2027-01"}).content.decode()
+        row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
+        assert "trash-2" not in row and "data-confirm-delete" not in row
+
+    def test_the_edit_dialog_has_a_delete_button_for_that_entry(self, client_in, user):
+        entry = self.entry(user)
+        html = client_in.get(
+            reverse("planner:log_edit", args=[entry.pk]),
+        ).content.decode()
+        footer = html.split("<footer>")[1].split("</footer>")[0]
+        assert "data-confirm-delete" in footer
+        assert f'data-delete-id="{entry.pk}"' in footer
+        assert (
+            f'data-delete-url="{reverse("planner:log_delete", args=[entry.pk])}"'
+            in footer
+        )
+        assert "ลบ" in footer
+
+    def test_a_new_entry_dialog_has_no_delete_button(self, client_in, user):
+        html = client_in.get(reverse("planner:log")).content.decode()
+        footer = html.split('id="entry-dialog"')[1].split("</footer>")[0]
+        assert "data-confirm-delete" not in footer
+
+    def test_deleting_still_works_and_returns_to_the_month(self, client_in, user):
+        entry = self.entry(user)
+        resp = client_in.post(
+            reverse("planner:log_delete", args=[entry.pk]),
+            {"m": "2027-01"},
+        )
+        assert resp.status_code == 302
+        assert "m=2027-01" in resp.url
+        assert not LogEntry.objects.filter(pk=entry.pk).exists()

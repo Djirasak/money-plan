@@ -134,3 +134,15 @@ def test_settings_offers_twelve_colour_themes(client_in):
 def test_default_theme_is_light_not_the_system_setting(client_in):
     html = client_in.get(reverse("planner:summary")).content.decode()
     assert "prefers-color-scheme" not in html
+
+
+def test_no_template_has_a_comment_that_spans_lines():
+    """``{# ... #}`` must stay on one line: a second line makes Django print the whole comment on the page."""
+    templates = Path(__file__).resolve().parents[2] / "templates"
+    broken = [
+        f"{path.relative_to(templates)}:{number}"
+        for path in templates.rglob("*.html")
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)
+        if "{#" in line and "#}" not in line.split("{#", 1)[1]
+    ]
+    assert not broken, f"multi-line {{# #}} comments (use {{% comment %}}): {broken}"
