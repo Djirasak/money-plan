@@ -68,14 +68,12 @@
         {% csrf_token %}<input type="hidden" name="action" value="upload" />
         <label class="label" for="share-file">{% trans "Add a plan from a file" %}</label>
         {# The native file input is invisible but still focusable; the label is the button, so the text follows our language. #}
-        <div class="flex items-center gap-3" data-file-input>
+        <div class="grid gap-1.5" data-file-input>
           <input class="peer sr-only" type="file" id="share-file" name="file" accept="application/json,.json" required />
-          <label for="share-file" class="btn shrink-0 cursor-pointer peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50" data-variant="outline">{% icon "upload" "size-4" %}{% trans "Choose a file" %}</label>
-          <span class="min-w-0 flex-1 truncate text-sm text-muted-foreground" data-file-name data-empty="{% trans 'No file chosen' %}" aria-live="polite">{% trans "No file chosen" %}</span>
+          <label for="share-file" class="btn w-full cursor-pointer peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50" data-variant="outline">{% icon "upload" "size-4" %}{% trans "Choose a file" %}</label>
+          <span class="truncate text-center text-xs text-muted-foreground" data-file-name data-empty="{% trans 'No file chosen' %}" aria-live="polite">{% trans "No file chosen" %}</span>
         </div>
-        <div class="flex justify-end">
-          <button type="submit" class="btn" data-variant="outline" data-loading-text="{% trans 'Preview' %}">{% trans "Preview" %}</button>
-        </div>
+        <button type="submit" class="btn w-full" data-loading-text="{% trans 'Preview' %}">{% trans "Preview" %}</button>
       </form>
     </section>
   </section>
