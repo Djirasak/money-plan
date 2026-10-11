@@ -38,6 +38,7 @@ class AccountAdapter(DefaultAccountAdapter):
                 language=language,
                 user=user if getattr(user, "pk", None) else None,
                 tags=["verify_email"],
+                sender="account",
             )
         elif name == "password_reset_key":
             queue_email(
@@ -48,6 +49,7 @@ class AccountAdapter(DefaultAccountAdapter):
                 language=language,
                 user=user if getattr(user, "pk", None) else None,
                 tags=["password_reset"],
+                sender="account",
             )
         else:
             # any other allauth notice: keep its own wording, still sent by the worker
@@ -63,6 +65,7 @@ class AccountAdapter(DefaultAccountAdapter):
                 context={"body": message.body},
                 language=language,
                 tags=[name],
+                sender="account",
             )
 
 

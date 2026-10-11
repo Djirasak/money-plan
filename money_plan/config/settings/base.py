@@ -275,6 +275,22 @@ ANYMAIL = {
     # Svix signing secret of the Resend webhook (whsec_...); delivery events arrive at /webhooks/
     "RESEND_SIGNING_SECRET": env("RESEND_SIGNING_SECRET", default=""),
 }
+# Senders by purpose: queue_email(sender="report") picks the address. The domain must be
+# verified in Resend. Add a purpose (e.g. "billing") here and it is available everywhere.
+MAIL_SENDER_DOMAIN = env("MAIL_SENDER_DOMAIN", default="mpa.zercoms.com")
+MAIL_SENDERS = {
+    "account": f"Money Plan <account@{MAIL_SENDER_DOMAIN}>",  # verify email, password reset
+    "report": f"Money Plan <report@{MAIL_SENDER_DOMAIN}>",  # monthly reports, automatic summaries
+}
+DEFAULT_MAIL_SENDER = "account"
+# Django's own mail (admin, errors) uses this one.
+# https://docs.djangoproject.com/en/dev/ref/settings/#default-from-email
+DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default=MAIL_SENDERS["account"])
+ANYMAIL = {
+    "RESEND_API_KEY": RESEND_API_KEY,
+    # Svix signing secret of the Resend webhook (whsec_...); delivery events arrive at /webhooks/
+    "RESEND_SIGNING_SECRET": env("RESEND_SIGNING_SECRET", default=""),
+}
 # The sender must be on a domain verified in Resend (mpa.zercoms.com is).
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-from-email
 DEFAULT_FROM_EMAIL = env(

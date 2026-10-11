@@ -63,6 +63,7 @@ def test_changing_email_resets_verification_and_queues_the_mail(client, queued):
     kwargs = verify_kwargs(queued)
     assert kwargs["to"] == ["new@example.com"]
     assert kwargs["template"] == "verify_email"
+    assert kwargs["sender"] == "account"
     assert "/accounts/confirm-email/" in kwargs["context"]["url"]
     assert EmailLog.objects.get().user == user
 

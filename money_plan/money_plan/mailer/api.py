@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 
+from django.conf import settings
 from django.db import IntegrityError
 from django.db import transaction
 
@@ -22,6 +23,7 @@ def queue_email(
     tags: list[str] | None = None,
     user=None,
     dedupe_key: str | None = None,
+    sender: str | None = None,
 ) -> EmailLog | None:
     """Queue one e-mail for the Celery worker; returns immediately with its log row.
 
@@ -32,7 +34,14 @@ def queue_email(
 
     ``dedupe_key`` makes the call idempotent: when a mail with the same key is already
     queued or sent, nothing is queued and ``None`` is returned (a failed one is retried).
+
+    ``sender`` is a purpose from ``settings.MAIL_SENDERS`` ("account", "report", ...); the
+    default is ``settings.DEFAULT_MAIL_SENDER``. An unknown purpose fails here, not in the worker.
     """
+    sender = sender or settings.DEFAULT_MAIL_SENDER
+    if sender not in settings.MAIL_SENDERS:
+        msg = f"Unknown mail sender {sender!r}; choose one of {sorted(settings.MAIL_SENDERS)}"
+        raise ValueError(msg)
     recipients = [to] if isinstance(to, str) else list(to)
     if not recipients:
         msg = "queue_email needs at least one recipient"
@@ -62,6 +71,7 @@ def queue_email(
         "reply_to": reply,
         "tags": tags,
         "log_id": log.pk,
+        "sender": sender,
     }
     transaction.on_commit(lambda: send_email.delay(**kwargs))
     return log

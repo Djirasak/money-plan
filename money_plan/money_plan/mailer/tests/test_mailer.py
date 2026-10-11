@@ -376,3 +376,56 @@ def test_admin_shows_the_stored_mail_in_a_sandboxed_frame(admin_client):
         ).status_code
         == 403
     )
+
+
+class TestSenders:
+    def test_each_purpose_has_its_own_address(self, settings):
+        assert settings.MAIL_SENDERS["account"].endswith("<account@mpa.zercoms.com>")
+        assert settings.MAIL_SENDERS["report"].endswith("<report@mpa.zercoms.com>")
+
+    def run(self, sender=None):
+        return send_email.apply(
+            kwargs={
+                "to": ["a@example.com"],
+                "subject": "S",
+                "template": "test",
+                "language": "en",
+                "sender": sender,
+            },
+        )
+
+    def test_the_task_sends_from_the_chosen_sender_and_defaults_to_account(self):
+        self.run("report")
+        self.run()
+        assert [m.from_email for m in mail.outbox] == [
+            "Money Plan <report@mpa.zercoms.com>",
+            "Money Plan <account@mpa.zercoms.com>",
+        ]
+
+    def test_an_unknown_sender_is_rejected_when_queueing(self):
+        with pytest.raises(ValueError, match="Unknown mail sender"):
+            queue_email(
+                to="a@example.com",
+                subject="S",
+                template="test",
+                sender="billing",
+            )
+
+    def test_a_new_purpose_only_needs_a_settings_entry(
+        self,
+        settings,
+        django_capture_on_commit_callbacks,
+    ):
+        settings.MAIL_SENDERS = {
+            **settings.MAIL_SENDERS,
+            "billing": "Money Plan <billing@mpa.zercoms.com>",
+        }
+        with mock.patch("money_plan.mailer.api.send_email") as task:
+            with django_capture_on_commit_callbacks(execute=True):
+                queue_email(
+                    to="a@example.com",
+                    subject="S",
+                    template="test",
+                    sender="billing",
+                )
+        assert task.delay.call_args.kwargs["sender"] == "billing"

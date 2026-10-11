@@ -42,6 +42,7 @@ def deliver(
     reply_to: list[str] | None = None,
     tags: list[str] | None = None,
     log=None,
+    sender: str | None = None,
 ) -> str | None:
     """Send one rendered message (stored on ``log`` when given). Returns the provider's message id."""
     html, text = render(template, context, language)
@@ -51,7 +52,7 @@ def deliver(
     message = EmailMultiAlternatives(
         subject=f"{settings.EMAIL_SUBJECT_PREFIX}{subject}",
         body=text,
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email=settings.MAIL_SENDERS[sender or settings.DEFAULT_MAIL_SENDER],
         to=to,
         reply_to=reply_to or None,
     )

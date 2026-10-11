@@ -45,6 +45,7 @@ def send_email(
     reply_to: list[str] | None = None,
     tags: list[str] | None = None,
     log_id: int | None = None,
+    sender: str | None = None,
 ) -> str | None:
     """The one way mail leaves the app. Queue it with ``queue_email``."""
     log = _log(log_id)
@@ -60,6 +61,7 @@ def send_email(
             reply_to=reply_to,
             tags=tags,
             log=log,
+            sender=sender,
         )
     except (AnymailAPIError, requests.RequestException) as exc:
         error = str(exc)[:500]

@@ -11,13 +11,15 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("to", help="Recipient address")
         parser.add_argument("--language", default=None, help="th or en")
+        parser.add_argument("--sender", default=None, help="account, report, ...")
 
-    def handle(self, *args, to, language, **options):
+    def handle(self, *args, to, language, sender, **options):
         queue_email(
             to=to,
             subject="Test email",
             template="test",
             language=language,
+            sender=sender,
             tags=["test"],
         )
         self.stdout.write(f"Queued a test email to {to}. Watch the celeryworker log.")
