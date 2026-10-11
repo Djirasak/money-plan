@@ -13,14 +13,14 @@ from .views import user_update_view
 
 app_name = "users"
 urlpatterns = [
-    path("~redirect/", view=user_redirect_view, name="redirect"),
-    path("~update/", view=user_update_view, name="update"),
-    path("~username/", view=UsernameChangeView.as_view(), name="change_username"),
-    path("~name/", view=NameChangeView.as_view(), name="change_name"),
-    path("~email/", view=EmailChangeView.as_view(), name="change_email"),
-    path("~password/", view=PasswordChangeView.as_view(), name="change_password"),
-    path("~photo/", view=PhotoView.as_view(), name="photo"),
-    path("~photo/change/", view=PhotoChangeView.as_view(), name="change_photo"),
-    path("~photo/remove/", view=PhotoRemoveView.as_view(), name="remove_photo"),
+    path("me/", view=user_redirect_view, name="redirect"),
+    path("me/update/", view=user_update_view, name="update"),
+    path("me/username/", view=UsernameChangeView.as_view(), name="change_username"),
+    path("me/name/", view=NameChangeView.as_view(), name="change_name"),
+    path("me/email/", view=EmailChangeView.as_view(), name="change_email"),
+    path("me/password/", view=PasswordChangeView.as_view(), name="change_password"),
+    path("me/photo/", view=PhotoView.as_view(), name="photo"),
+    path("me/photo/change/", view=PhotoChangeView.as_view(), name="change_photo"),
+    path("me/photo/remove/", view=PhotoRemoveView.as_view(), name="remove_photo"),
     path("<int:pk>/", view=user_detail_view, name="detail"),
 ]
