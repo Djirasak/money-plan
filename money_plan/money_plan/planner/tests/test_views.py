@@ -772,7 +772,11 @@ class TestPlanLiveCheckAndLogRows:
 def test_log_rows_have_no_leading_arrow_icon_only_the_pile_watermark(client_in, user):
     spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
     LogEntry.objects.create(
-        user=user, date=date(2027, 1, 5), type="spend", from_pile=spend, amount=150
+        user=user,
+        date=date(2027, 1, 5),
+        type="spend",
+        from_pile=spend,
+        amount=150,
     )
     html = client_in.get(reverse("planner:log"), {"m": "2027-01"}).content.decode()
     row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
