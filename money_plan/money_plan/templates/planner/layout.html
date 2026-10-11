@@ -10,8 +10,12 @@
       <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Money Plan</p>
       <h1 class="truncate text-lg font-semibold leading-tight">{% block heading %}{% endblock heading %}</h1>
     </div>
-    <a class="btn" data-variant="outline" data-size="icon" href="{% url 'users:detail' request.user.username %}" aria-label="{% trans 'My account' %}" title="{% trans 'My account' %}">
-      {% icon "user" "size-4" %}
+    <a class="avatar-link" href="{% url 'users:detail' request.user.username %}" aria-label="{% trans 'My account' %}" title="{% trans 'My account' %}">
+      {% if request.user.photo %}
+        <img class="avatar-sm object-cover" src="{{ request.user.photo_url }}" alt="" width="40" height="40" />
+      {% else %}
+        <span class="avatar-sm" aria-hidden="true">{{ request.user.username|slice:":1"|upper }}</span>
+      {% endif %}
     </a>
   </header>
   {% if months %}

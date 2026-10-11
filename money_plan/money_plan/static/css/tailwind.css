@@ -204,6 +204,25 @@ input[type="color"].input {
   background-image: linear-gradient(135deg, var(--brand-from), var(--brand-to));
 }
 
+/* Header account button: the same avatar, small */
+.avatar-sm {
+  overflow: hidden;
+  @apply grid size-10 place-items-center rounded-full text-base font-semibold uppercase text-white shadow-sm;
+  background-image: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+}
+
+.avatar-link {
+  @apply inline-flex shrink-0 rounded-full transition-transform active:scale-95;
+}
+
+.avatar-link:hover {
+  filter: brightness(1.08);
+}
+
+.avatar-link:focus-visible {
+  @apply outline-none ring-[3px] ring-ring/50;
+}
+
 /* ---- Log entries: red = money out, green = money in, blue = only moved between piles (full tinted border + icon, never a one-sided bar) ---- */
 :root {
   --tone-out: #b91c1c; --tone-out-bg: #fef2f2;
