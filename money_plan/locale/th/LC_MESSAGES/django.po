@@ -1296,3 +1296,33 @@ msgstr "ครบ 100%% แล้ว"
 
 msgid "Add up to 100%%"
 msgstr "รวมให้ได้ 100%%"
+
+msgid "Income"
+msgstr "รับเงิน"
+
+msgid "This entry only needs the pile that receives the money ('To pile')"
+msgstr "รายการนี้ต้องเลือกเฉพาะกองที่รับเงิน (เข้ากอง)"
+
+msgid "Say where the money came from"
+msgstr "ระบุว่าเงินนี้ได้มาจากไหน"
+
+msgid "Money you spent: pick the pile it came out of."
+msgstr "เงินที่จ่ายไป: เลือกกองที่เงินออก"
+
+msgid "Move money from one pile to another: pick both piles."
+msgstr "ย้ายเงินจากกองหนึ่งไปอีกกอง: เลือกทั้งสองกอง"
+
+msgid "Sweep what is left of one pile into another: pick both piles."
+msgstr "กวาดยอดที่เหลือของกองหนึ่งไปอีกกอง: เลือกทั้งสองกอง"
+
+msgid "Your records are off: add the money that is really there but was never recorded, to the pile that has it."
+msgstr "ข้อมูลในระบบไม่ตรงความจริง: เติมเงินที่มีอยู่จริงแต่ไม่เคยบันทึก เข้ากองที่มีเงินนั้น"
+
+msgid "Money that came in from a known source: pick the pile that gets it and say where it came from."
+msgstr "เงินที่เข้ามาจากแหล่งที่รู้: เลือกกองที่รับเงิน และระบุว่าได้มาจากไหน"
+
+msgid "Reason (optional)"
+msgstr "เหตุผล (ไม่บังคับ)"
+
+msgid "Where did the money come from?"
+msgstr "เงินนี้ได้มาจากไหน?"

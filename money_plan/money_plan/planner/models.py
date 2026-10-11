@@ -239,12 +239,21 @@ class PlanItem(models.Model):
 
 
 class LogEntry(models.Model):
-    SPEND, TRANSFER, SWEEP, ADJUST = "spend", "transfer", "sweep", "adjust"
+    SPEND, TRANSFER, SWEEP, ADJUST, INCOME = (
+        "spend",
+        "transfer",
+        "sweep",
+        "adjust",
+        "income",
+    )
     TYPE_CHOICES = [
         (SPEND, _("Spend")),
         (TRANSFER, _("Transfer")),
         (SWEEP, _("Sweep")),
+        # make the books match reality: money you have but never recorded
         (ADJUST, _("Adjust")),
+        # money that came in from a known source (named in the note)
+        (INCOME, _("Income")),
     ]
 
     user = models.ForeignKey(
@@ -285,7 +294,9 @@ class LogEntry(models.Model):
         """``out`` money leaves you, ``in`` money comes in, ``move`` only changes piles."""
         if self.type in (self.TRANSFER, self.SWEEP):
             return "move"
-        if self.type == self.ADJUST and self.to_pile_id and not self.from_pile_id:
+        if self.type == self.INCOME or (
+            self.type == self.ADJUST and self.to_pile_id and not self.from_pile_id
+        ):
             return "in"
         return "out"
 

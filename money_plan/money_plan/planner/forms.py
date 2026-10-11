@@ -95,9 +95,13 @@ class LogEntryForm(forms.ModelForm):
         if kind in (LogEntry.TRANSFER, LogEntry.SWEEP) and not (src and dst):
             msg = _("A transfer needs both a 'From pile' and a 'To pile'")
             raise forms.ValidationError(msg)
-        if kind == LogEntry.ADJUST and bool(src) == bool(dst):
-            msg = _("An adjustment needs either a 'From pile' or a 'To pile', not both")
+        if kind in (LogEntry.ADJUST, LogEntry.INCOME) and (src or not dst):
+            msg = _(
+                "This entry only needs the pile that receives the money ('To pile')",
+            )
             raise forms.ValidationError(msg)
+        if kind == LogEntry.INCOME and not (data.get("note") or "").strip():
+            self.add_error("note", _("Say where the money came from"))
         if src and dst and src == dst:
             msg = _("The source and target piles must differ")
             raise forms.ValidationError(msg)

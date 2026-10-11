@@ -16,10 +16,44 @@
       {% csrf_token %}
       <input type="hidden" name="m" value="{{ month }}" />
       <header><h2 id="entry-title">{% if editing %}{% trans "Edit entry" %}{% else %}{% trans "Add entry" %}{% endif %}</h2></header>
-      <section class="grid gap-4">
-        {% for f in form %}{% include "planner/_field.html" with f=f %}{% endfor %}
+      {% trans "Money you spent: pick the pile it came out of." as h_spend %}
+      {% trans "Move money from one pile to another: pick both piles." as h_transfer %}
+      {% trans "Sweep what is left of one pile into another: pick both piles." as h_sweep %}
+      {% trans "Your records are off: add the money that is really there but was never recorded, to the pile that has it." as h_adjust %}
+      {% trans "Money that came in from a known source: pick the pile that gets it and say where it came from." as h_income %}
+      {% trans "Note (optional)" as n_default %}
+      {% trans "Reason (optional)" as n_adjust %}
+      {% trans "Where did the money come from?" as n_income %}
+      {# Only the piles that matter for the chosen type can be picked; the other field is greyed out and not sent. #}
+      <section class="grid gap-4"
+               x-data="{
+                 type: '{{ form.type.value|default:'spend'|escapejs }}',
+                 get noFrom() { return ['adjust', 'income'].includes(this.type) },
+                 get noTo() { return this.type === 'spend' },
+                 hints: { spend: '{{ h_spend|escapejs }}', transfer: '{{ h_transfer|escapejs }}', sweep: '{{ h_sweep|escapejs }}', adjust: '{{ h_adjust|escapejs }}', income: '{{ h_income|escapejs }}' },
+                 notes: { adjust: '{{ n_adjust|escapejs }}', income: '{{ n_income|escapejs }}' },
+               }"
+               @change="if ($event.detail && $event.target.id === 'id_type') type = $event.detail.value">
+        {% include "planner/_field.html" with f=form.date %}
+        {% include "planner/_field.html" with f=form.type %}
+        <div :class="noFrom && 'pointer-events-none opacity-50'" :inert="noFrom" :aria-disabled="noFrom"
+             x-effect="$el.querySelector('input[type=hidden]').disabled = noFrom">
+          {% include "planner/_field.html" with f=form.from_pile %}
+        </div>
+        <div :class="noTo && 'pointer-events-none opacity-50'" :inert="noTo" :aria-disabled="noTo"
+             x-effect="$el.querySelector('input[type=hidden]').disabled = noTo">
+          {% include "planner/_field.html" with f=form.to_pile %}
+        </div>
+        {% include "planner/_field.html" with f=form.amount %}
+        <div class="grid gap-2" x-effect="$el.querySelector('input').required = type === 'income'">
+          <label class="label" for="{{ form.note.id_for_label }}">
+            <span x-text="notes[type] || '{{ n_default|escapejs }}'">{{ form.note.label }}</span><span class="text-destructive" x-show="type === 'income'" x-cloak> *</span>
+          </label>
+          {{ form.note }}
+          {% for error in form.note.errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}
+        </div>
         {% for error in form.non_field_errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}
-        <p class="text-xs text-muted-foreground">{% trans 'Spend: pick "From pile" · Transfer/Sweep: pick both · Adjust: pick one' %}</p>
+        <p class="text-xs text-muted-foreground" x-text="hints[type]"></p>
       </section>
       <footer>
         <button type="button" class="btn" data-variant="outline" data-close-dialog>{% trans "Cancel" %}</button>

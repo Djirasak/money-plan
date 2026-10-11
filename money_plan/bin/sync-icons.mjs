@@ -10,7 +10,7 @@ const ICONS = [
   'plus', 'save', 'trash-2', 'log-out', 'chevron-left', 'chevron-right',
   'layout-dashboard', 'square-pen', 'settings', 'search', 'lock', 'timer',
   'wrench', 'coins', 'piggy-bank', 'wallet', 'arrow-left', 'arrow-right',
-  'sun', 'moon', 'languages', 'circle-check', 'circle-alert', 'info', 'x', 'grip-vertical', 'palette', 'chevron-down', 'arrow-up-right', 'arrow-down-left', 'arrow-left-right', 'user', 'mail', 'shield-check', 'camera', 'check', 'circle', 'copy', 'upload',
+  'sun', 'moon', 'languages', 'circle-check', 'circle-alert', 'info', 'x', 'grip-vertical', 'palette', 'chevron-down', 'arrow-up-right', 'arrow-down-left', 'arrow-left-right', 'user', 'mail', 'shield-check', 'camera', 'check', 'circle', 'copy', 'upload', 'refresh-cw',
   'banknote', 'landmark', 'shopping-cart', 'house', 'car', 'bus', 'utensils', 'coffee', 'heart-pulse', 'graduation-cap', 'plane', 'gift',
   'gamepad-2', 'shirt', 'smartphone', 'zap', 'baby', 'paw-print', 'briefcase', 'trending-up', 'umbrella', 'gem', 'dumbbell', 'sparkles', 'heart',
 ];

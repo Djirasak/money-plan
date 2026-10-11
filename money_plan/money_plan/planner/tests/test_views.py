@@ -786,3 +786,111 @@ def test_log_rows_have_no_leading_icon_only_the_arrow_watermark(client_in, user)
         "M7 7h10v10" in row.split("entry-watermark")[1]
     )  # the out arrow (arrow-up-right)
     assert "-฿150" in row  # the sign and the word still say what kind of entry it is
+
+
+class TestAdjustAndIncome:
+    def post(self, client, user, **data):
+        month = user.planner_settings.start_month
+        body = {"date": f"{month}-05", "amount": "500", "m": month, **data}
+        return client.post(reverse("planner:log"), body)
+
+    def pile(self, user, name="เงินใช้ฟรี"):
+        return Pile.objects.get(user=user, name=name)
+
+    def test_adjust_adds_money_to_one_pile_and_needs_no_note(self, client_in, user):
+        free = self.pile(user)
+        assert (
+            self.post(client_in, user, type="adjust", to_pile=free.pk).status_code
+            == 302
+        )
+        entry = LogEntry.objects.get(user=user)
+        assert (entry.type, entry.from_pile, entry.to_pile, entry.tone) == (
+            "adjust",
+            None,
+            free,
+            "in",
+        )
+
+    def test_income_needs_a_source_in_the_note(self, client_in, user):
+        free = self.pile(user)
+        assert (
+            self.post(client_in, user, type="income", to_pile=free.pk).status_code
+            == 200
+        )
+        assert not LogEntry.objects.filter(user=user).exists()
+        resp = self.post(
+            client_in,
+            user,
+            type="income",
+            to_pile=free.pk,
+            note="โบนัสปลายปี",
+        )
+        assert resp.status_code == 302
+        entry = LogEntry.objects.get(user=user)
+        assert (entry.type, entry.note, entry.tone) == ("income", "โบนัสปลายปี", "in")
+
+    @pytest.mark.parametrize("kind", ["adjust", "income"])
+    def test_a_from_pile_is_refused_for_both(self, client_in, user, kind):
+        a, b = Pile.objects.filter(user=user)[:2]
+        resp = self.post(
+            client_in,
+            user,
+            type=kind,
+            from_pile=a.pk,
+            to_pile=b.pk,
+            note="x",
+        )
+        assert resp.status_code == 200
+        assert not LogEntry.objects.filter(user=user).exists()
+
+    @pytest.mark.parametrize("kind", ["adjust", "income"])
+    def test_a_destination_is_required(self, client_in, user, kind):
+        assert self.post(client_in, user, type=kind, note="x").status_code == 200
+        assert not LogEntry.objects.filter(user=user).exists()
+
+    def test_income_raises_the_pile_balance_like_any_money_in(self, client_in, user):
+        from money_plan.planner import services
+
+        free = self.pile(user)
+        month = user.planner_settings.start_month
+
+        def balance() -> Decimal:
+            return services.compute_months(user, month)[0].piles[free.name].before
+
+        before = balance()
+        self.post(
+            client_in,
+            user,
+            type="income",
+            to_pile=free.pk,
+            amount="1000",
+            note="ขายของ",
+        )
+        assert balance() == before + 1000
+
+    def test_the_form_greys_out_the_pile_that_does_not_apply(self, client_in, user):
+        html = client_in.get(reverse("planner:log")).content.decode()
+        assert "get noFrom()" in html and "adjust" in html and "income" in html
+        assert ':inert="noFrom"' in html and ':inert="noTo"' in html
+        assert "รับเงิน" in html  # the new type is offered, translated
+        assert "เงินนี้ได้มาจากไหน?" in html  # the note asks for the source on income
+
+    def test_log_rows_show_a_sync_icon_for_adjust_and_an_arrow_for_income(
+        self,
+        client_in,
+        user,
+    ):
+        free = self.pile(user)
+        self.post(client_in, user, type="adjust", to_pile=free.pk)
+        self.post(client_in, user, type="income", to_pile=free.pk, note="โบนัส")
+        month = user.planner_settings.start_month
+        html = client_in.get(reverse("planner:log"), {"m": month}).content.decode()
+        rows = html.split('class="item entry entry-in"')[1:]
+        by_type = {
+            ("income" if "รับเงิน" in r.split("</li>")[0] else "adjust"): r.split(
+                "</li>",
+            )[0]
+            for r in rows
+        }
+        assert "M3 12a9 9 0 0 1 9-9" in by_type["adjust"]  # refresh-cw
+        assert "M17 7 7 17" in by_type["income"]  # arrow-down-left
