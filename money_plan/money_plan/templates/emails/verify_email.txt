@@ -1,0 +1,7 @@
+{% load i18n %}{% autoescape off %}{% if name %}{% blocktrans %}Hi {{ name }},{% endblocktrans %}{% else %}{% trans "Hi," %}{% endif %}
+
+{% trans "Please confirm that this is your email address so we can reach you about your account." %}
+
+{{ url }}
+
+{% trans "If you did not create this account, you can ignore this email." %}{% endautoescape %}

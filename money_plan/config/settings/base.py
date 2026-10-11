@@ -376,7 +376,12 @@ ACCOUNT_LOGIN_METHODS = {"username"}
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 # https://docs.allauth.org/en/latest/account/configuration.html
-ACCOUNT_EMAIL_VERIFICATION = "none"
+# "optional": a confirmation mail is sent (signup and email change) and the account page shows
+# whether the address is verified, but nobody is locked out while it is not.
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+# Our mail service adds EMAIL_SUBJECT_PREFIX itself; allauth must not add its own.
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
+EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default="[Money Plan] ")
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_ADAPTER = "money_plan.users.adapters.AccountAdapter"
 # https://docs.allauth.org/en/latest/account/forms.html

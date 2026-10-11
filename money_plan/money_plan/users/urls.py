@@ -6,6 +6,7 @@ from .views import PasswordChangeView
 from .views import PhotoChangeView
 from .views import PhotoRemoveView
 from .views import PhotoView
+from .views import ResendVerificationView
 from .views import UsernameChangeView
 from .views import user_detail_view
 
@@ -22,6 +23,11 @@ urlpatterns = [
         "<int:pk>/password/",
         view=PasswordChangeView.as_view(),
         name="change_password",
+    ),
+    path(
+        "<int:pk>/verify-email/",
+        view=ResendVerificationView.as_view(),
+        name="resend_verification",
     ),
     path("<int:pk>/photo/", view=PhotoView.as_view(), name="photo"),
     path("<int:pk>/photo/change/", view=PhotoChangeView.as_view(), name="change_photo"),

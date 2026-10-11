@@ -816,3 +816,60 @@ msgstr "นี่คืออีเมลทดสอบจาก Money Plan ถ
 
 msgid "You get this email because you have a Money Plan account."
 msgstr "คุณได้รับอีเมลนี้เพราะมีบัญชี Money Plan"
+
+msgid "Confirm your email"
+msgstr "ยืนยันอีเมลของคุณ"
+
+msgid "Reset your password"
+msgstr "รีเซ็ตรหัสผ่านของคุณ"
+
+msgid "Hi %(name)s,"
+msgstr "สวัสดีคุณ %(name)s,"
+
+msgid "Hi,"
+msgstr "สวัสดี,"
+
+msgid "Please confirm that this is your email address so we can reach you about your account."
+msgstr "โปรดยืนยันว่านี่คืออีเมลของคุณ เพื่อให้เราติดต่อคุณเกี่ยวกับบัญชีได้"
+
+msgid "Confirm email"
+msgstr "ยืนยันอีเมล"
+
+msgid "If the button does not work, copy this link into your browser:"
+msgstr "ถ้าปุ่มใช้ไม่ได้ ให้คัดลอกลิงก์นี้ไปเปิดในเบราว์เซอร์:"
+
+msgid "If you did not create this account, you can ignore this email."
+msgstr "ถ้าคุณไม่ได้สร้างบัญชีนี้ ไม่ต้องสนใจอีเมลฉบับนี้"
+
+msgid "Someone asked to reset the password of your account. If it was you, choose a new one with the button below."
+msgstr "มีคนขอรีเซ็ตรหัสผ่านของบัญชีคุณ ถ้าเป็นคุณ ให้ตั้งรหัสผ่านใหม่ด้วยปุ่มด้านล่าง"
+
+msgid "Someone asked to reset the password of your account. If it was you, choose a new one with the link below."
+msgstr "มีคนขอรีเซ็ตรหัสผ่านของบัญชีคุณ ถ้าเป็นคุณ ให้ตั้งรหัสผ่านใหม่ด้วยลิงก์ด้านล่าง"
+
+msgid "Choose a new password"
+msgstr "ตั้งรหัสผ่านใหม่"
+
+msgid "If you did not ask for this, ignore this email: your password stays the same."
+msgstr "ถ้าคุณไม่ได้ขอ ไม่ต้องสนใจอีเมลฉบับนี้ รหัสผ่านของคุณจะไม่เปลี่ยน"
+
+msgid "Verified"
+msgstr "ยืนยันแล้ว"
+
+msgid "Not verified"
+msgstr "ยังไม่ได้ยืนยัน"
+
+msgid "Send verification email"
+msgstr "ส่งอีเมลยืนยัน"
+
+msgid "Sending..."
+msgstr "กำลังส่ง..."
+
+msgid "Your email is already verified."
+msgstr "อีเมลของคุณยืนยันแล้ว"
+
+msgid "Verification email sent. Check your inbox."
+msgstr "ส่งอีเมลยืนยันแล้ว โปรดตรวจกล่องจดหมาย"
+
+msgid "Please wait a few minutes before asking again."
+msgstr "โปรดรอสักครู่ก่อนขออีกครั้ง"

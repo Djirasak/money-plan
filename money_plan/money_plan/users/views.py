@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from allauth.account.internal.flows.email_verification import (
+    send_verification_email_to_address,
+)
+from allauth.account.models import EmailAddress
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -33,6 +37,11 @@ class UserDetailView(LoginRequiredMixin, DetailView):
             "email_form": bound.get("email")
             or EmailChangeForm(initial={"email": user.email}, user=user),
             "name_form": bound.get("name") or NameChangeForm(instance=user),
+            "email_verified": EmailAddress.objects.filter(
+                user=user,
+                email__iexact=user.email,
+                verified=True,
+            ).exists(),
             "photo_form": bound.get("photo") or PhotoChangeForm(user=user),
             "password_form": bound.get("password") or AccountPasswordChangeForm(user),
             "open_dialog": kwargs.get("open_dialog", ""),
@@ -99,6 +108,11 @@ class EmailChangeView(AccountChangeView):
     def get_form(self):
         return EmailChangeForm(self.request.POST, user=self.request.user)
 
+    def save(self, form) -> None:
+        user = form.save()
+        address = EmailAddress.objects.get(user=user, email=user.email)
+        send_verification_email_to_address(self.request, address)
+
 
 class PasswordChangeView(AccountChangeView):
     key = "password"
@@ -158,3 +172,27 @@ class PhotoView(SelfOnlyMixin, View):
         response = FileResponse(photo.open("rb"))
         response["Cache-Control"] = "private, max-age=86400"
         return response
+
+
+class ResendVerificationView(SelfOnlyMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request, pk):
+        user = request.user
+        if not user.email:
+            return redirect(user.get_absolute_url())
+        address, _created = EmailAddress.objects.get_or_create(
+            user=user,
+            email=user.email,
+            defaults={"primary": True},
+        )
+        if address.verified:
+            messages.info(request, _("Your email is already verified."))
+        elif send_verification_email_to_address(request, address):
+            messages.success(request, _("Verification email sent. Check your inbox."))
+        else:  # allauth's rate limit
+            messages.warning(
+                request,
+                _("Please wait a few minutes before asking again."),
+            )
+        return redirect(user.get_absolute_url())

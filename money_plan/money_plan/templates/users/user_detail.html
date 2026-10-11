@@ -56,6 +56,19 @@
         <section>
           <p class="text-xs text-muted-foreground">{% trans "Email" %}</p>
           <h3 class="truncate text-sm font-semibold">{{ object.email|default:"—" }}</h3>
+          {% if object.email %}
+            {% if email_verified %}
+              <p class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-success">{% icon "circle-check" "size-3.5" %}{% trans "Verified" %}</p>
+            {% else %}
+              <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <p class="inline-flex items-center gap-1 text-xs font-medium text-warn">{% icon "circle-alert" "size-3.5" %}{% trans "Not verified" %}</p>
+                <form method="post" action="{% url 'users:resend_verification' object.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn h-auto p-0 text-xs" data-variant="link" data-loading-text="{% trans 'Sending...' %}">{% trans "Send verification email" %}</button>
+                </form>
+              </div>
+            {% endif %}
+          {% endif %}
         </section>
         <aside><button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-open-dialog="account-email" aria-label="{% trans 'Edit email' %}" title="{% trans 'Edit' %}">{% icon "square-pen" "size-4" %}</button></aside>
       </li>

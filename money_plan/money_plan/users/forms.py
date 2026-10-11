@@ -97,7 +97,9 @@ class EmailChangeForm(forms.Form):
         return email
 
     def save(self) -> User:
-        """Store the address on the user and keep allauth's address table in step."""
+        """Store the address on the user and keep allauth's address table in step.
+
+        The new address starts unverified; the view sends the confirmation mail."""
         email = self.cleaned_data["email"]
         self.user.email = email
         self.user.save(update_fields=["email"])
@@ -106,7 +108,7 @@ class EmailChangeForm(forms.Form):
             user=self.user,
             email=email,
             primary=True,
-            verified=True,
+            verified=False,
         )
         return self.user
 
