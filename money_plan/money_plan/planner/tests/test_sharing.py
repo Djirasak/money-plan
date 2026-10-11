@@ -578,3 +578,44 @@ class TestPublicPreview:
         resp = self.anonymous(client).get(reverse("planner:import_file"))
         assert resp.status_code == HTTPStatus.FOUND
         assert "login" in resp.url
+
+
+class TestPreviewCards:
+    """The shared-plan preview uses the same cards as the pile and plan pages."""
+
+    @pytest.fixture
+    def page(self, client_in, rich, client):
+        Pile.objects.filter(user=rich, name="Trip").update(
+            icon="plane",
+            color="#0ea5e9",
+        )
+        client_in.post(reverse("planner:share"), {"action": "create", "title": "Cards"})
+        token = SharedTemplate.objects.get().token
+        return (
+            type(client)()
+            .get(reverse("planner:template", kwargs={"token": token}))
+            .content.decode()
+        )
+
+    def test_piles_are_pile_cards_with_icon_watermark_and_badges(self, page):
+        count = len(SharedTemplate.objects.get().payload["piles"])
+        assert page.count('class="card pile-summary"') == count
+        assert page.count('class="pile-watermark"') == count  # one faint icon per card
+        trip = page.split("Trip")[0].rsplit('class="card pile-summary"', 1)[1]
+        assert "--pc:#0ea5e9" in trip  # the pile's own colour drives the wash
+        assert 'class="badge" data-variant="outline"' in page
+
+    def test_plans_are_plan_cards_with_a_split_bar_and_a_total(self, page):
+        assert "item plan-card" in page
+        assert "plan-bar" in page
+        assert "รวม" in page  # the total badge
+        assert "bg-success-soft" in page  # the seeded plans add up to 100%
+        assert "55%" in page  # the biggest share, spelled out under the bar
+        assert (
+            "<input" not in page.split("plans-heading")[1].split("</ul>")[0]
+        )  # look only
+
+    def test_the_watermark_is_the_piles_icon(self, page):
+        assert (
+            "M17.8 19.2 16 11l3.5-3.5" in page
+        )  # lucide plane, the Trip pile's chosen icon

@@ -21,6 +21,7 @@ from .mixins import ActionPostMixin
 from .mixins import PlannerMixin
 from .mixins import month_from_post
 from .models import SharedTemplate
+from .pile_icons import DEFAULT_ICONS
 from .templatetags.planner_tags import target_label
 
 SESSION_KEY = "template_import"
@@ -175,6 +176,7 @@ class TemplateImportView(PlannerMixin, TemplateView):
         piles = [
             {
                 **pile,
+                "icon_name": pile["icon"] or DEFAULT_ICONS.get(pile["kind"], "wallet"),
                 "goal": self._goal(pile),
                 "overflow_name": by_key[pile["overflow_to"]]["name"]
                 if pile["overflow_to"]
@@ -185,9 +187,17 @@ class TemplateImportView(PlannerMixin, TemplateView):
         plans = []
         for plan in payload["plans"]:
             cond = plan["condition"]
+            percents = [
+                (by_key[i["pile"]], Decimal(i["percent"])) for i in plan["items"]
+            ]
             plans.append(
                 {
                     **plan,
+                    "total": sum((pct for _pile, pct in percents), Decimal(0)),
+                    "shares": sorted(
+                        ((pile, pct) for pile, pct in percents if pct > 0),
+                        key=lambda row: -row[1],
+                    ),
                     "rows": [
                         {"pile": by_key[item["pile"]], "percent": item["percent"]}
                         for item in plan["items"]
