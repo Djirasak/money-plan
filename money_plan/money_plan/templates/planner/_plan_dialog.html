@@ -42,10 +42,10 @@
                 {% trans "Total" %} <span x-text="Math.round(total * 100) / 100"></span>%
               </span>
             </div>
-            <p class="flex items-center gap-1.5 text-xs font-medium" :class="ok ? 'text-success' : 'text-destructive'" role="status" aria-live="polite"
+            {# Green "Total 100%" above says it is fine; this line only shows (and takes space) when the split is off. Screen readers still hear both. #}
+            <p class="items-center gap-1.5 text-xs font-medium" :class="ok ? 'sr-only' : 'flex text-destructive'" role="status" aria-live="polite"
                data-short="{% blocktrans with n='__n__' %}{{ n }}% still to allocate{% endblocktrans %}"
                data-over="{% blocktrans with n='__n__' %}{{ n }}% over 100%{% endblocktrans %}">
-              <span x-show="ok" x-cloak>{% icon "circle-check" "size-4" %}</span>
               <span x-show="!ok" x-cloak>{% icon "circle-alert" "size-4" %}</span>
               <span x-text="status($el.parentElement)">{% trans "Add up to 100%" %}</span>
             </p>

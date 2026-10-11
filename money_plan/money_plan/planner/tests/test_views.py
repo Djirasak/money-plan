@@ -1055,3 +1055,5 @@ def test_the_100_percent_check_sits_above_the_percent_fields(client_in, user):
         dialog.index("sticky top-0") < first_field
     )  # and stays in view while the list scrolls
     assert dialog.count('role="status"') == 1  # not repeated below the list
+    # when the total is right the line is visually gone (sr-only), only a wrong total shows it
+    assert """:class="ok ? 'sr-only' : 'flex text-destructive'\"""" in dialog
