@@ -1049,7 +1049,7 @@ def test_the_100_percent_check_sits_above_the_percent_fields(client_in, user):
     period = PlanPeriod.objects.get(user=user)
     html = client_in.get(reverse("planner:plan")).content.decode()
     dialog = html.split(f'id="plan-edit-{period.pk}"')[1].split("</dialog>")[0]
-    first_field = dialog.index("data-percent")
+    first_field = dialog.index('name="percent_')
     assert dialog.index('role="status"') < first_field  # the live message comes first
     assert (
         dialog.index("sticky top-0") < first_field
