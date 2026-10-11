@@ -519,7 +519,7 @@ body:has(.app-nav) .toaster {
 .entry-amount { color: var(--tone); @apply text-sm font-semibold; }
 .entry-meta { @apply text-xs leading-snug; }
 
-/* compact rows: tighter padding and gaps; a faint arrow watermark behind them */
+/* compact rows: tighter padding and gaps; a faint arrow watermark behind them (not rotated: the arrow's direction means something) */
 .entry {
   @apply relative gap-2.5 overflow-hidden px-3 py-2;
 }
@@ -529,7 +529,7 @@ body:has(.app-nav) .toaster {
 }
 
 .entry-watermark {
-  @apply pointer-events-none absolute -bottom-3 right-14 size-16 -rotate-12;
+  @apply pointer-events-none absolute -bottom-3 right-14 size-16;
   color: color-mix(in srgb, var(--tone) 16%, transparent);
 }
 
