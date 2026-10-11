@@ -42,12 +42,11 @@
                 {% trans "Total" %} <span x-text="Math.round(total * 100) / 100"></span>%
               </span>
             </div>
-            {# Green "Total 100%" above says it is fine; this line only shows (and takes space) when the split is off. Screen readers still hear both. #}
-            <p class="items-center gap-1.5 text-xs font-medium" :class="ok ? 'sr-only' : 'flex text-destructive'" role="status" aria-live="polite"
+            {# The badge above is the visible check (green = 100%, amber = off). This line is for screen readers only: how far off it is. #}
+            <p class="sr-only" role="status" aria-live="polite"
                data-short="{% blocktrans with n='__n__' %}{{ n }}% still to allocate{% endblocktrans %}"
                data-over="{% blocktrans with n='__n__' %}{{ n }}% over 100%{% endblocktrans %}">
-              <span x-show="!ok" x-cloak>{% icon "circle-alert" "size-4" %}</span>
-              <span x-text="status($el.parentElement)">{% trans "Add up to 100%" %}</span>
+              <span x-text="status($el)">{% trans "Add up to 100%" %}</span>
             </p>
           </div>
           {% for pile, it in item.rows %}
