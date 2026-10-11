@@ -1303,9 +1303,6 @@ msgstr "รับเงิน"
 msgid "This entry only needs the pile that receives the money ('To pile')"
 msgstr "รายการนี้ต้องเลือกเฉพาะกองที่รับเงิน (เข้ากอง)"
 
-msgid "Say where the money came from"
-msgstr "ระบุว่าเงินนี้ได้มาจากไหน"
-
 msgid "Money you spent: pick the pile it came out of."
 msgstr "เงินที่จ่ายไป: เลือกกองที่เงินออก"
 
@@ -1315,14 +1312,23 @@ msgstr "ย้ายเงินจากกองหนึ่งไปอีก
 msgid "Sweep what is left of one pile into another: pick both piles."
 msgstr "กวาดยอดที่เหลือของกองหนึ่งไปอีกกอง: เลือกทั้งสองกอง"
 
-msgid "Your records are off: add the money that is really there but was never recorded, to the pile that has it."
-msgstr "ข้อมูลในระบบไม่ตรงความจริง: เติมเงินที่มีอยู่จริงแต่ไม่เคยบันทึก เข้ากองที่มีเงินนั้น"
-
-msgid "Money that came in from a known source: pick the pile that gets it and say where it came from."
-msgstr "เงินที่เข้ามาจากแหล่งที่รู้: เลือกกองที่รับเงิน และระบุว่าได้มาจากไหน"
+msgid "Money that came in from a known source: pick the pile that gets it, and note where it came from if you like."
+msgstr "เงินที่เข้ามาจากแหล่งที่รู้: เลือกกองที่รับเงิน และจะจดว่าได้มาจากไหนก็ได้"
 
 msgid "Reason (optional)"
 msgstr "เหตุผล (ไม่บังคับ)"
 
-msgid "Where did the money come from?"
-msgstr "เงินนี้ได้มาจากไหน?"
+msgid "Where did the money come from? (optional)"
+msgstr "เงินนี้ได้มาจากไหน? (ไม่บังคับ)"
+
+msgid "Your records are off: enter how much the pile REALLY holds. The difference is recorded for you, up or down."
+msgstr "ข้อมูลในระบบไม่ตรงความจริง: ใส่ยอดที่กองนี้มีอยู่จริง ระบบจะบันทึกส่วนต่างให้เอง ทั้งเพิ่มและลด"
+
+msgid "What the pile really holds (THB)"
+msgstr "ยอดที่กองมีอยู่จริง (บาท)"
+
+msgid "This month is outside your plan"
+msgstr "เดือนนี้อยู่นอกช่วงของแผนของคุณ"
+
+msgid "The system already shows this balance"
+msgstr "ในระบบมียอดเท่านี้อยู่แล้ว"

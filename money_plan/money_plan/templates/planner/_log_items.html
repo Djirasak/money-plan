@@ -5,7 +5,7 @@
         {# big and faint behind the row: a sync icon for adjustments, else the direction arrow (out / in / between piles) #}
         <span class="entry-watermark" aria-hidden="true">{% if e.type == "adjust" %}{% icon "refresh-cw" "size-full" %}{% elif e.tone == "out" %}{% icon "arrow-up-right" "size-full" %}{% elif e.tone == "in" %}{% icon "arrow-down-left" "size-full" %}{% else %}{% icon "arrow-left-right" "size-full" %}{% endif %}</span>
         <section>
-          <h3 class="entry-title"><span class="entry-type">{{ e.get_type_display }}</span><span class="entry-amount">{% if e.tone == "out" %}-{% elif e.tone == "in" %}+{% endif %}{{ e.amount|baht }}</span></h3>
+          <h3 class="entry-title"><span class="entry-type">{{ e.get_type_display }}</span><span class="entry-amount">{{ e.sign }}{{ e.amount|baht }}</span></h3>
           <p class="entry-meta">
             {{ e.date|date:"j F" }} ·
             {% if e.from_pile %}{{ e.from_pile }}{% endif %}{% if e.from_pile and e.to_pile %} {% icon "arrow-right" "size-3 inline-block align-[-1px]" %} {% endif %}{% if e.to_pile %}{{ e.to_pile }}{% endif %}

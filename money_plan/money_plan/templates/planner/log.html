@@ -19,11 +19,13 @@
       {% trans "Money you spent: pick the pile it came out of." as h_spend %}
       {% trans "Move money from one pile to another: pick both piles." as h_transfer %}
       {% trans "Sweep what is left of one pile into another: pick both piles." as h_sweep %}
-      {% trans "Your records are off: add the money that is really there but was never recorded, to the pile that has it." as h_adjust %}
-      {% trans "Money that came in from a known source: pick the pile that gets it and say where it came from." as h_income %}
+      {% trans "Your records are off: enter how much the pile REALLY holds. The difference is recorded for you, up or down." as h_adjust %}
+      {% trans "Pile" as l_pile %}
+      {% trans "What the pile really holds (THB)" as l_real %}
+      {% trans "Money that came in from a known source: pick the pile that gets it, and note where it came from if you like." as h_income %}
       {% trans "Note (optional)" as n_default %}
       {% trans "Reason (optional)" as n_adjust %}
-      {% trans "Where did the money come from?" as n_income %}
+      {% trans "Where did the money come from? (optional)" as n_income %}
       {# Only the piles that matter for the chosen type can be picked; the other field is greyed out and not sent. #}
       <section class="grid gap-4"
                x-data="{
@@ -32,6 +34,12 @@
                  get noTo() { return this.type === 'spend' },
                  hints: { spend: '{{ h_spend|escapejs }}', transfer: '{{ h_transfer|escapejs }}', sweep: '{{ h_sweep|escapejs }}', adjust: '{{ h_adjust|escapejs }}', income: '{{ h_income|escapejs }}' },
                  notes: { adjust: '{{ n_adjust|escapejs }}', income: '{{ n_income|escapejs }}' },
+                 labels: { to: { adjust: '{{ l_pile|escapejs }}' }, amount: { adjust: '{{ l_real|escapejs }}' } },
+                 relabel(el, key) {
+                   const label = el.querySelector('label');
+                   label.dataset.original ??= label.textContent;
+                   label.textContent = this.labels[key]?.[this.type] ?? label.dataset.original;
+                 },
                }"
                @change="if ($event.detail && $event.target.id === 'id_type') type = $event.detail.value">
         {% include "planner/_field.html" with f=form.date %}
@@ -41,13 +49,13 @@
           {% include "planner/_field.html" with f=form.from_pile %}
         </div>
         <div :class="noTo && 'pointer-events-none opacity-50'" :inert="noTo" :aria-disabled="noTo"
-             x-effect="$el.querySelector('input[type=hidden]').disabled = noTo">
+             x-effect="$el.querySelector('input[type=hidden]').disabled = noTo; relabel($el, 'to')">
           {% include "planner/_field.html" with f=form.to_pile %}
         </div>
-        {% include "planner/_field.html" with f=form.amount %}
-        <div class="grid gap-2" x-effect="$el.querySelector('input').required = type === 'income'">
+        <div x-effect="relabel($el, 'amount')">{% include "planner/_field.html" with f=form.amount %}</div>
+        <div class="grid gap-2">
           <label class="label" for="{{ form.note.id_for_label }}">
-            <span x-text="notes[type] || '{{ n_default|escapejs }}'">{{ form.note.label }}</span><span class="text-destructive" x-show="type === 'income'" x-cloak> *</span>
+            <span x-text="notes[type] || '{{ n_default|escapejs }}'">{{ form.note.label }}</span>
           </label>
           {{ form.note }}
           {% for error in form.note.errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}

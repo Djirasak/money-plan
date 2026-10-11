@@ -514,6 +514,8 @@ body:has(.app-nav) .toaster {
 .entry-out { --tone: var(--tone-out); --tone-bg: var(--tone-out-bg); }
 .entry-in { --tone: var(--tone-in); --tone-bg: var(--tone-in-bg); }
 .entry-move { --tone: var(--tone-move); --tone-bg: var(--tone-move-bg); }
+/* a correction of the books: its own colour (the app's amber), never mistaken for income */
+.entry-adjust { --tone: var(--warn); --tone-bg: var(--warn-soft); }
 .entry-title { @apply flex flex-wrap items-baseline gap-x-2 leading-tight; }
 .entry-type { color: var(--tone); @apply text-sm font-bold; }
 .entry-amount { color: var(--tone); @apply text-sm font-semibold; }

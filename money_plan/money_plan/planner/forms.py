@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django import forms
 from django.db.models import Max
 from django.template.loader import render_to_string
@@ -5,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
+from . import services
 from .models import MAX_SALARIES
 from .models import LogEntry
 from .models import Pile
@@ -78,10 +81,21 @@ class LogEntryForm(forms.ModelForm):
         for name in ("from_pile", "to_pile"):
             self.fields[name].queryset = piles
             self.fields[name].empty_label = "—"
+        entry = self.instance
+        if entry.pk and entry.type == LogEntry.ADJUST:
+            # editing an adjustment shows the pile and the REAL balance it recorded
+            pile = entry.to_pile or entry.from_pile
+            balance = pile and services.pile_balance(user, pile, entry.month)
+            if balance is not None:
+                self.initial["to_pile"], self.initial["from_pile"] = pile.pk, None
+                self.initial["amount"] = balance.quantize(Decimal("0.01"))
 
     def clean_amount(self):
         amount = self.cleaned_data["amount"]
-        if amount <= 0:
+        # an adjustment takes the REAL balance of the pile, and a pile can really be empty
+        if amount < 0 or (
+            amount == 0 and self.cleaned_data.get("type") != LogEntry.ADJUST
+        ):
             msg = _("Amount must be greater than 0")
             raise forms.ValidationError(msg)
         return amount
@@ -100,12 +114,39 @@ class LogEntryForm(forms.ModelForm):
                 "This entry only needs the pile that receives the money ('To pile')",
             )
             raise forms.ValidationError(msg)
-        if kind == LogEntry.INCOME and not (data.get("note") or "").strip():
-            self.add_error("note", _("Say where the money came from"))
+        if (
+            kind == LogEntry.ADJUST
+            and dst
+            and data.get("amount") is not None
+            and data.get("date")
+        ):
+            self._adjust_to_real_balance(data, dst)
         if src and dst and src == dst:
             msg = _("The source and target piles must differ")
             raise forms.ValidationError(msg)
         return data
+
+    def _adjust_to_real_balance(self, data, pile) -> None:
+        """The typed amount is what the pile REALLY holds: record the difference with the
+        system as an entry that adds money (To pile) or takes it out (From pile)."""
+        month = f"{data['date']:%Y-%m}"
+        system = services.pile_balance(
+            self.user,
+            pile,
+            month,
+            exclude_entry_id=self.instance.pk,
+        )
+        if system is None:
+            self.add_error("date", _("This month is outside your plan"))
+            return
+        difference = (data["amount"] - system).quantize(Decimal("0.01"))
+        if difference == 0:
+            self.add_error("amount", _("The system already shows this balance"))
+            return
+        data["amount"] = abs(difference)
+        data["from_pile"], data["to_pile"] = (
+            (None, pile) if difference > 0 else (pile, None)
+        )
 
     def save(self, commit=True):  # noqa: FBT002
         self.instance.user = self.user

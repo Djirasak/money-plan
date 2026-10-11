@@ -291,14 +291,24 @@ class LogEntry(models.Model):
 
     @property
     def tone(self) -> str:
-        """``out`` money leaves you, ``in`` money comes in, ``move`` only changes piles."""
+        """``out`` money leaves you, ``in`` money comes in, ``move`` only changes piles,
+        ``adjust`` is a correction of the books (its own colour, not income)."""
         if self.type in (self.TRANSFER, self.SWEEP):
             return "move"
-        if self.type == self.INCOME or (
-            self.type == self.ADJUST and self.to_pile_id and not self.from_pile_id
-        ):
+        if self.type == self.ADJUST:
+            return "adjust"
+        if self.type == self.INCOME:
             return "in"
         return "out"
+
+    @property
+    def sign(self) -> str:
+        """ "+" when the entry adds money to a pile, "-" when it takes money out, else empty."""
+        if self.type in (self.TRANSFER, self.SWEEP):
+            return ""
+        if self.type == self.INCOME or (self.to_pile_id and not self.from_pile_id):
+            return "+"
+        return "-"
 
     def to_engine(self) -> engine.Entry:
         return engine.Entry(

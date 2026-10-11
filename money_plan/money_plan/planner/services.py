@@ -79,7 +79,11 @@ def month_window(start: str) -> list[str]:
     return month_range(start, count)
 
 
-def compute_months(user: AbstractBaseUser, end_month: str) -> list[engine.Month]:
+def compute_months(
+    user: AbstractBaseUser,
+    end_month: str,
+    exclude_entry_id: int | None = None,
+) -> list[engine.Month]:
     cfg = ensure_defaults(user)
     piles = list(user.piles.select_related("overflow_to"))
     periods = (
@@ -98,10 +102,9 @@ def compute_months(user: AbstractBaseUser, end_month: str) -> list[engine.Month]
     ]
     entries = [
         e.to_engine()
-        for e in LogEntry.objects.filter(user=user).select_related(
-            "from_pile",
-            "to_pile",
-        )
+        for e in LogEntry.objects.filter(user=user)
+        .exclude(pk=exclude_entry_id)
+        .select_related("from_pile", "to_pile")
     ]
     salaries = [
         engine.Salary(s.effective_month, s.amount)
@@ -117,3 +120,19 @@ def compute_months(user: AbstractBaseUser, end_month: str) -> list[engine.Month]
         end_month=end_month,
         salary_multiplier=cfg.salary_multiplier,
     )
+
+
+def pile_balance(
+    user: AbstractBaseUser,
+    pile: Pile,
+    month: str,
+    exclude_entry_id: int | None = None,
+) -> Decimal | None:
+    """What the summary shows for ``pile`` in ``month`` (left / saved so far), or ``None``
+    when the month is outside the plan. ``exclude_entry_id`` leaves one entry out, so an
+    adjustment can be re-computed while it is being edited."""
+    for row in compute_months(user, month, exclude_entry_id):
+        if row.month == month:
+            pm = row.piles.get(pile.name)
+            return pm.before if pm else None
+    return None

@@ -579,12 +579,13 @@ def test_log_entry_tone_colours(client_in, user):
         )
 
     assert make("spend", a, None).tone == "out"
-    assert make("adjust", None, a).tone == "in"
-    assert make("adjust", a, None).tone == "out"
+    assert make("adjust", None, a).tone == "adjust"  # its own colour, not income
+    assert make("adjust", a, None).tone == "adjust"
+    assert make("income", None, a).tone == "in"
     assert make("transfer", a, b).tone == "move"
     assert make("sweep", a, b).tone == "move"
     html = client_in.get(reverse("planner:log"), {"m": month}).content.decode()
-    assert "entry-out" in html and "entry-in" in html and "entry-move" in html
+    assert all(f"entry-{tone}" in html for tone in ("out", "in", "move", "adjust"))
     assert 'id="entry-dialog"' in html and "data-auto-open" not in html
 
 
@@ -797,37 +798,182 @@ class TestAdjustAndIncome:
     def pile(self, user, name="เงินใช้ฟรี"):
         return Pile.objects.get(user=user, name=name)
 
-    def test_adjust_adds_money_to_one_pile_and_needs_no_note(self, client_in, user):
+    def balance(self, user, pile, exclude=None):
+        from money_plan.planner import services
+
+        return services.pile_balance(
+            user,
+            pile,
+            user.planner_settings.start_month,
+            exclude,
+        )
+
+    def test_adjust_takes_the_real_balance_and_records_the_difference_up(
+        self,
+        client_in,
+        user,
+    ):
         free = self.pile(user)
+        system = self.balance(user, free)
         assert (
-            self.post(client_in, user, type="adjust", to_pile=free.pk).status_code
+            self.post(
+                client_in,
+                user,
+                type="adjust",
+                to_pile=free.pk,
+                amount=f"{system + 500:.2f}",
+            ).status_code
             == 302
         )
         entry = LogEntry.objects.get(user=user)
-        assert (entry.type, entry.from_pile, entry.to_pile, entry.tone) == (
+        assert (entry.type, entry.from_pile, entry.to_pile, entry.amount) == (
             "adjust",
             None,
             free,
-            "in",
+            500,
         )
-
-    def test_income_needs_a_source_in_the_note(self, client_in, user):
-        free = self.pile(user)
+        assert (entry.tone, entry.sign) == ("adjust", "+")
         assert (
-            self.post(client_in, user, type="income", to_pile=free.pk).status_code
+            self.balance(user, free) == system + 500
+        )  # now the system shows the real balance
+
+    def test_adjust_records_a_difference_downwards_too(self, client_in, user):
+        free = self.pile(user)
+        system = self.balance(user, free)
+        self.post(
+            client_in,
+            user,
+            type="adjust",
+            to_pile=free.pk,
+            amount=f"{system - 200:.2f}",
+        )
+        entry = LogEntry.objects.get(user=user)
+        assert (entry.from_pile, entry.to_pile, entry.amount, entry.sign) == (
+            free,
+            None,
+            200,
+            "-",
+        )
+        assert self.balance(user, free) == system - 200
+
+    def test_adjust_to_zero_is_allowed_but_not_to_less_or_the_same(
+        self,
+        client_in,
+        user,
+    ):
+        free = self.pile(user)
+        system = self.balance(user, free)
+        assert (
+            self.post(
+                client_in,
+                user,
+                type="adjust",
+                to_pile=free.pk,
+                amount="-5",
+            ).status_code
+            == 200
+        )
+        assert (
+            self.post(
+                client_in,
+                user,
+                type="adjust",
+                to_pile=free.pk,
+                amount=f"{system:.2f}",
+            ).status_code
             == 200
         )
         assert not LogEntry.objects.filter(user=user).exists()
-        resp = self.post(
+        assert (
+            self.post(
+                client_in,
+                user,
+                type="adjust",
+                to_pile=free.pk,
+                amount="0",
+            ).status_code
+            == 302
+        )
+        assert self.balance(user, free) == 0
+
+    def test_editing_an_adjustment_shows_the_real_balance_and_keeps_it_stable(
+        self,
+        client_in,
+        user,
+    ):
+        free = self.pile(user)
+        system = self.balance(user, free)
+        self.post(
             client_in,
             user,
-            type="income",
+            type="adjust",
             to_pile=free.pk,
-            note="โบนัสปลายปี",
+            amount=f"{system + 500:.2f}",
+        )
+        entry = LogEntry.objects.get(user=user)
+        form_page = client_in.get(
+            reverse("planner:log_edit", args=[entry.pk]),
+        ).content.decode()
+        assert (
+            f'value="{system + 500:.2f}"' in form_page
+        )  # the real balance, not the difference
+        month = user.planner_settings.start_month
+        resp = client_in.post(
+            reverse("planner:log_edit", args=[entry.pk]),
+            {
+                "date": f"{month}-05",
+                "type": "adjust",
+                "to_pile": free.pk,
+                "amount": f"{system + 500:.2f}",
+                "m": month,
+            },
         )
         assert resp.status_code == 302
-        entry = LogEntry.objects.get(user=user)
-        assert (entry.type, entry.note, entry.tone) == ("income", "โบนัสปลายปี", "in")
+        entry.refresh_from_db()
+        assert (entry.amount, entry.to_pile) == (500, free)
+        assert LogEntry.objects.filter(user=user).count() == 1
+
+    def test_the_form_asks_for_the_real_balance_when_adjusting(self, client_in, user):
+        html = client_in.get(reverse("planner:log")).content.decode()
+        assert "ยอดที่กองมีอยู่จริง (บาท)" in html
+        assert "ใส่ยอดที่กองนี้มีอยู่จริง" in html
+
+    def test_income_note_is_optional(self, client_in, user):
+        free = self.pile(user)
+        assert (
+            self.post(client_in, user, type="income", to_pile=free.pk).status_code
+            == 302
+        )
+        assert (
+            self.post(
+                client_in,
+                user,
+                type="income",
+                to_pile=free.pk,
+                note="โบนัสปลายปี",
+            ).status_code
+            == 302
+        )
+        entries = LogEntry.objects.filter(user=user, type="income").order_by("id")
+        assert [e.note for e in entries] == ["", "โบนัสปลายปี"]
+        assert all(e.tone == "in" and e.sign == "+" for e in entries)
+
+    def test_adjust_has_its_own_colour_and_sign(self, client_in, user):
+        free = self.pile(user)
+        self.post(
+            client_in,
+            user,
+            type="adjust",
+            to_pile=free.pk,
+            amount=f"{self.balance(user, free) + 500:.2f}",
+        )
+        self.post(client_in, user, type="income", to_pile=free.pk)
+        month = user.planner_settings.start_month
+        html = client_in.get(reverse("planner:log"), {"m": month}).content.decode()
+        assert html.count("entry-adjust") == 1
+        assert html.count('class="item entry entry-in"') == 1
+        adjust_row = html.split("entry-adjust")[1].split("</li>")[0]
+        assert "+฿500" in adjust_row
 
     @pytest.mark.parametrize("kind", ["adjust", "income"])
     def test_a_from_pile_is_refused_for_both(self, client_in, user, kind):
@@ -873,7 +1019,9 @@ class TestAdjustAndIncome:
         assert "get noFrom()" in html and "adjust" in html and "income" in html
         assert ':inert="noFrom"' in html and ':inert="noTo"' in html
         assert "รับเงิน" in html  # the new type is offered, translated
-        assert "เงินนี้ได้มาจากไหน?" in html  # the note asks for the source on income
+        assert (
+            "เงินนี้ได้มาจากไหน? (ไม่บังคับ)" in html
+        )  # the note asks for the source on income, but does not insist
 
     def test_log_rows_show_a_sync_icon_for_adjust_and_an_arrow_for_income(
         self,
@@ -881,16 +1029,17 @@ class TestAdjustAndIncome:
         user,
     ):
         free = self.pile(user)
-        self.post(client_in, user, type="adjust", to_pile=free.pk)
+        self.post(
+            client_in,
+            user,
+            type="adjust",
+            to_pile=free.pk,
+            amount=f"{self.balance(user, free) + 500:.2f}",
+        )
         self.post(client_in, user, type="income", to_pile=free.pk, note="โบนัส")
         month = user.planner_settings.start_month
         html = client_in.get(reverse("planner:log"), {"m": month}).content.decode()
-        rows = html.split('class="item entry entry-in"')[1:]
-        by_type = {
-            ("income" if "รับเงิน" in r.split("</li>")[0] else "adjust"): r.split(
-                "</li>",
-            )[0]
-            for r in rows
-        }
-        assert "M3 12a9 9 0 0 1 9-9" in by_type["adjust"]  # refresh-cw
-        assert "M17 7 7 17" in by_type["income"]  # arrow-down-left
+        adjust_row = html.split('class="item entry entry-adjust"')[1].split("</li>")[0]
+        income_row = html.split('class="item entry entry-in"')[1].split("</li>")[0]
+        assert "M3 12a9 9 0 0 1 9-9" in adjust_row  # refresh-cw
+        assert "M17 7 7 17" in income_row  # arrow-down-left
