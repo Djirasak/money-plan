@@ -619,3 +619,17 @@ class TestPreviewCards:
         assert (
             "M17.8 19.2 16 11l3.5-3.5" in page
         )  # lucide plane, the Trip pile's chosen icon
+
+
+def test_overflow_is_worded_as_excess_sent_on_not_spilling_over(
+    client_in, rich, client
+):
+    client_in.post(reverse("planner:share"), {"action": "create", "title": "Wording"})
+    token = SharedTemplate.objects.get().token
+    page = (
+        type(client)()
+        .get(reverse("planner:template", kwargs={"token": token}))
+        .content.decode()
+    )
+    assert "ส่วนเกินโอนไป" in page
+    assert "ล้นไปที่" not in page

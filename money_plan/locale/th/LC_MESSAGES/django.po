@@ -1001,7 +1001,7 @@ msgid "+%(n)s months"
 msgstr "+%(n)s เดือน"
 
 msgid "Overflow to %(name)s"
-msgstr "ล้นไปที่ %(name)s"
+msgstr "ส่วนเกินโอนไป %(name)s"
 
 msgid "Goal: %(goal)s"
 msgstr "เป้าหมาย: %(goal)s"
@@ -1115,7 +1115,7 @@ msgid "The template is damaged: a goal has invalid months."
 msgstr "เทมเพลตเสียหาย: เป้าหมายมีจำนวนเดือนไม่ถูกต้อง"
 
 msgid "The template is damaged: a pile overflows to itself."
-msgstr "เทมเพลตเสียหาย: กองล้นไปที่ตัวเอง"
+msgstr "เทมเพลตเสียหาย: กองส่งส่วนเกินให้ตัวเอง"
 
 msgid "The template is damaged: a plan is not an object."
 msgstr "เทมเพลตเสียหาย: ข้อมูลแผนไม่ถูกต้อง"
@@ -1136,10 +1136,10 @@ msgid "The template is damaged: a plan row is not valid."
 msgstr "เทมเพลตเสียหาย: แถวของแผนไม่ถูกต้อง"
 
 msgid "The template is damaged: piles overflow in a circle."
-msgstr "เทมเพลตเสียหาย: กองล้นวนเป็นวงกลม"
+msgstr "เทมเพลตเสียหาย: ส่วนเกินของกองส่งวนเป็นวงกลม"
 
 msgid "The template is damaged: a pile overflows to a pile that is missing."
-msgstr "เทมเพลตเสียหาย: กองล้นไปที่กองที่ไม่มีอยู่"
+msgstr "เทมเพลตเสียหาย: กองส่งส่วนเกินไปยังกองที่ไม่มีอยู่"
 
 msgid "pile name"
 msgstr "ชื่อกอง"
