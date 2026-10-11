@@ -748,7 +748,7 @@ class TestPlanLiveCheckAndLogRows:
         assert "ที่ยังไม่ได้จัดสรร" in dialog and "เกิน 100%" in dialog  # both ways off
         assert "__n__" in dialog  # placeholder the page script fills in
 
-    def test_log_rows_are_compact_and_carry_the_pile_icon_as_watermark(
+    def test_log_rows_carry_a_watermark_svg(
         self,
         client_in,
         user,
@@ -769,7 +769,7 @@ class TestPlanLiveCheckAndLogRows:
         assert "<svg" in row.split("entry-watermark")[1].split("</span>")[0]
 
 
-def test_log_rows_have_no_leading_arrow_icon_only_the_pile_watermark(client_in, user):
+def test_log_rows_have_no_leading_icon_only_the_arrow_watermark(client_in, user):
     spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
     LogEntry.objects.create(
         user=user,
@@ -782,4 +782,7 @@ def test_log_rows_have_no_leading_arrow_icon_only_the_pile_watermark(client_in, 
     row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
     assert "entry-icon" not in row
     assert "entry-watermark" in row
+    assert (
+        "M7 7h10v10" in row.split("entry-watermark")[1]
+    )  # the out arrow (arrow-up-right)
     assert "-฿150" in row  # the sign and the word still say what kind of entry it is

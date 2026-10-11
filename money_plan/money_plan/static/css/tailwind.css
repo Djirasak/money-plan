@@ -519,7 +519,7 @@ body:has(.app-nav) .toaster {
 .entry-amount { color: var(--tone); @apply text-sm font-semibold; }
 .entry-meta { @apply text-xs leading-snug; }
 
-/* compact rows: tighter padding and gaps; the pile's icon as a faint watermark behind them */
+/* compact rows: tighter padding and gaps; a faint arrow watermark behind them */
 .entry {
   @apply relative gap-2.5 overflow-hidden px-3 py-2;
 }

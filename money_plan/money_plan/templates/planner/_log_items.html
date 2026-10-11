@@ -2,8 +2,8 @@
 {# A page of log rows; the last item loads the next 10 when scrolled into view (or clicked) in place of itself. Needs: entries, month, next_offset. #}
 {% for e in entries %}
       <li class="item entry entry-{{ e.tone }}" data-variant="outline">
-        {# the pile's icon, big and faint, behind the row (like the summary cards) #}
-        <span class="entry-watermark" aria-hidden="true">{% with p=e.from_pile|default:e.to_pile %}{% icon p.icon_name "size-full" %}{% endwith %}</span>
+        {# the entry's direction arrow (out / in / between piles), big and faint, behind the row #}
+        <span class="entry-watermark" aria-hidden="true">{% if e.tone == "out" %}{% icon "arrow-up-right" "size-full" %}{% elif e.tone == "in" %}{% icon "arrow-down-left" "size-full" %}{% else %}{% icon "arrow-left-right" "size-full" %}{% endif %}</span>
         <section>
           <h3 class="entry-title"><span class="entry-type">{{ e.get_type_display }}</span><span class="entry-amount">{% if e.tone == "out" %}-{% elif e.tone == "in" %}+{% endif %}{{ e.amount|baht }}</span></h3>
           <p class="entry-meta">
