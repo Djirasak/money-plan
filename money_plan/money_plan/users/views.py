@@ -42,7 +42,16 @@ class UserDetailView(LoginRequiredMixin, DetailView):
 user_detail_view = UserDetailView.as_view()
 
 
-class AccountChangeView(LoginRequiredMixin, View):
+class SelfOnlyMixin(LoginRequiredMixin):
+    """The pk in the URL must be the signed-in user's own: anyone else gets a 404."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and kwargs.get("pk") != request.user.pk:
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AccountChangeView(SelfOnlyMixin, View):
     """Base for the account dialogs: valid -> toast + back to the page, invalid -> page with the dialog open."""
 
     http_method_names = ["post"]
@@ -55,7 +64,7 @@ class AccountChangeView(LoginRequiredMixin, View):
     def save(self, form) -> None:
         form.save()
 
-    def post(self, request):
+    def post(self, request, pk):
         form = self.get_form()
         if form.is_valid():
             self.save(form)
@@ -126,10 +135,10 @@ class PhotoChangeView(AccountChangeView):
         )
 
 
-class PhotoRemoveView(LoginRequiredMixin, View):
+class PhotoRemoveView(SelfOnlyMixin, View):
     http_method_names = ["post"]
 
-    def post(self, request):
+    def post(self, request, pk):
         user = request.user
         if user.photo:
             user.photo.delete(save=True)
@@ -137,12 +146,12 @@ class PhotoRemoveView(LoginRequiredMixin, View):
         return redirect(user.get_absolute_url())
 
 
-class PhotoView(LoginRequiredMixin, View):
+class PhotoView(SelfOnlyMixin, View):
     """Stream the signed-in user's photo from the object store."""
 
     http_method_names = ["get"]
 
-    def get(self, request):
+    def get(self, request, pk):
         photo = request.user.photo
         if not photo:
             raise Http404

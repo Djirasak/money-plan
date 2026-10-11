@@ -34,7 +34,7 @@ class User(AbstractUser):
         """Django streams the file (the bucket is private); the name changes on every upload."""
         if not self.photo:
             return ""
-        return f"{reverse('users:photo')}?v={uuid.uuid5(uuid.NAMESPACE_URL, self.photo.name).hex[:8]}"
+        return f"{reverse('users:photo', kwargs={'pk': self.pk})}?v={uuid.uuid5(uuid.NAMESPACE_URL, self.photo.name).hex[:8]}"
 
     def save_name(self, first_name: str, last_name: str) -> None:
         """Store the two parts and keep the combined display name in step."""

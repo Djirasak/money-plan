@@ -54,7 +54,10 @@ class TestAccountChanges:
 
     def test_change_username(self, client, user: User):
         client.force_login(user)
-        resp = client.post(reverse("users:change_username"), {"username": "brand_new"})
+        resp = client.post(
+            reverse("users:change_username", kwargs={"pk": user.pk}),
+            {"username": "brand_new"},
+        )
         assert resp.status_code == HTTPStatus.FOUND
         user.refresh_from_db()
         assert user.username == "brand_new"
@@ -65,7 +68,7 @@ class TestAccountChanges:
         client.force_login(user)
         old = user.username
         resp = client.post(
-            reverse("users:change_username"),
+            reverse("users:change_username", kwargs={"pk": user.pk}),
             {"username": other.username.lower()},
         )
         assert resp.status_code == HTTPStatus.OK
@@ -79,7 +82,10 @@ class TestAccountChanges:
         from allauth.account.models import EmailAddress
 
         client.force_login(user)
-        resp = client.post(reverse("users:change_email"), {"email": "new@example.com"})
+        resp = client.post(
+            reverse("users:change_email", kwargs={"pk": user.pk}),
+            {"email": "new@example.com"},
+        )
         assert resp.status_code == HTTPStatus.FOUND
         user.refresh_from_db()
         assert user.email == "new@example.com"
@@ -90,7 +96,10 @@ class TestAccountChanges:
     def test_email_taken_is_rejected(self, client, user: User):
         other = UserFactory(email="used@example.com")
         client.force_login(user)
-        resp = client.post(reverse("users:change_email"), {"email": "USED@example.com"})
+        resp = client.post(
+            reverse("users:change_email", kwargs={"pk": user.pk}),
+            {"email": "USED@example.com"},
+        )
         assert resp.status_code == HTTPStatus.OK
         assert "data-auto-open" in resp.content.decode()
         user.refresh_from_db()
@@ -101,7 +110,7 @@ class TestAccountChanges:
         user.save()
         client.force_login(user)
         resp = client.post(
-            reverse("users:change_password"),
+            reverse("users:change_password", kwargs={"pk": user.pk}),
             {
                 "old_password": "old-pass-123!",
                 "new_password1": "Brand-new-pass-77",
@@ -120,7 +129,7 @@ class TestAccountChanges:
         user.save()
         client.force_login(user)
         resp = client.post(
-            reverse("users:change_password"),
+            reverse("users:change_password", kwargs={"pk": user.pk}),
             {
                 "old_password": "nope",
                 "new_password1": "Brand-new-pass-77",
@@ -131,15 +140,18 @@ class TestAccountChanges:
         user.refresh_from_db()
         assert user.check_password("old-pass-123!")
 
-    def test_anonymous_cannot_change(self, client):
-        resp = client.post(reverse("users:change_email"), {"email": "x@example.com"})
+    def test_anonymous_cannot_change(self, client, user: User):
+        resp = client.post(
+            reverse("users:change_email", kwargs={"pk": user.pk}),
+            {"email": "x@example.com"},
+        )
         assert resp.status_code == HTTPStatus.FOUND
         assert "login" in resp.url
 
     def test_change_name_stores_first_and_last(self, client, user: User):
         client.force_login(user)
         resp = client.post(
-            reverse("users:change_name"),
+            reverse("users:change_name", kwargs={"pk": user.pk}),
             {"first_name": " สมชาย ", "last_name": "ใจดี"},
         )
         assert resp.status_code == HTTPStatus.FOUND
@@ -164,11 +176,11 @@ def _png(size=(300, 200), color="red") -> bytes:
 
 
 class TestProfilePhoto:
-    def upload(self, client, data: bytes, name="me.png"):
+    def upload(self, client, user: User, data: bytes, name="me.png"):
         from django.core.files.uploadedfile import SimpleUploadedFile
 
         return client.post(
-            reverse("users:change_photo"),
+            reverse("users:change_photo", kwargs={"pk": user.pk}),
             {"photo": SimpleUploadedFile(name, data, content_type="image/png")},
         )
 
@@ -176,7 +188,7 @@ class TestProfilePhoto:
         from PIL import Image
 
         client.force_login(user)
-        resp = self.upload(client, _png())
+        resp = self.upload(client, user, _png())
         assert resp.status_code == HTTPStatus.FOUND
         user.refresh_from_db()
         assert user.photo.name.startswith(f"avatars/{user.pk}/")
@@ -185,26 +197,26 @@ class TestProfilePhoto:
 
     def test_page_shows_the_photo_and_serves_it(self, client, user: User):
         client.force_login(user)
-        self.upload(client, _png())
+        self.upload(client, user, _png())
         user.refresh_from_db()
         assert user.photo_url in client.get(user.get_absolute_url()).content.decode()
-        resp = client.get(reverse("users:photo"))
+        resp = client.get(reverse("users:photo", kwargs={"pk": user.pk}))
         assert resp.status_code == HTTPStatus.OK
         assert b"".join(resp.streaming_content)[:2] == b"\xff\xd8"  # JPEG
 
     def test_new_upload_replaces_and_deletes_the_old_file(self, client, user: User):
         client.force_login(user)
-        self.upload(client, _png())
+        self.upload(client, user, _png())
         user.refresh_from_db()
         first = user.photo.name
-        self.upload(client, _png(color="blue"))
+        self.upload(client, user, _png(color="blue"))
         user.refresh_from_db()
         assert user.photo.name != first
         assert not user.photo.storage.exists(first)
 
     def test_not_an_image_reopens_the_dialog(self, client, user: User):
         client.force_login(user)
-        resp = self.upload(client, b"just text", name="x.png")
+        resp = self.upload(client, user, b"just text", name="x.png")
         assert resp.status_code == HTTPStatus.OK
         assert "data-auto-open" in resp.content.decode()
         user.refresh_from_db()
@@ -212,16 +224,35 @@ class TestProfilePhoto:
 
     def test_remove_deletes_the_file(self, client, user: User):
         client.force_login(user)
-        self.upload(client, _png())
+        self.upload(client, user, _png())
         user.refresh_from_db()
         name = user.photo.name
-        resp = client.post(reverse("users:remove_photo"))
+        resp = client.post(reverse("users:remove_photo", kwargs={"pk": user.pk}))
         assert resp.status_code == HTTPStatus.FOUND
         user.refresh_from_db()
         assert not user.photo
         assert not user.photo.storage.exists(name)
 
     def test_no_photo_is_404_and_anonymous_is_redirected(self, client, user: User):
-        assert client.get(reverse("users:photo")).status_code == HTTPStatus.FOUND
+        assert (
+            client.get(reverse("users:photo", kwargs={"pk": user.pk})).status_code
+            == HTTPStatus.FOUND
+        )
         client.force_login(user)
-        assert client.get(reverse("users:photo")).status_code == HTTPStatus.NOT_FOUND
+        assert (
+            client.get(reverse("users:photo", kwargs={"pk": user.pk})).status_code
+            == HTTPStatus.NOT_FOUND
+        )
+
+
+class TestOnlyYourOwnAccount:
+    def test_other_users_endpoints_are_404(self, client, user: User):
+        other = UserFactory()
+        client.force_login(user)
+        for name in ("change_username", "change_photo", "remove_photo"):
+            resp = client.post(reverse(f"users:{name}", kwargs={"pk": other.pk}))
+            assert resp.status_code == HTTPStatus.NOT_FOUND
+        assert (
+            client.get(reverse("users:photo", kwargs={"pk": other.pk})).status_code
+            == HTTPStatus.NOT_FOUND
+        )

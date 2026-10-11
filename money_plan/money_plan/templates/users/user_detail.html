@@ -34,7 +34,7 @@
       <div class="min-w-0">
         <h2 class="truncate text-base font-semibold">{{ object.name|default:object.username }}</h2>
         {% if object == request.user and object.photo %}
-          <form method="post" action="{% url 'users:remove_photo' %}" class="mt-1">
+          <form method="post" action="{% url 'users:remove_photo' object.pk %}" class="mt-1">
             {% csrf_token %}
             <button type="submit" class="btn text-xs text-destructive" data-variant="link" data-size="sm">{% trans "Remove photo" %}</button>
           </form>
@@ -79,19 +79,19 @@
     </ul>
 
     {% trans "Change profile photo" as t_photo %}{% trans "Upload photo" as s_photo %}{% trans "JPG, PNG or WebP, up to 10 MB. It is cropped to a square and shrunk automatically." as h_photo %}
-    {% url 'users:change_photo' as a_photo %}
+    {% url 'users:change_photo' object.pk as a_photo %}
     {% include "users/_account_dialog.html" with dialog_id="account-photo" title=t_photo form=photo_form action=a_photo submit=s_photo hint=h_photo multipart=True %}
     {% trans "Change username" as t_user %}{% trans "Save username" as s_user %}
-    {% url 'users:change_username' as a_user %}
+    {% url 'users:change_username' object.pk as a_user %}
     {% include "users/_account_dialog.html" with dialog_id="account-username" title=t_user form=username_form action=a_user submit=s_user %}
     {% trans "Change name" as t_name %}{% trans "Save name" as s_name %}
-    {% url 'users:change_name' as a_name %}
+    {% url 'users:change_name' object.pk as a_name %}
     {% include "users/_account_dialog.html" with dialog_id="account-name" title=t_name form=name_form action=a_name submit=s_name %}
     {% trans "Change email" as t_mail %}{% trans "Save email" as s_mail %}
-    {% url 'users:change_email' as a_mail %}
+    {% url 'users:change_email' object.pk as a_mail %}
     {% include "users/_account_dialog.html" with dialog_id="account-email" title=t_mail form=email_form action=a_mail submit=s_mail %}
     {% trans "Change password" as t_pw %}{% trans "Save password" as s_pw %}{% trans "Use at least 8 characters. You stay signed in on this device." as h_pw %}
-    {% url 'users:change_password' as a_pw %}
+    {% url 'users:change_password' object.pk as a_pw %}
     {% include "users/_account_dialog.html" with dialog_id="account-password" title=t_pw form=password_form action=a_pw submit=s_pw hint=h_pw %}
     {% include "users/_logout_dialog.html" %}
   {% endif %}
