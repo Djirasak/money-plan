@@ -1043,3 +1043,15 @@ class TestAdjustAndIncome:
         income_row = html.split('class="item entry entry-in"')[1].split("</li>")[0]
         assert "M3 12a9 9 0 0 1 9-9" in adjust_row  # refresh-cw
         assert "M17 7 7 17" in income_row  # arrow-down-left
+
+
+def test_the_100_percent_check_sits_above_the_percent_fields(client_in, user):
+    period = PlanPeriod.objects.get(user=user)
+    html = client_in.get(reverse("planner:plan")).content.decode()
+    dialog = html.split(f'id="plan-edit-{period.pk}"')[1].split("</dialog>")[0]
+    first_field = dialog.index("data-percent")
+    assert dialog.index('role="status"') < first_field  # the live message comes first
+    assert (
+        dialog.index("sticky top-0") < first_field
+    )  # and stays in view while the list scrolls
+    assert dialog.count('role="status"') == 1  # not repeated below the list
