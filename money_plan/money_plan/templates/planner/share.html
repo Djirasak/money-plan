@@ -1,0 +1,76 @@
+{% extends "planner/layout.html" %}
+{% load i18n %}
+{% load planner_tags %}
+{% block heading %}{% trans "Share a plan" %}{% endblock heading %}
+{% block page %}
+  <p class="mb-4">
+    <a class="btn" data-variant="ghost" data-size="sm" href="{% url 'planner:settings' %}">{% icon "arrow-left" "size-4" %}{% trans "Back to settings" %}</a>
+  </p>
+
+  <section class="card" data-size="sm" aria-labelledby="create-heading">
+    <header class="px-4">
+      <h2 class="text-sm font-medium" id="create-heading">{% trans "Share your piles and plans" %}</h2>
+      <p class="text-xs text-muted-foreground">{% blocktrans with piles=pile_count plans=plan_count %}{{ piles }} piles and {{ plans }} plans will be shared.{% endblocktrans %} {{ not_shared_note }}</p>
+    </header>
+    <form method="post" class="grid gap-4 px-4">
+      {% csrf_token %}<input type="hidden" name="action" value="create" />
+      <div class="grid gap-2">
+        <label class="label" for="share-title">{% trans "Title" %}<span class="text-destructive"> *</span></label>
+        <input class="input" id="share-title" name="title" maxlength="{{ max_title }}" required />
+      </div>
+      <div class="grid gap-2">
+        <label class="label" for="share-description">{% trans "Description (optional)" %}</label>
+        <textarea class="input h-auto py-2" id="share-description" name="description" rows="3" maxlength="{{ max_description }}"></textarea>
+      </div>
+      <p class="text-xs text-muted-foreground">{% trans "Anyone who is signed in and has the link can see it and add it to their own account. You can stop sharing at any time." %}</p>
+      <div class="flex justify-end">
+        <button type="submit" class="btn" data-loading-text="{% trans 'Create link' %}">{% icon "plus" "size-4" %}{% trans "Create link" %}</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card mt-6" data-size="sm" aria-labelledby="links-heading">
+    <header class="px-4"><h2 class="text-sm font-medium" id="links-heading">{% trans "Your links" %}</h2></header>
+    <ul class="flex flex-col gap-2 px-4">
+      {% for link in links %}
+        <li class="item" data-variant="outline">
+          <section class="min-w-0 flex-1">
+            <h3 class="truncate text-sm font-semibold">{{ link.obj.title }}</h3>
+            <div class="mt-2 flex items-center gap-2">
+              <input class="input min-w-0 flex-1 text-xs" readonly value="{{ link.url }}" aria-label="{% trans 'Link' %}" data-select-on-focus />
+              <button type="button" class="btn shrink-0" data-variant="outline" data-size="icon-sm" data-copy="{{ link.url }}" data-copied="{% trans 'Copied' %}"
+                      aria-label="{% trans 'Copy link' %}" title="{% trans 'Copy link' %}">{% icon "copy" "size-4" %}</button>
+            </div>
+          </section>
+          <aside>
+            <form method="post">
+              {% csrf_token %}<input type="hidden" name="action" value="delete" /><input type="hidden" name="id" value="{{ link.obj.pk }}" />
+              <button type="submit" class="btn text-destructive" data-variant="ghost" data-size="icon-sm" aria-label="{% blocktrans with t=link.obj.title %}Stop sharing {{ t }}{% endblocktrans %}"
+                      title="{% trans 'Stop sharing' %}">{% icon "trash-2" "size-4" %}</button>
+            </form>
+          </aside>
+        </li>
+      {% empty %}
+        <li class="px-1 text-xs text-muted-foreground">{% trans "No links yet." %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card mt-6" data-size="sm" aria-labelledby="file-heading">
+    <header class="px-4">
+      <h2 class="text-sm font-medium" id="file-heading">{% trans "As a file" %}</h2>
+      <p class="text-xs text-muted-foreground">{% trans "Keep a copy, or add a plan someone sent you as a file." %}</p>
+    </header>
+    <section class="grid gap-4 px-4">
+      <a class="btn" data-variant="outline" href="{% url 'planner:share_export' %}" download>{% icon "save" "size-4" %}{% trans "Download my plan as a file" %}</a>
+      <form method="post" enctype="multipart/form-data" class="grid gap-2">
+        {% csrf_token %}<input type="hidden" name="action" value="upload" />
+        <label class="label" for="share-file">{% trans "Add a plan from a file" %}</label>
+        <input class="input" type="file" id="share-file" name="file" accept="application/json,.json" required />
+        <div class="flex justify-end">
+          <button type="submit" class="btn" data-variant="outline" data-loading-text="{% trans 'Preview' %}">{% trans "Preview" %}</button>
+        </div>
+      </form>
+    </section>
+  </section>
+{% endblock page %}

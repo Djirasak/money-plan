@@ -1,4 +1,5 @@
 import re
+import secrets
 from datetime import date
 from decimal import Decimal
 
@@ -289,3 +290,29 @@ class LogEntry(models.Model):
             from_pile=self.from_pile.name if self.from_pile else None,
             to_pile=self.to_pile.name if self.to_pile else None,
         )
+
+
+def new_share_token() -> str:
+    return secrets.token_urlsafe(16)  # 22 url-safe characters, not guessable
+
+
+class SharedTemplate(models.Model):
+    """A plan shared by link: a snapshot (structure and percentages only, see ``sharing``)."""
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="shared_templates",
+    )
+    title = models.CharField(max_length=80)
+    description = models.CharField(max_length=500, blank=True)
+    token = models.CharField(max_length=32, unique=True, default=new_share_token)
+    payload = models.JSONField()
+    schema_version = models.PositiveSmallIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return self.title

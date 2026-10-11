@@ -131,6 +131,30 @@ window.addEventListener('pageshow', (event) => {
 })();
 
 /*
+ * Copy buttons: [data-copy="text"] copies the text and shows data-copied as a toast-like
+ * title for a moment; read-only inputs marked [data-select-on-focus] select their text.
+ */
+(() => {
+  document.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-copy]');
+    if (!button) return;
+    try {
+      await navigator.clipboard.writeText(button.dataset.copy);
+    } catch {
+      const input = button.parentElement?.querySelector('input');
+      input?.select(); // clipboard blocked (e.g. plain http): leave it selected to copy by hand
+      return;
+    }
+    const label = button.getAttribute('title');
+    if (button.dataset.copied) button.setAttribute('title', button.dataset.copied);
+    setTimeout(() => button.setAttribute('title', label), 1500);
+  });
+  document.addEventListener('focusin', (event) => {
+    if (event.target.matches?.('input[data-select-on-focus]')) event.target.select();
+  });
+})();
+
+/*
  * Live password rule: next to a new-password field the server renders the rule(s) as a list
  * ([data-password-rules]). While typing it turns green (met) or red (not met), and the
  * confirmation field says at once when it differs. The server still validates on submit.

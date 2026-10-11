@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from . import views_share
 
 app_name = "planner"
 urlpatterns = [
@@ -21,4 +22,12 @@ urlpatterns = [
         name="piles_reorder",
     ),
     path("settings/plan/", views.SettingsPlanView.as_view(), name="plan"),
+    path("settings/share/", views_share.SettingsShareView.as_view(), name="share"),
+    path(
+        "settings/share/export/",
+        views_share.ExportView.as_view(),
+        name="share_export",
+    ),
+    path("import/", views_share.TemplateImportView.as_view(), name="import_file"),
+    path("t/<str:token>/", views_share.TemplateImportView.as_view(), name="template"),
 ]

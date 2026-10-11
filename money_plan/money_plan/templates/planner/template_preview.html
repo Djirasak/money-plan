@@ -1,0 +1,74 @@
+{% extends "planner/layout.html" %}
+{% load i18n %}
+{% load planner_tags %}
+{% block heading %}{% trans "Shared plan" %}{% endblock heading %}
+{% block page %}
+  <section class="card" data-size="sm">
+    <header class="px-4">
+      <h2 class="text-base font-semibold">{% if share %}{{ share.title }}{% else %}{% trans "Plan from a file" %}{% endif %}</h2>
+      {% if share and share.description %}<p class="whitespace-pre-line text-sm text-muted-foreground">{{ share.description }}</p>{% endif %}
+      <p class="text-xs text-muted-foreground">{{ not_shared_note }}</p>
+    </header>
+  </section>
+
+  <section class="card mt-6" data-size="sm" aria-labelledby="piles-heading">
+    <header class="px-4"><h2 class="text-sm font-medium" id="piles-heading">{% trans "Piles" %}</h2></header>
+    <ul class="flex flex-col gap-2 px-4">
+      {% for pile in piles %}
+        <li class="item" data-variant="outline">
+          <section class="min-w-0">
+            <h3 class="flex items-center gap-2 truncate text-sm font-semibold"><span class="size-3 shrink-0 rounded-full" style="background: {{ pile.color }}" aria-hidden="true"></span>{{ pile.name }}</h3>
+            <p class="text-xs text-muted-foreground">
+              {% if pile.kind == "fund" %}{% trans "Savings fund" %}{% else %}{% trans "Monthly budget" %}{% endif %}
+              · {% if pile.mode == "sweep" %}{% trans "Sweep to another pile" %}{% else %}{% trans "Rollover" %}{% endif %}
+              {% if pile.overflow_name %}· {% blocktrans with name=pile.overflow_name %}Overflow to {{ name }}{% endblocktrans %}{% endif %}
+              {% if pile.goal %}· {% blocktrans with goal=pile.goal %}Goal: {{ goal }}{% endblocktrans %}{% elif pile.target.type == "fixed" %}· {% trans "Goal: you set the amount" %}{% endif %}
+              {% if pile.has_cap %}· {% trans "Rollover cap: you set the amount" %}{% endif %}
+            </p>
+          </section>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card mt-6" data-size="sm" aria-labelledby="plans-heading">
+    <header class="px-4"><h2 class="text-sm font-medium" id="plans-heading">{% trans "Plans" %}</h2></header>
+    <ul class="flex flex-col gap-2 px-4">
+      {% for plan in plans %}
+        <li class="item" data-variant="outline">
+          <section class="min-w-0">
+            <h3 class="truncate text-sm font-semibold">{{ plan.name|default:_("Plan") }}
+              <span class="font-normal text-muted-foreground">· {% if plan.offset %}{% blocktrans with n=plan.offset %}+{{ n }} months{% endblocktrans %}{% else %}{% trans "Start" %}{% endif %}</span></h3>
+            {% if plan.cond_pile %}
+              <p class="text-xs text-muted-foreground">{% blocktrans with pile=plan.cond_pile op=plan.cond_op %}Only while {{ pile }} {{ op }}{% endblocktrans %}{% if plan.cond_target %} {% trans "its goal" %}{% else %} {% trans "an amount you set" %}{% endif %}</p>
+            {% endif %}
+            <ul class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+              {% for row in plan.rows %}<li><span class="font-medium">{{ row.pile.name }}</span> {{ row.percent }}%</li>{% endfor %}
+            </ul>
+          </section>
+        </li>
+      {% empty %}
+        <li class="px-1 text-xs text-muted-foreground">{% trans "This template has no plans, only piles." %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <form method="post" class="card mt-6" data-size="sm">
+    {% csrf_token %}
+    <header class="px-4">
+      <h2 class="text-sm font-medium">{% trans "Add to my account" %}</h2>
+      <p class="text-xs text-muted-foreground">{% trans "These piles and plans are added next to yours. Nothing you already have is changed or deleted. The new plan applies from the month you choose, so it takes over from your current plan then." %}</p>
+    </header>
+    <section class="grid gap-4 px-4">
+      {% trans "New plan starts from" as start_label %}
+      {% month_picker "month" default_month "import-month" start_label %}
+      {% for error in form.month.errors %}<p class="text-xs font-medium text-destructive">{{ error }}</p>{% endfor %}
+      {% for f in form.amount_fields %}{% include "planner/_field.html" with f=f %}{% endfor %}
+      {% if form.amount_fields %}<p class="-mt-2 text-xs text-muted-foreground">{% trans "Amounts are never shared, so enter your own." %}</p>{% endif %}
+    </section>
+    <footer class="justify-end px-4">
+      <a class="btn" data-variant="outline" href="{% url 'planner:share' %}">{% trans "Cancel" %}</a>
+      <button type="submit" class="btn" data-loading-text="{% trans 'Add to my account' %}">{% icon "plus" "size-4" %}{% trans "Add to my account" %}</button>
+    </footer>
+  </form>
+{% endblock page %}

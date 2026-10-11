@@ -170,4 +170,23 @@ describe('project.js', () => {
       expect(document.querySelector('[role="alert"]').hidden).toBe(true);
     });
   });
+
+  it('copies a link with the copy button and says so in the tooltip', async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    document.body.innerHTML =
+      '<div><input readonly value="x" data-select-on-focus /><button data-copy="https://x.test/t/abc" data-copied="Copied" title="Copy link"></button></div>';
+    document.querySelector('button').click();
+    await flush();
+    expect(writeText).toHaveBeenCalledWith('https://x.test/t/abc');
+    expect(document.querySelector('button').getAttribute('title')).toBe('Copied');
+  });
+
+  it('selects a read-only link when it is focused', () => {
+    document.body.innerHTML = '<input readonly value="https://x.test" data-select-on-focus />';
+    const input = document.querySelector('input');
+    const select = vi.spyOn(input, 'select');
+    input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    expect(select).toHaveBeenCalled();
+  });
 });

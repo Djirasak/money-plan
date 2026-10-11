@@ -98,6 +98,16 @@
     </section>
   </section>
 
+  <section class="card mt-6" data-size="sm">
+    <header class="px-4">
+      <h2 class="text-sm font-medium">{% trans "Share a plan" %}</h2>
+      <p class="text-xs text-muted-foreground">{% trans "Share your piles and plans as a template, or add one someone shared with you. Amounts are never shared." %}</p>
+    </header>
+    <section class="px-4">
+      <a class="btn w-full" data-variant="outline" href="{% url 'planner:share' %}">{% icon "arrow-up-right" "size-4" %}{% trans "Share & import" %}</a>
+    </section>
+  </section>
+
   <section class="card mt-6" data-size="sm" aria-labelledby="danger-heading">
     <header class="px-4">
       <h2 class="text-sm font-medium text-destructive" id="danger-heading">{% trans "Danger zone" %}</h2>

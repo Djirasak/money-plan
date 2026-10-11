@@ -915,3 +915,246 @@ msgstr "ผ่านเงื่อนไข"
 
 msgid "not met"
 msgstr "ไม่ผ่านเงื่อนไข"
+
+msgid "Share a plan"
+msgstr "แชร์แผน"
+
+msgid "Back to settings"
+msgstr "กลับไปการตั้งค่า"
+
+msgid "Share your piles and plans"
+msgstr "แชร์กองเงินและแผนของคุณ"
+
+msgid "%(piles)s piles and %(plans)s plans will be shared."
+msgstr "จะแชร์กองเงิน %(piles)s กองและแผน %(plans)s แผน"
+
+msgid "Title"
+msgstr "ชื่อเรื่อง"
+
+msgid "Description (optional)"
+msgstr "คำอธิบาย (ไม่บังคับ)"
+
+msgid "Anyone who is signed in and has the link can see it and add it to their own account. You can stop sharing at any time."
+msgstr "ทุกคนที่ล็อกอินและมีลิงก์จะดูและเพิ่มแผนนี้เข้าบัญชีของตัวเองได้ คุณหยุดแชร์ได้ทุกเมื่อ"
+
+msgid "Create link"
+msgstr "สร้างลิงก์"
+
+msgid "Your links"
+msgstr "ลิงก์ของคุณ"
+
+msgid "Link"
+msgstr "ลิงก์"
+
+msgid "Copy link"
+msgstr "คัดลอกลิงก์"
+
+msgid "Copied"
+msgstr "คัดลอกแล้ว"
+
+msgid "Stop sharing"
+msgstr "หยุดแชร์"
+
+msgid "Stop sharing %(t)s"
+msgstr "หยุดแชร์ %(t)s"
+
+msgid "No links yet."
+msgstr "ยังไม่มีลิงก์"
+
+msgid "As a file"
+msgstr "เป็นไฟล์"
+
+msgid "Keep a copy, or add a plan someone sent you as a file."
+msgstr "เก็บสำเนาไว้ หรือเพิ่มแผนที่มีคนส่งไฟล์มาให้"
+
+msgid "Download my plan as a file"
+msgstr "ดาวน์โหลดแผนของฉันเป็นไฟล์"
+
+msgid "Add a plan from a file"
+msgstr "เพิ่มแผนจากไฟล์"
+
+msgid "Preview"
+msgstr "ดูตัวอย่าง"
+
+msgid "Share your piles and plans as a template, or add one someone shared with you. Amounts are never shared."
+msgstr "แชร์กองเงินและแผนของคุณเป็นเทมเพลต หรือเพิ่มแผนที่มีคนแชร์มาให้ จำนวนเงินจะไม่ถูกแชร์"
+
+msgid "Share & import"
+msgstr "แชร์และนำเข้า"
+
+msgid "Only names, colours, percentages and rules are shared. Your salary, balances, amounts and entries are never included."
+msgstr "แชร์เฉพาะชื่อ สี เปอร์เซ็นต์ และกติกา เงินเดือน ยอดคงเหลือ จำนวนเงิน และรายการของคุณจะไม่ถูกรวมไปด้วยเลย"
+
+msgid "Shared plan"
+msgstr "แผนที่แชร์"
+
+msgid "Plan from a file"
+msgstr "แผนจากไฟล์"
+
+msgid "Plans"
+msgstr "แผน"
+
+msgid "Plan"
+msgstr "แผน"
+
+msgid "Start"
+msgstr "เริ่มต้น"
+
+msgid "+%(n)s months"
+msgstr "+%(n)s เดือน"
+
+msgid "Overflow to %(name)s"
+msgstr "ล้นไปที่ %(name)s"
+
+msgid "Goal: %(goal)s"
+msgstr "เป้าหมาย: %(goal)s"
+
+msgid "Goal: you set the amount"
+msgstr "เป้าหมาย: คุณกำหนดจำนวนเอง"
+
+msgid "Rollover cap: you set the amount"
+msgstr "เพดานยกยอด: คุณกำหนดจำนวนเอง"
+
+msgid "Only while %(pile)s %(op)s"
+msgstr "ใช้เฉพาะเมื่อ %(pile)s %(op)s"
+
+msgid "its goal"
+msgstr "เป้าหมายของกองนั้น"
+
+msgid "an amount you set"
+msgstr "จำนวนที่คุณกำหนด"
+
+msgid "This template has no plans, only piles."
+msgstr "เทมเพลตนี้ไม่มีแผน มีแต่กองเงิน"
+
+msgid "Add to my account"
+msgstr "เพิ่มเข้าบัญชีของฉัน"
+
+msgid "These piles and plans are added next to yours. Nothing you already have is changed or deleted. The new plan applies from the month you choose, so it takes over from your current plan then."
+msgstr "กองเงินและแผนเหล่านี้จะถูกเพิ่มเคียงข้างของคุณ ของที่มีอยู่เดิมจะไม่ถูกแก้หรือลบ แผนใหม่ใช้ตั้งแต่เดือนที่เลือก จึงแทนแผนปัจจุบันของคุณตั้งแต่เดือนนั้น"
+
+msgid "New plan starts from"
+msgstr "แผนใหม่เริ่มตั้งแต่"
+
+msgid "Amounts are never shared, so enter your own."
+msgstr "จำนวนเงินไม่ถูกแชร์ กรุณากรอกของคุณเอง"
+
+msgid "Rollover cap for %(pile)s (empty = unlimited)"
+msgstr "เพดานยกยอดของ %(pile)s (ว่าง = ไม่จำกัด)"
+
+msgid "Target amount for %(pile)s (THB)"
+msgstr "จำนวนเป้าหมายของ %(pile)s (บาท)"
+
+msgid "Amount for the plan “%(plan)s”: %(pile)s %(op)s (THB)"
+msgstr "จำนวนสำหรับแผน “%(plan)s”: %(pile)s %(op)s (บาท)"
+
+msgid "You have too many links. Delete one first."
+msgstr "คุณมีลิงก์มากเกินไป ลบอันเก่าก่อน"
+
+msgid "Add a plan first: a template without a plan is not useful."
+msgstr "เพิ่มแผนก่อน เทมเพลตที่ไม่มีแผนไม่มีประโยชน์"
+
+msgid "Link created. Anyone signed in who has it can add your plan."
+msgstr "สร้างลิงก์แล้ว ทุกคนที่ล็อกอินและมีลิงก์จะเพิ่มแผนของคุณได้"
+
+msgid "The link no longer works"
+msgstr "ลิงก์นี้ใช้ไม่ได้อีกแล้ว"
+
+msgid "Choose a template file first"
+msgstr "เลือกไฟล์เทมเพลตก่อน"
+
+msgid "The file is too big to be a template"
+msgstr "ไฟล์ใหญ่เกินกว่าจะเป็นเทมเพลต"
+
+msgid "This is not a Money Plan template."
+msgstr "นี่ไม่ใช่เทมเพลตของ Money Plan"
+
+msgid "There is no template to show. Open a link or choose a file."
+msgstr "ไม่มีเทมเพลตให้ดู เปิดลิงก์หรือเลือกไฟล์ก่อน"
+
+msgid "Added %(piles)s piles and %(plans)s plans to your account."
+msgstr "เพิ่มกองเงิน %(piles)s กองและแผน %(plans)s แผนเข้าบัญชีของคุณแล้ว"
+
+msgid "This template was made by a version we cannot read."
+msgstr "เทมเพลตนี้สร้างจากเวอร์ชันที่เราอ่านไม่ได้"
+
+msgid "The template has too few or too many piles or plans."
+msgstr "เทมเพลตมีกองเงินหรือแผนน้อยหรือมากเกินไป"
+
+msgid "This would give you too many piles. Delete some first."
+msgstr "การเพิ่มนี้จะทำให้คุณมีกองเงินมากเกินไป ลบบางกองก่อน"
+
+msgid "The description is too long."
+msgstr "คำอธิบายยาวเกินไป"
+
+msgid "The template is damaged: %(field)s must be text."
+msgstr "เทมเพลตเสียหาย: %(field)s ต้องเป็นข้อความ"
+
+msgid "The template is damaged: %(field)s is not valid."
+msgstr "เทมเพลตเสียหาย: %(field)s ไม่ถูกต้อง"
+
+msgid "The template is damaged: %(field)s is out of range."
+msgstr "เทมเพลตเสียหาย: %(field)s อยู่นอกช่วงที่กำหนด"
+
+msgid "The template is damaged: a pile is not an object."
+msgstr "เทมเพลตเสียหาย: ข้อมูลกองเงินไม่ถูกต้อง"
+
+msgid "The template is damaged: a pile key is not valid."
+msgstr "เทมเพลตเสียหาย: รหัสกองเงินไม่ถูกต้อง"
+
+msgid "The template is damaged: pile “%(name)s” is not valid."
+msgstr "เทมเพลตเสียหาย: กอง “%(name)s” ไม่ถูกต้อง"
+
+msgid "The template is damaged: two piles share a name."
+msgstr "เทมเพลตเสียหาย: มีสองกองใช้ชื่อเดียวกัน"
+
+msgid "The template is damaged: pile “%(name)s” has an unknown type."
+msgstr "เทมเพลตเสียหาย: กอง “%(name)s” มีประเภทที่ไม่รู้จัก"
+
+msgid "The template is damaged: pile “%(name)s” has an unknown goal."
+msgstr "เทมเพลตเสียหาย: กอง “%(name)s” มีเป้าหมายที่ไม่รู้จัก"
+
+msgid "The template is damaged: a goal has invalid months."
+msgstr "เทมเพลตเสียหาย: เป้าหมายมีจำนวนเดือนไม่ถูกต้อง"
+
+msgid "The template is damaged: a pile overflows to itself."
+msgstr "เทมเพลตเสียหาย: กองล้นไปที่ตัวเอง"
+
+msgid "The template is damaged: a plan is not an object."
+msgstr "เทมเพลตเสียหาย: ข้อมูลแผนไม่ถูกต้อง"
+
+msgid "The template is damaged: a plan has an invalid start."
+msgstr "เทมเพลตเสียหาย: แผนมีเดือนเริ่มต้นไม่ถูกต้อง"
+
+msgid "The template is damaged: a plan condition is not valid."
+msgstr "เทมเพลตเสียหาย: เงื่อนไขของแผนไม่ถูกต้อง"
+
+msgid "The template is damaged: a condition uses a goal that does not exist."
+msgstr "เทมเพลตเสียหาย: เงื่อนไขใช้เป้าหมายที่ไม่มีอยู่"
+
+msgid "The template is damaged: a plan has too many rows."
+msgstr "เทมเพลตเสียหาย: แผนมีแถวมากเกินไป"
+
+msgid "The template is damaged: a plan row is not valid."
+msgstr "เทมเพลตเสียหาย: แถวของแผนไม่ถูกต้อง"
+
+msgid "The template is damaged: piles overflow in a circle."
+msgstr "เทมเพลตเสียหาย: กองล้นวนเป็นวงกลม"
+
+msgid "The template is damaged: a pile overflows to a pile that is missing."
+msgstr "เทมเพลตเสียหาย: กองล้นไปที่กองที่ไม่มีอยู่"
+
+msgid "pile name"
+msgstr "ชื่อกอง"
+
+msgid "plan name"
+msgstr "ชื่อแผน"
+
+msgid "title"
+msgstr "ชื่อเรื่อง"
+
+msgid "goal percentage"
+msgstr "เปอร์เซ็นต์เป้าหมาย"
+
+msgid "plan percentage"
+msgstr "เปอร์เซ็นต์ของแผน"
