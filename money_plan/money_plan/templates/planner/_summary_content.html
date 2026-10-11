@@ -13,7 +13,7 @@
         <span class="avatar-lg !size-24" aria-hidden="true">{{ request.user.username|slice:":1"|upper }}</span>
       {% endif %}
       {# a small gear on the avatar: it hints that this opens the account settings #}
-      <span class="absolute bottom-0.5 right-0.5 grid size-8 place-items-center rounded-full bg-card text-foreground shadow-md ring-2 ring-background" aria-hidden="true">{% icon "settings" "size-4" %}</span>
+      <span class="absolute -bottom-0.5 -right-0.5 grid size-6 place-items-center rounded-full bg-card text-foreground shadow-md ring-2 ring-background" aria-hidden="true">{% icon "settings" "size-3.5" %}</span>
     </a>
     <section class="hero !py-3 !pl-4 !pr-28">
       <p class="text-xs opacity-80">{% trans "Salary" %}</p>
