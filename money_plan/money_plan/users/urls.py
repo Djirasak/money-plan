@@ -8,13 +8,9 @@ from .views import PhotoRemoveView
 from .views import PhotoView
 from .views import UsernameChangeView
 from .views import user_detail_view
-from .views import user_redirect_view
-from .views import user_update_view
 
 app_name = "users"
 urlpatterns = [
-    path("me/", view=user_redirect_view, name="redirect"),
-    path("me/update/", view=user_update_view, name="update"),
     path("me/username/", view=UsernameChangeView.as_view(), name="change_username"),
     path("me/name/", view=NameChangeView.as_view(), name="change_name"),
     path("me/email/", view=EmailChangeView.as_view(), name="change_email"),

@@ -128,11 +128,13 @@ def test_delete_pile_in_use_is_blocked(client_in, user):
     assert Pile.objects.filter(pk=spend.pk).exists()
 
 
-def test_logout_modal_posts_to_logout(client_in):
+def test_logout_modal_posts_to_logout(client_in, user):
     html = client_in.get(reverse("planner:summary")).content.decode()
     assert 'id="logout-modal"' not in html  # moved to the account page
     assert 'aria-label="บัญชีของฉัน"' in html
-    user_page = client_in.get(reverse("users:redirect"), follow=True).content.decode()
+    user_page = client_in.get(
+        reverse("users:detail", kwargs={"pk": user.pk}),
+    ).content.decode()
     assert 'id="logout-modal"' in user_page
     assert 'action="/accounts/logout/"' in user_page
 
