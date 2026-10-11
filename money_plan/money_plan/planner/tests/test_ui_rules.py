@@ -167,7 +167,7 @@ def test_toast_clears_the_floating_add_button(client_in):
 
 
 def test_page_top_padding_is_snug_but_not_cramped(client_in):
-    """Content starts 1.5rem (plus the phone's safe area) below the top edge."""
+    """Content starts 1.7rem (plus the phone's safe area) below the top edge."""
     html = client_in.get(reverse("planner:summary")).content.decode()
-    assert "pt-[calc(env(safe-area-inset-top,0px)+1.5rem)]" in html
+    assert "pt-[calc(env(safe-area-inset-top,0px)+1.7rem)]" in html
     assert "+2.5rem)]" not in html
