@@ -41,9 +41,13 @@ def deliver(
     language: str | None = None,
     reply_to: list[str] | None = None,
     tags: list[str] | None = None,
+    log=None,
 ) -> str | None:
-    """Send one rendered message. Returns the provider's message id when it gives one."""
+    """Send one rendered message (stored on ``log`` when given). Returns the provider's message id."""
     html, text = render(template, context, language)
+    if log is not None:  # keep what is actually sent, even if the provider then fails
+        log.body_html, log.body_text = html, text
+        log.save(update_fields=["body_html", "body_text", "updated_at"])
     message = EmailMultiAlternatives(
         subject=f"{settings.EMAIL_SUBJECT_PREFIX}{subject}",
         body=text,

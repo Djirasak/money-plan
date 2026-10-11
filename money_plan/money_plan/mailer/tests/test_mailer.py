@@ -190,6 +190,24 @@ class TestEmailLog:
         assert (log.status, log.message_id, log.attempts) == ("sent", "msg-1", 1)
         assert log.sent_at
 
+    def test_the_sent_body_is_stored_even_when_the_provider_then_fails(self):
+        log = make_log()
+        with mock.patch.object(services, "EmailMultiAlternatives") as message:
+            message.return_value.send.side_effect = api_error(422)
+            send_email.apply(
+                kwargs={
+                    "to": ["a@example.com"],
+                    "subject": "S",
+                    "template": "test",
+                    "language": "en",
+                    "log_id": log.pk,
+                },
+            )
+        log.refresh_from_db()
+        assert "Email is working" in log.body_html
+        assert "Email is working" in log.body_text
+        assert log.status == "failed"
+
     def test_retry_keeps_it_queued_with_the_error(self):
         log = make_log()
         with mock.patch.object(services, "deliver", side_effect=api_error(503)):
@@ -340,3 +358,21 @@ def test_deleting_a_user_deletes_their_mail_log():
     make_log(user=user)
     user.delete()
     assert not EmailLog.objects.exists()
+
+
+def test_admin_shows_the_stored_mail_in_a_sandboxed_frame(admin_client):
+    from django.urls import reverse
+
+    log = make_log(body_html='<p>hi</p><script>alert("x")</script>', body_text="hi")
+    html = admin_client.get(
+        reverse("admin:mailer_emaillog_change", args=[log.pk]),
+    ).content.decode()
+    assert "<iframe sandbox" in html
+    assert "<script>alert" not in html  # escaped inside srcdoc, never live markup
+    assert (
+        admin_client.post(
+            reverse("admin:mailer_emaillog_change", args=[log.pk]),
+            {},
+        ).status_code
+        == 403
+    )

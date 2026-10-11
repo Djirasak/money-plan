@@ -59,6 +59,7 @@ def send_email(
             language=language,
             reply_to=reply_to,
             tags=tags,
+            log=log,
         )
     except (AnymailAPIError, requests.RequestException) as exc:
         error = str(exc)[:500]

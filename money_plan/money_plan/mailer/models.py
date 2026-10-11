@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class EmailLog(models.Model):
-    """One queued e-mail and what became of it. The body is never stored."""
+    """One queued e-mail and what became of it, including the body that was actually sent."""
 
     class Status(models.TextChoices):
         QUEUED = "queued", _("Queued")
@@ -38,6 +38,8 @@ class EmailLog(models.Model):
         blank=True,
         db_index=True,
     )
+    body_html = models.TextField(_("HTML body"), blank=True)
+    body_text = models.TextField(_("Text body"), blank=True)
     attempts = models.PositiveSmallIntegerField(_("Attempts"), default=0)
     error = models.CharField(_("Last error"), max_length=500, blank=True)
     # e.g. "monthly_report:2026-10:42": a second queue_email with the same key is skipped
