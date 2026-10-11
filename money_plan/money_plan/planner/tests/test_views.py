@@ -676,7 +676,9 @@ class TestPlanCards:
         assert 'data-open-dialog="plan-new"' in html
 
     def test_the_card_summarises_the_split_without_editing_fields(
-        self, client_in, user
+        self,
+        client_in,
+        user,
     ):
         html = self.page(client_in)
         card = html.split('class="item plan-card"')[1].split("</li>")[0]
