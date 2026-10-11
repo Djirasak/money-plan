@@ -83,14 +83,18 @@ def test_no_fuzzy_translations():
 
 
 def test_stored_months_stay_gregorian_whatever_the_display_language(client_in, user):
-    """Only the label changes (B.E. in Thai); values in forms, URLs and the DB stay C.E."""
+    """Only the label changes (B.E. in Thai); the month in links and the DB stays C.E."""
+    from money_plan.planner import services
+
     start = user.planner_settings.start_month
-    html = client_in.get(reverse("planner:summary"), {"m": start}).content.decode()
+    following = services.engine.add_months(start, 1)
     year = int(start[:4])
-    assert f'value="{start}"' in html  # <option value> is C.E.
-    assert f"{year + 543}" in html  # label is B.E. in Thai
+    content = reverse("planner:summary_content")
+    html = client_in.get(content, {"m": start}).content.decode()
+    assert f'?m={following}"' in html  # the next-month link carries C.E.
+    assert f"{year + 543}" in html  # the label is B.E. in Thai
     client_in.post(reverse("set_language"), {"language": "en", "next": "/"})
-    html = client_in.get(reverse("planner:summary"), {"m": start}).content.decode()
+    html = client_in.get(content, {"m": start}).content.decode()
     assert f"{year + 543}" not in html
     assert f"{year}" in html
 
