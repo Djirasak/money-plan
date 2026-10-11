@@ -1260,3 +1260,6 @@ msgstr "อัตโนมัติ"
 
 msgid "The template is damaged: pile “%(name)s” has an unknown icon."
 msgstr "เทมเพลตเสียหาย: กอง “%(name)s” มีไอคอนที่ไม่รู้จัก"
+
+msgid "Giving"
+msgstr "การให้"

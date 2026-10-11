@@ -33,6 +33,7 @@ PILE_ICONS = [
     ("dumbbell", gettext_noop("Fitness")),
     ("sparkles", gettext_noop("Fun")),
     ("shield-check", gettext_noop("Safety")),
+    ("heart", gettext_noop("Giving")),
 ]
 PILE_ICON_KEYS = {key for key, _label in PILE_ICONS}
 DEFAULT_ICONS = {engine.BUDGET: "wallet", engine.FUND: "piggy-bank"}
