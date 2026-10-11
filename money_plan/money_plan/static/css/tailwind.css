@@ -409,10 +409,10 @@ body:has(.fab) .toaster {
 
 /* Settings sub-navigation (pages, not panels, so plain links in a tab-like bar) */
 .subnav {
-  @apply mb-4 grid grid-cols-3 gap-1 rounded-lg bg-muted p-[3px] text-sm font-medium;
+  @apply mb-4 grid grid-cols-4 gap-1 rounded-lg bg-muted p-[3px] text-sm font-medium;
 }
 .subnav a {
-  @apply rounded-md py-1.5 text-center text-muted-foreground transition-colors hover:text-foreground;
+  @apply truncate rounded-md px-1 py-1.5 text-center text-muted-foreground transition-colors hover:text-foreground;
 }
 .subnav a[aria-current="page"] {
   @apply bg-background text-foreground shadow-sm;

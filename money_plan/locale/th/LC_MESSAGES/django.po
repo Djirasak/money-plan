@@ -336,7 +336,7 @@ msgid "Piles"
 msgstr "กองเงิน"
 
 msgid "Budget plan"
-msgstr "แผนแบ่งเงิน"
+msgstr "แผน"
 
 msgid "Salary"
 msgstr "เงินเดือน"
@@ -1335,3 +1335,12 @@ msgstr "ในระบบมียอดเท่านี้อยู่แล
 
 msgid "Adjusted from %(a)s to %(b)s"
 msgstr "ปรับจาก %(a)s เป็น %(b)s"
+
+msgid "Appearance"
+msgstr "การแสดงผล"
+
+msgid "Language and mode"
+msgstr "ภาษาและโหมด"
+
+msgid "Sharing"
+msgstr "การแชร์"

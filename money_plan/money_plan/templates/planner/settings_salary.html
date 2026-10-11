@@ -1,0 +1,61 @@
+{% extends "planner/layout.html" %}
+{% load i18n %}
+{% load planner_tags %}
+{% block heading %}{% trans "Settings" %}{% endblock heading %}
+{% block page %}
+  {% include "planner/_settings_tabs.html" %}
+  <form method="post" class="card" data-size="sm">
+    {% csrf_token %}<input type="hidden" name="action" value="general" />
+    <header class="px-4"><h2 class="text-sm font-medium">{% trans "Your plan" %}</h2></header>
+    <section class="grid gap-4 px-4">
+      {% trans "Plan starts from" as start_label %}
+      {% month_picker "start_month" cfg.start_month "start_month" start_label %}
+      <p class="-mt-2 text-xs text-muted-foreground">{% trans "The first month you can look at. You can plan up to 3 years ahead of today." %}</p>
+      <div class="grid gap-2">
+        <label class="label" for="salary_percent">{% trans "Part of your salary to plan with (%)" %}</label>
+        <input class="input" id="salary_percent" name="salary_percent" inputmode="decimal" value="{{ salary_percent|floatformat:"-2" }}" required />
+        <p class="text-xs text-muted-foreground">{% trans "100 uses your whole salary. Enter 60 to plan with only 60% of it; the rest stays outside the plan." %}</p>
+      </div>
+    </section>
+    <footer class="justify-end px-4">
+      <button type="submit" class="btn" data-loading-text="{% trans 'Save plan settings' %}">{% icon "save" "size-4" %}{% trans "Save plan settings" %}</button>
+    </footer>
+  </form>
+
+  <section class="card mt-6" data-size="sm" aria-labelledby="salary-heading">
+    <header class="flex items-start justify-between gap-3 px-4">
+      <div class="min-w-0">
+        <h2 class="text-sm font-medium" id="salary-heading">{% trans "Salary" %}</h2>
+        <p class="text-xs text-muted-foreground">{% trans "The latest row not after a month applies to it · add one when your salary changes" %}</p>
+      </div>
+      <button type="button" class="btn shrink-0" data-size="icon-sm" data-open-dialog="salary-new" aria-label="{% trans 'Add salary' %}" title="{% trans 'Add salary' %}">
+        {% icon "plus" "size-4" %}
+      </button>
+    </header>
+    <ul class="flex flex-col gap-2 px-4">
+      {% for s in salaries %}
+        <li class="item" data-variant="muted">
+          <section>
+            <h3 class="text-base font-semibold">{{ s.amount|baht }}</h3>
+            <p>{% blocktrans with m=s.effective_month|month_label %}From {{ m }}{% endblocktrans %}</p>
+          </section>
+          {% if forloop.first %}<span class="badge">{% trans "Latest" %}</span>{% endif %}
+          <aside class="gap-1">
+            <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-open-dialog="salary-edit-{{ s.pk }}"
+                    aria-label="{% blocktrans with m=s.effective_month|month_label %}Edit salary from {{ m }}{% endblocktrans %}" title="{% trans 'Edit' %}">
+              {% icon "square-pen" "size-4" %}
+            </button>
+            <button type="button" class="btn text-destructive" data-variant="ghost" data-size="icon-sm" data-confirm-delete data-delete-id="{{ s.pk }}" data-delete-name="{{ s.amount|baht }} · {{ s.effective_month|month_label }}"
+                    aria-label="{% blocktrans with m=s.effective_month|month_label %}Delete salary from {{ m }}{% endblocktrans %}" title="{% trans 'Delete' %}">
+              {% icon "trash-2" "size-4" %}
+            </button>
+          </aside>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% for d in salary_dialogs %}{% include "planner/_salary_dialog.html" %}{% endfor %}
+  {% trans "Delete this salary?" as confirm_title %}
+  {% include "planner/_confirm_dialog.html" with action="salary_delete" title=confirm_title note="" %}
+
+{% endblock page %}

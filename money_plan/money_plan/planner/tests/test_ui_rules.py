@@ -54,7 +54,13 @@ def test_every_icon_file_exists_and_is_an_svg():
 
 @pytest.mark.parametrize(
     "name",
-    ["planner:settings", "planner:plan", "planner:piles", "planner:log"],
+    [
+        "planner:settings",
+        "planner:salary",
+        "planner:plan",
+        "planner:piles",
+        "planner:log",
+    ],
 )
 def test_every_visible_input_has_an_accessible_name(client_in, name):
     html = client_in.get(reverse(name)).content.decode()

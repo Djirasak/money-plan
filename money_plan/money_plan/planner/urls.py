@@ -15,6 +15,7 @@ urlpatterns = [
     path("log/<int:pk>/edit/", views.LogView.as_view(), name="log_edit"),
     path("log/<int:pk>/delete/", views.LogDeleteView.as_view(), name="log_delete"),
     path("settings/", views.SettingsGeneralView.as_view(), name="settings"),
+    path("settings/salary/", views.SettingsSalaryView.as_view(), name="salary"),
     path("settings/piles/", views.SettingsPilesView.as_view(), name="piles"),
     path(
         "settings/piles/reorder/",

@@ -1,6 +1,7 @@
 {% load i18n %}
 <nav class="subnav" aria-label="{% trans 'Settings' %}">
   <a href="{% url 'planner:settings' %}" {% if sub == 'general' %}aria-current="page"{% endif %}>{% trans "General" %}</a>
+  <a href="{% url 'planner:salary' %}" {% if sub == 'salary' %}aria-current="page"{% endif %}>{% trans "Salary" %}</a>
   <a href="{% url 'planner:piles' %}" {% if sub == 'piles' %}aria-current="page"{% endif %}>{% trans "Piles" %}</a>
   <a href="{% url 'planner:plan' %}" {% if sub == 'plan' %}aria-current="page"{% endif %}>{% trans "Budget plan" %}</a>
 </nav>

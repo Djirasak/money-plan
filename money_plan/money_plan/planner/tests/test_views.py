@@ -202,7 +202,7 @@ def test_summary_content_requires_login(client):
 
 def test_general_settings_use_month_picker_and_percent(client_in, user):
     resp = client_in.post(
-        reverse("planner:settings"),
+        reverse("planner:salary"),
         {
             "action": "general",
             "start_month_year": "2027",
@@ -233,7 +233,7 @@ def test_general_settings_reject_percent_over_100(client_in, user):
 
 
 def test_settings_page_shows_percent_and_month_picker(client_in):
-    html = client_in.get(reverse("planner:settings")).content.decode()
+    html = client_in.get(reverse("planner:salary")).content.decode()
     assert 'name="start_month_month"' in html
     assert 'name="start_month_year"' in html
     assert 'name="salary_percent"' in html
@@ -476,7 +476,7 @@ def _salary_dialog_post(user, **extra):
 
 
 def test_salaries_are_cards_with_modals_and_icon_buttons(client_in, user):
-    html = client_in.get(reverse("planner:settings")).content.decode()
+    html = client_in.get(reverse("planner:salary")).content.decode()
     salary = Salary.objects.get(user=user)
     assert f'data-open-dialog="salary-edit-{salary.pk}"' in html
     assert (
@@ -492,7 +492,7 @@ def test_editing_a_salary_changes_amount_and_month(client_in, user):
     salary = Salary.objects.get(user=user)
     year, month = user.planner_settings.start_month.split("-")
     resp = client_in.post(
-        reverse("planner:settings"),
+        reverse("planner:salary"),
         _salary_dialog_post(
             user,
             id=salary.pk,
@@ -509,7 +509,7 @@ def test_editing_a_salary_changes_amount_and_month(client_in, user):
 def test_adding_a_salary_via_the_modal_form(client_in, user):
     year = int(user.planner_settings.start_month[:4]) + 1
     client_in.post(
-        reverse("planner:settings"),
+        reverse("planner:salary"),
         _salary_dialog_post(user, effective_month_year=str(year), amount="70000"),
     )
     assert Salary.objects.filter(
@@ -527,7 +527,7 @@ def test_moving_a_salary_onto_an_existing_month_is_rejected_and_the_modal_reopen
     year = int(user.planner_settings.start_month[:4]) + 1
     other = Salary.objects.create(user=user, effective_month=f"{year}-03", amount=1)
     resp = client_in.post(
-        reverse("planner:settings"),
+        reverse("planner:salary"),
         {
             "action": "salary_save",
             "id": other.pk,
@@ -546,7 +546,7 @@ def test_moving_a_salary_onto_an_existing_month_is_rejected_and_the_modal_reopen
 def test_deleting_a_salary_uses_the_confirm_dialog_post(client_in, user):
     salary = Salary.objects.get(user=user)
     client_in.post(
-        reverse("planner:settings"),
+        reverse("planner:salary"),
         {"action": "salary_delete", "id": salary.pk},
     )
     assert not Salary.objects.filter(pk=salary.pk).exists()
@@ -556,7 +556,7 @@ def test_cannot_edit_another_users_salary(client_in, django_user_model):
     other = django_user_model.objects.create_user("other4", password="x")  # noqa: S106
     theirs = Salary.objects.create(user=other, effective_month="2030-01", amount=1)
     resp = client_in.post(
-        reverse("planner:settings"),
+        reverse("planner:salary"),
         {"action": "salary_save", "id": theirs.pk, "amount": "9"},
     )
     assert resp.status_code == 404
@@ -1318,3 +1318,39 @@ def test_log_cards_are_soft_not_tinted_boxes():
     assert "border-color: var(--border)" in rule  # no coloured border
     assert "var(--tone-bg)" not in rule  # no solid tinted fill
     assert "linear-gradient" in rule  # just a faint wash
+
+
+class TestSettingsTabs:
+    def test_there_are_four_tabs_and_the_plan_one_is_just_called_plan(self, client_in):
+        html = client_in.get(reverse("planner:settings")).content.decode()
+        tabs = html.split('class="subnav"')[1].split("</nav>")[0]
+        for url in (
+            "planner:settings",
+            "planner:salary",
+            "planner:piles",
+            "planner:plan",
+        ):
+            assert f'href="{reverse(url)}"' in tabs
+        assert ">แผน</a>" in tabs
+        assert "แผนแบ่งเงิน" not in tabs
+
+    def test_salary_and_plan_settings_live_on_the_salary_tab(self, client_in):
+        html = client_in.get(reverse("planner:salary")).content.decode()
+        assert 'name="salary_percent"' in html  # how much of the salary the plan uses
+        assert 'name="start_month_month"' in html
+        assert 'id="salary-heading"' in html and 'data-open-dialog="salary-new"' in html
+        assert (
+            'aria-current="page"' in html.split('class="subnav"')[1].split("</nav>")[0]
+        )
+
+    def test_the_general_tab_is_only_appearance_sharing_and_the_danger_zone(
+        self,
+        client_in,
+    ):
+        html = client_in.get(reverse("planner:settings")).content.decode()
+        assert "salary_percent" not in html and "salary-heading" not in html
+        for heading in ("การแสดงผล", "การแชร์", "โซนอันตราย"):
+            assert heading in html
+        assert 'data-color-choice="indigo"' in html  # colour theme picker
+        assert reverse("planner:share") in html
+        assert 'data-open-dialog="clear-all"' in html

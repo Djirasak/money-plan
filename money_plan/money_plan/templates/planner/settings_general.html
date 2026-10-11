@@ -4,88 +4,37 @@
 {% block heading %}{% trans "Settings" %}{% endblock heading %}
 {% block page %}
   {% include "planner/_settings_tabs.html" %}
-  <form method="post" class="card" data-size="sm">
-    {% csrf_token %}<input type="hidden" name="action" value="general" />
-    <header class="px-4"><h2 class="text-sm font-medium">{% trans "Your plan" %}</h2></header>
-    <section class="grid gap-4 px-4">
-      {% trans "Plan starts from" as start_label %}
-      {% month_picker "start_month" cfg.start_month "start_month" start_label %}
-      <p class="-mt-2 text-xs text-muted-foreground">{% trans "The first month you can look at. You can plan up to 3 years ahead of today." %}</p>
+  <h2 class="mb-2 px-1 text-xs font-medium text-muted-foreground">{% trans "Appearance" %}</h2>
+  <section class="card" data-size="sm">
+    <section class="grid gap-5 px-4">
       <div class="grid gap-2">
-        <label class="label" for="salary_percent">{% trans "Part of your salary to plan with (%)" %}</label>
-        <input class="input" id="salary_percent" name="salary_percent" inputmode="decimal" value="{{ salary_percent|floatformat:"-2" }}" required />
-        <p class="text-xs text-muted-foreground">{% trans "100 uses your whole salary. Enter 60 to plan with only 60% of it; the rest stays outside the plan." %}</p>
+        <h3 class="text-sm font-medium">{% trans "Language and mode" %}</h3>
+        {% get_current_language as current_language %}
+        {% get_language_info_list for LANGUAGES as languages %}
+        <div class="grid grid-cols-2 gap-2">
+          {% for lang in languages %}
+            {% if lang.code != current_language %}
+              <form method="post" action="{% url 'set_language' %}" data-busy class="contents">
+                {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}" />
+                <input type="hidden" name="language" value="{{ lang.code }}" />
+                <button type="submit" class="btn h-auto flex-col gap-1 py-3" data-variant="outline" lang="{{ lang.code }}"
+                        aria-label="{% blocktrans with name=lang.name_local %}Switch language to {{ name }}{% endblocktrans %}">
+                  {% icon "languages" "size-5" %}
+                  <span class="text-xs">{% for cur in languages %}{% if cur.code == current_language %}{{ cur.name_local }}{% endif %}{% endfor %}</span>
+                </button>
+              </form>
+            {% endif %}
+          {% endfor %}
+          <button type="button" class="btn h-auto flex-col gap-1 py-3" data-variant="outline" data-theme-toggle role="switch" aria-checked="false" aria-label="{% trans 'Dark mode' %}">
+            <span class="theme-icon-light">{% icon "sun" "size-5" %}</span>
+            <span class="theme-icon-dark">{% icon "moon" "size-5" %}</span>
+            <span class="text-xs"><span class="theme-icon-light">{% trans "Light" %}</span><span class="theme-icon-dark">{% trans "Dark" %}</span></span>
+          </button>
+        </div>
       </div>
-    </section>
-    <footer class="justify-end px-4">
-      <button type="submit" class="btn" data-loading-text="{% trans 'Save plan settings' %}">{% icon "save" "size-4" %}{% trans "Save plan settings" %}</button>
-    </footer>
-  </form>
-
-  <section class="card mt-6" data-size="sm" aria-labelledby="salary-heading">
-    <header class="flex items-start justify-between gap-3 px-4">
-      <div class="min-w-0">
-        <h2 class="text-sm font-medium" id="salary-heading">{% trans "Salary" %}</h2>
-        <p class="text-xs text-muted-foreground">{% trans "The latest row not after a month applies to it · add one when your salary changes" %}</p>
-      </div>
-      <button type="button" class="btn shrink-0" data-size="icon-sm" data-open-dialog="salary-new" aria-label="{% trans 'Add salary' %}" title="{% trans 'Add salary' %}">
-        {% icon "plus" "size-4" %}
-      </button>
-    </header>
-    <ul class="flex flex-col gap-2 px-4">
-      {% for s in salaries %}
-        <li class="item" data-variant="muted">
-          <section>
-            <h3 class="text-base font-semibold">{{ s.amount|baht }}</h3>
-            <p>{% blocktrans with m=s.effective_month|month_label %}From {{ m }}{% endblocktrans %}</p>
-          </section>
-          {% if forloop.first %}<span class="badge">{% trans "Latest" %}</span>{% endif %}
-          <aside class="gap-1">
-            <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-open-dialog="salary-edit-{{ s.pk }}"
-                    aria-label="{% blocktrans with m=s.effective_month|month_label %}Edit salary from {{ m }}{% endblocktrans %}" title="{% trans 'Edit' %}">
-              {% icon "square-pen" "size-4" %}
-            </button>
-            <button type="button" class="btn text-destructive" data-variant="ghost" data-size="icon-sm" data-confirm-delete data-delete-id="{{ s.pk }}" data-delete-name="{{ s.amount|baht }} · {{ s.effective_month|month_label }}"
-                    aria-label="{% blocktrans with m=s.effective_month|month_label %}Delete salary from {{ m }}{% endblocktrans %}" title="{% trans 'Delete' %}">
-              {% icon "trash-2" "size-4" %}
-            </button>
-          </aside>
-        </li>
-      {% endfor %}
-    </ul>
-  </section>
-  {% for d in salary_dialogs %}{% include "planner/_salary_dialog.html" %}{% endfor %}
-  {% trans "Delete this salary?" as confirm_title %}
-  {% include "planner/_confirm_dialog.html" with action="salary_delete" title=confirm_title note="" %}
-
-  <section class="card mt-6" data-size="sm">
-    <header class="px-4"><h2 class="text-sm font-medium">{% trans "Preferences" %}</h2></header>
-    <section class="px-4">
-      {% get_current_language as current_language %}
-      {% get_language_info_list for LANGUAGES as languages %}
-      <div class="grid grid-cols-2 gap-2">
-        {% for lang in languages %}
-          {% if lang.code != current_language %}
-            <form method="post" action="{% url 'set_language' %}" data-busy class="contents">
-              {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}" />
-              <input type="hidden" name="language" value="{{ lang.code }}" />
-              <button type="submit" class="btn h-auto flex-col gap-1 py-3" data-variant="outline" lang="{{ lang.code }}"
-                      aria-label="{% blocktrans with name=lang.name_local %}Switch language to {{ name }}{% endblocktrans %}">
-                {% icon "languages" "size-5" %}
-                <span class="text-xs">{% for cur in languages %}{% if cur.code == current_language %}{{ cur.name_local }}{% endif %}{% endfor %}</span>
-              </button>
-            </form>
-          {% endif %}
-        {% endfor %}
-        <button type="button" class="btn h-auto flex-col gap-1 py-3" data-variant="outline" data-theme-toggle role="switch" aria-checked="false" aria-label="{% trans 'Dark mode' %}">
-          <span class="theme-icon-light">{% icon "sun" "size-5" %}</span>
-          <span class="theme-icon-dark">{% icon "moon" "size-5" %}</span>
-          <span class="text-xs"><span class="theme-icon-light">{% trans "Light" %}</span><span class="theme-icon-dark">{% trans "Dark" %}</span></span>
-        </button>
-      </div>
-      <div class="mt-4">
-        <h3 class="mb-2 text-xs font-medium text-muted-foreground" id="color-heading">{% trans "Colour theme" %}</h3>
-        <div class="grid grid-cols-4 gap-2 p-1" role="radiogroup" aria-labelledby="color-heading">
+      <div class="grid gap-2">
+        <h3 class="text-sm font-medium" id="color-heading">{% trans "Colour theme" %}</h3>
+        <div class="grid grid-cols-4 gap-2" role="radiogroup" aria-labelledby="color-heading">
           {% color_themes as themes %}
           {% for t in themes %}
             <button type="button" class="swatch" style="--hue: {{ t.hue }}" role="radio" aria-checked="false" data-color-choice="{{ t.key }}"
@@ -99,25 +48,23 @@
     </section>
   </section>
 
-  <section class="card mt-6" data-size="sm">
-    <header class="px-4">
-      <h2 class="text-sm font-medium">{% trans "Share a plan" %}</h2>
-      <p class="text-xs text-muted-foreground">{% trans "Share your piles and plans as a template, or add one someone shared with you. Amounts are never shared." %}</p>
-    </header>
-    <section class="px-4">
-      <a class="btn w-full" data-variant="outline" href="{% url 'planner:share' %}">{% icon "arrow-up-right" "size-4" %}{% trans "Share & import" %}</a>
+  <h2 class="mb-2 mt-8 px-1 text-xs font-medium text-muted-foreground">{% trans "Sharing" %}</h2>
+  <a class="item" data-variant="outline" href="{% url 'planner:share' %}">
+    <section>
+      <h3 class="text-sm font-semibold">{% trans "Share & import" %}</h3>
+      <p>{% trans "Share your piles and plans as a template, or add one someone shared with you. Amounts are never shared." %}</p>
     </section>
-  </section>
+    <aside>{% icon "chevron-right" "size-4 text-muted-foreground" %}</aside>
+  </a>
 
-  <section class="card mt-6" data-size="sm" aria-labelledby="danger-heading">
-    <header class="px-4">
-      <h2 class="text-sm font-medium text-destructive" id="danger-heading">{% trans "Danger zone" %}</h2>
-      <p class="text-xs text-muted-foreground">{% trans "Delete all your piles, plans, salaries and entries. Your account stays." %}</p>
-    </header>
-    <section class="px-4">
-      <button type="button" class="btn w-full text-destructive" data-variant="outline" data-open-dialog="clear-all">{% icon "trash-2" "size-4" %}{% trans "Clear all data" %}</button>
+  <h2 class="mb-2 mt-8 px-1 text-xs font-medium text-destructive" id="danger-heading">{% trans "Danger zone" %}</h2>
+  <button type="button" class="item w-full text-left" data-variant="outline" data-open-dialog="clear-all" aria-describedby="danger-heading">
+    <section>
+      <h3 class="text-sm font-semibold text-destructive">{% trans "Clear all data" %}</h3>
+      <p>{% trans "Delete all your piles, plans, salaries and entries. Your account stays." %}</p>
     </section>
-  </section>
+    <aside>{% icon "trash-2" "size-4 text-destructive" %}</aside>
+  </button>
 
   <dialog id="clear-all" class="dialog w-full sm:max-w-[400px]" aria-labelledby="clear-all-title">
     <form method="post" class="overflow-y-auto" x-data="{ typed: '', phrase: '{{ clear_phrase|escapejs }}' }">

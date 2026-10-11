@@ -186,12 +186,43 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        return ctx | {"clear_phrase": str(CLEAR_PHRASE)}
+
+    def do_clear_all(self, request):
+        """Wipe this user's planner data (the account itself stays), after a typed confirmation."""
+        phrase = str(CLEAR_PHRASE)
+        if request.POST.get("confirm", "").strip().casefold() != phrase.casefold():
+            messages.error(request, _("Type the word to confirm, nothing was deleted"))
+            return
+        user = request.user
+        with transaction.atomic():
+            # entries first: they protect the piles they point at
+            LogEntry.objects.filter(user=user).delete()
+            PlanPeriod.objects.filter(
+                user=user,
+            ).delete()  # takes its plan items with it
+            Pile.objects.filter(user=user).delete()
+            Salary.objects.filter(user=user).delete()
+            PlannerSettings.objects.filter(user=user).delete()
+        messages.success(request, _("All your data was cleared"))
+        return
+
+
+class SettingsSalaryView(ActionPostMixin, PlannerMixin, TemplateView):
+    """Salary rows and how much of the salary the plan uses."""
+
+    template_name = "planner/settings_salary.html"
+    active = "settings"
+    sub = "salary"
+    success_url_name = "planner:salary"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
         return ctx | {
             "cfg": self.cfg,
             "salary_percent": (self.cfg.salary_multiplier * 100).normalize(),
             "salaries": Salary.objects.filter(user=self.request.user),
             "default_month": services.current_month(),
-            "clear_phrase": str(CLEAR_PHRASE),
             "salary_dialogs": self._salary_dialogs(),
         }
 
@@ -257,25 +288,6 @@ class SettingsGeneralView(ActionPostMixin, PlannerMixin, TemplateView):
 
     def do_salary_delete(self, request):
         Salary.objects.filter(user=request.user, pk=request.POST.get("id")).delete()
-
-    def do_clear_all(self, request):
-        """Wipe this user's planner data (the account itself stays), after a typed confirmation."""
-        phrase = str(CLEAR_PHRASE)
-        if request.POST.get("confirm", "").strip().casefold() != phrase.casefold():
-            messages.error(request, _("Type the word to confirm, nothing was deleted"))
-            return
-        user = request.user
-        with transaction.atomic():
-            # entries first: they protect the piles they point at
-            LogEntry.objects.filter(user=user).delete()
-            PlanPeriod.objects.filter(
-                user=user,
-            ).delete()  # takes its plan items with it
-            Pile.objects.filter(user=user).delete()
-            Salary.objects.filter(user=user).delete()
-            PlannerSettings.objects.filter(user=user).delete()
-        messages.success(request, _("All your data was cleared"))
-        return
 
     def do_general(self, request):
         cfg = self.cfg
