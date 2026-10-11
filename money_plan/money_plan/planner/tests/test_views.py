@@ -1061,3 +1061,27 @@ def test_the_100_percent_check_sits_above_the_percent_fields(client_in, user):
         "text-destructive"
         not in dialog.split('name="percent_')[0].split('role="status"')[1]
     )
+
+
+def test_log_entries_are_cards_like_the_pile_cards(client_in, user):
+    spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
+    spend.icon = "car"
+    spend.save()
+    LogEntry.objects.create(
+        user=user,
+        date=date(2027, 1, 5),
+        type="spend",
+        from_pile=spend,
+        amount=150,
+        note="ข้าวเที่ยง",
+    )
+    html = client_in.get(reverse("planner:log"), {"m": "2027-01"}).content.decode()
+    row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
+    assert 'class="pile-icon"' in row  # the pile's icon tile next to its name
+    assert "ค่าใช้จ่าย" in row
+    assert row.index('class="entry-type"') < row.index(
+        'class="entry-amount"',
+    )  # label over the amount
+    assert "ข้าวเที่ยง" in row
+    assert "log/" in row and "data-confirm-delete" in row  # edit + delete still there
+    assert "entry-icon" not in row  # still no leading arrow
