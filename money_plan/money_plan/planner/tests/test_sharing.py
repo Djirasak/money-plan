@@ -550,7 +550,8 @@ class TestPublicPreview:
     def test_visitors_cannot_add_the_plan(self, link, client):
         before = Pile.objects.count()
         resp = self.anonymous(client).post(
-            link, {"month_year": "2027", "month_month": "7"}
+            link,
+            {"month_year": "2027", "month_month": "7"},
         )
         assert resp.status_code == HTTPStatus.FOUND
         assert "login" in resp.url
