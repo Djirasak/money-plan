@@ -287,20 +287,20 @@
 
 /* Colour picker swatches (settings) */
 .swatch {
-  @apply relative flex aspect-square flex-col items-center justify-end gap-0.5 rounded-xl p-2 text-white shadow-sm transition-transform active:scale-95;
+  @apply relative flex h-12 flex-col items-center justify-end rounded-lg px-1 pb-1 text-white shadow-sm transition-transform active:scale-95;
   background-image: linear-gradient(135deg, oklch(0.5 0.2 var(--hue)), oklch(0.5 0.2 calc(var(--hue) + 30)));
 }
 
 .swatch .swatch-check {
-  @apply absolute top-1.5 right-1.5 hidden;
+  @apply absolute top-1 right-1 hidden;
 }
 
 .swatch .swatch-check svg {
-  @apply size-4;
+  @apply size-3.5;
 }
 
 .swatch .swatch-name {
-  @apply max-w-full truncate text-xs font-medium;
+  @apply max-w-full truncate text-[11px] font-medium leading-tight;
 }
 
 .swatch[aria-checked="true"] {

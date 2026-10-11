@@ -34,12 +34,12 @@
       </div>
       <div class="grid gap-2">
         <h3 class="text-sm font-medium" id="color-heading">{% trans "Colour theme" %}</h3>
-        <div class="grid grid-cols-4 gap-2" role="radiogroup" aria-labelledby="color-heading">
+        <div class="grid grid-cols-4 gap-1.5" role="radiogroup" aria-labelledby="color-heading">
           {% color_themes as themes %}
           {% for t in themes %}
             <button type="button" class="swatch" style="--hue: {{ t.hue }}" role="radio" aria-checked="false" data-color-choice="{{ t.key }}"
                     aria-label="{{ t.label }}">
-              <span class="swatch-check">{% icon "check" "size-5" %}</span>
+              <span class="swatch-check">{% icon "check" "size-3.5" %}</span>
               <span class="swatch-name">{{ t.label }}</span>
             </button>
           {% endfor %}
