@@ -35,7 +35,11 @@
             {% if item.condition %}{% icon "info" "me-1 inline size-3.5" %}{% blocktrans with pile=item.condition.pile.name op=item.condition.op value=item.condition.value %}Only while {{ pile }} {{ op }} {{ value }}{% endblocktrans %}{% else %}{% trans "Always, from the start month" %}{% endif %}
           </span>
         </button>
-        <aside>
+        <aside class="gap-1">
+          <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-open-dialog="plan-edit-{{ item.period.pk }}"
+                  aria-label="{% blocktrans with m=item.period.effective_month|month_label %}Edit plan from {{ m }}{% endblocktrans %}" title="{% trans 'Edit' %}">
+            {% icon "square-pen" "size-4" %}
+          </button>
           <button type="button" class="btn text-destructive" data-variant="ghost" data-size="icon-sm" data-confirm-delete data-delete-id="{{ item.period.pk }}"
                   data-delete-name="{% blocktrans with m=item.period.effective_month|month_label %}From {{ m }}{% endblocktrans %}{% if item.period.name %} · {{ item.period.name }}{% endif %}"
                   aria-label="{% blocktrans with m=item.period.effective_month|month_label %}Delete plan from {{ m }}{% endblocktrans %}" title="{% trans 'Delete' %}">

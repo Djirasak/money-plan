@@ -1285,5 +1285,14 @@ msgstr "+อีก %(n)s"
 msgid "Only while %(pile)s %(op)s %(value)s"
 msgstr "ใช้เฉพาะเมื่อ %(pile)s %(op)s %(value)s"
 
-msgid "% of salary"
-msgstr "% ของเงินเดือน"
+msgid "%(n)s%% still to allocate"
+msgstr "เหลืออีก %(n)s%% ที่ยังไม่ได้จัดสรร"
+
+msgid "%(n)s%% over 100%%"
+msgstr "เกิน 100%% อยู่ %(n)s%%"
+
+msgid "Adds up to 100%%"
+msgstr "ครบ 100%% แล้ว"
+
+msgid "Add up to 100%%"
+msgstr "รวมให้ได้ 100%%"

@@ -6,6 +6,12 @@
           total: {{ item.total|default:0|floatformat:'-2u' }},
           sum() { this.total = [...$el.querySelectorAll('[data-percent]')].reduce((a, i) => a + (parseFloat(i.value) || 0), 0) },
           get ok() { return Math.abs(this.total - 100) < 0.005 },
+          status(el) {
+            if (this.ok) return '{% trans "Adds up to 100%" %}';
+            const left = Math.round((100 - this.total) * 100) / 100;
+            const text = left > 0 ? el.dataset.short : el.dataset.over;
+            return text.replace('__n__', String(Math.abs(left)));
+          },
         }">
     {% csrf_token %}
     <input type="hidden" name="action" value="{% if item %}save{% else %}add{% endif %}" />
@@ -44,6 +50,14 @@
               </span>
             </div>
           {% endfor %}
+          {# Live check: green when the split adds up to 100%, red (with how far off) otherwise. #}
+          <p class="flex items-center gap-1.5 text-xs font-medium" :class="ok ? 'text-success' : 'text-destructive'" role="status" aria-live="polite"
+             data-short="{% blocktrans with n='__n__' %}{{ n }}% still to allocate{% endblocktrans %}"
+             data-over="{% blocktrans with n='__n__' %}{{ n }}% over 100%{% endblocktrans %}">
+            <span x-show="ok" x-cloak>{% icon "circle-check" "size-4" %}</span>
+            <span x-show="!ok" x-cloak>{% icon "circle-alert" "size-4" %}</span>
+            <span x-text="status($el.parentElement)">{% trans "Add up to 100%" %}</span>
+          </p>
           <p class="text-xs text-muted-foreground">{% trans "Each pile gets this % of your salary. Keep the total at 100% so every baht has a place." %}</p>
         </div>
       {% else %}

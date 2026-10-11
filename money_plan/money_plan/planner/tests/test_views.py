@@ -721,3 +721,49 @@ class TestPlanCards:
             assert f'name="percent_{pile.pk}"' in dialog
         assert "data-percent" in dialog  # drives the live total
         assert 'name="condition_mode"' in dialog
+
+
+class TestPlanLiveCheckAndLogRows:
+    def test_plan_card_has_a_visible_edit_button_besides_delete(self, client_in, user):
+        period = PlanPeriod.objects.get(user=user)
+        card = (
+            client_in.get(reverse("planner:plan"))
+            .content.decode()
+            .split('class="item plan-card"')[1]
+            .split("</li>")[0]
+        )
+        aside = card.split("<aside")[1]
+        assert (
+            f'data-open-dialog="plan-edit-{period.pk}"' in aside
+        )  # a pencil of its own
+        assert "data-confirm-delete" in aside
+
+    def test_the_dialog_checks_for_100_percent_while_typing(self, client_in, user):
+        period = PlanPeriod.objects.get(user=user)
+        html = client_in.get(reverse("planner:plan")).content.decode()
+        dialog = html.split(f'id="plan-edit-{period.pk}"')[1].split("</dialog>")[0]
+        assert '@input="sum()"' in dialog
+        assert 'role="status"' in dialog  # announced politely
+        assert "ครบ 100% แล้ว" in dialog
+        assert "ที่ยังไม่ได้จัดสรร" in dialog and "เกิน 100%" in dialog  # both ways off
+        assert "__n__" in dialog  # placeholder the page script fills in
+
+    def test_log_rows_are_compact_and_carry_the_pile_icon_as_watermark(
+        self,
+        client_in,
+        user,
+    ):
+        spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
+        spend.icon = "car"
+        spend.save()
+        LogEntry.objects.create(
+            user=user,
+            date=date(2027, 1, 5),
+            type="spend",
+            from_pile=spend,
+            amount=150,
+        )
+        html = client_in.get(reverse("planner:log"), {"m": "2027-01"}).content.decode()
+        row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
+        assert 'class="entry-watermark" aria-hidden="true"' in row
+        assert "<svg" in row.split("entry-watermark")[1].split("</span>")[0]
