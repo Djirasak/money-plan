@@ -516,26 +516,14 @@ body:has(.app-nav) .toaster {
 .entry-move { --tone: var(--tone-move); --tone-bg: var(--tone-move-bg); }
 /* a correction of the books: its own colour (the app's amber), never mistaken for income */
 .entry-adjust { --tone: var(--warn); --tone-bg: var(--warn-soft); }
+.entry-icon { color: var(--tone); @apply grid size-9 shrink-0 place-items-center rounded-full; background-color: color-mix(in srgb, var(--tone) 15%, transparent); }
 .entry-type { color: var(--tone); @apply text-[11px] font-semibold leading-none; }
-.entry-amount { color: var(--tone); @apply text-2xl font-semibold leading-none tracking-tight tabular-nums; }
+.entry-amount { color: var(--tone); @apply text-4xl font-semibold leading-none tracking-tight tabular-nums; }
 .entry-meta { @apply text-xs leading-snug text-muted-foreground; }
 
 /* entry cards: like the pile cards (icon + name, label over a big amount); a faint arrow watermark behind (not rotated: its direction means something) */
 .entry {
   @apply relative gap-2.5 overflow-hidden px-3 py-2.5;
-}
-
-.entry > :not(.entry-watermark) {
-  @apply relative;
-}
-
-.entry-watermark {
-  @apply pointer-events-none absolute -bottom-3 right-20 size-20;
-  color: color-mix(in srgb, var(--tone) 16%, transparent);
-}
-
-.entry-watermark svg {
-  stroke-width: 1.4;
 }
 
 /* ---- Piles: faded colour behind each card, drag to reorder ------------------------------- */

@@ -749,14 +749,8 @@ class TestPlanLiveCheckAndLogRows:
         assert "ที่ยังไม่ได้จัดสรร" in dialog and "เกิน 100%" in dialog  # both ways off
         assert "__n__" in dialog  # placeholder the page script fills in
 
-    def test_log_rows_carry_a_watermark_svg(
-        self,
-        client_in,
-        user,
-    ):
+    def test_log_rows_lead_with_the_direction_arrow(self, client_in, user):
         spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
-        spend.icon = "car"
-        spend.save()
         LogEntry.objects.create(
             user=user,
             date=date(2027, 1, 5),
@@ -766,11 +760,12 @@ class TestPlanLiveCheckAndLogRows:
         )
         html = client_in.get(reverse("planner:log"), {"m": "2027-01"}).content.decode()
         row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
-        assert 'class="entry-watermark" aria-hidden="true"' in row
-        assert "<svg" in row.split("entry-watermark")[1].split("</span>")[0]
+        icon = row.split('class="entry-icon"')[1].split("</span>")[0]
+        assert "M7 7h10v10" in icon  # arrow-up-right: money out
+        assert "size-5" in icon  # a big one
 
 
-def test_log_rows_have_no_leading_icon_only_the_arrow_watermark(client_in, user):
+def test_log_rows_have_no_background_watermark(client_in, user):
     spend = Pile.objects.get(user=user, name="ค่าใช้จ่าย")
     LogEntry.objects.create(
         user=user,
@@ -780,12 +775,8 @@ def test_log_rows_have_no_leading_icon_only_the_arrow_watermark(client_in, user)
         amount=150,
     )
     html = client_in.get(reverse("planner:log"), {"m": "2027-01"}).content.decode()
+    assert "entry-watermark" not in html
     row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
-    assert "entry-icon" not in row
-    assert "entry-watermark" in row
-    assert (
-        "M7 7h10v10" in row.split("entry-watermark")[1]
-    )  # the out arrow (arrow-up-right)
     assert "-฿150" in row  # the sign and the word still say what kind of entry it is
 
 
@@ -1077,11 +1068,11 @@ def test_log_entries_are_cards_like_the_pile_cards(client_in, user):
     )
     html = client_in.get(reverse("planner:log"), {"m": "2027-01"}).content.decode()
     row = html.split('class="item entry entry-out"')[1].split("</li>")[0]
-    assert 'class="pile-icon"' in row  # the pile's icon tile next to its name
+    assert 'class="entry-icon"' in row  # the direction arrow, in front of the pile name
     assert "ค่าใช้จ่าย" in row
     assert row.index('class="entry-type"') < row.index(
-        'class="entry-amount"',
-    )  # label over the amount
+        'class="entry-amount',
+    )  # type and date on the left, the amount on the right
     assert "ข้าวเที่ยง" in row
     assert "log/" in row and "data-confirm-delete" in row  # edit + delete still there
-    assert "entry-icon" not in row  # still no leading arrow
+    assert "pile-icon" not in row  # the pile is named, not drawn
