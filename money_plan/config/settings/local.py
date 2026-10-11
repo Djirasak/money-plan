@@ -6,7 +6,7 @@ from .base import env
 # GENERAL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = True
+DEBUG = not True
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
@@ -37,6 +37,11 @@ EMAIL_BACKEND = env(
 # ------------------------------------------------------------------------------
 # http://whitenoise.evans.io/en/latest/django.html#using-whitenoise-in-development
 INSTALLED_APPS = ["whitenoise.runserver_nostatic", *INSTALLED_APPS]
+# runserver_nostatic hands static files to WhiteNoise, which only reads the app's static
+# dirs when DEBUG is on. Force it so the CSS still loads with DEBUG = False (to try the
+# real 404/500 pages) without running collectstatic.
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
 
 
 # django-debug-toolbar
