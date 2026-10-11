@@ -29,8 +29,6 @@ if TYPE_CHECKING:
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
-    slug_field = "username"
-    slug_url_kwarg = "username"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -74,7 +72,7 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self) -> str:
-        return reverse("users:detail", kwargs={"username": self.request.user.username})
+        return reverse("users:detail", kwargs={"pk": self.request.user.pk})
 
 
 user_redirect_view = UserRedirectView.as_view()
@@ -98,10 +96,9 @@ class AccountChangeView(LoginRequiredMixin, View):
         if form.is_valid():
             self.save(form)
             messages.success(request, self.success_message)
-            # reload: a changed username changes this very URL
-            return redirect(User.objects.get(pk=request.user.pk).get_absolute_url())
+            return redirect(request.user.get_absolute_url())
         detail = UserDetailView()
-        detail.setup(request, username=request.user.username)
+        detail.setup(request, pk=request.user.pk)
         detail.object = request.user
         ctx = detail.get_context_data(
             bound={self.key: form},
