@@ -526,6 +526,34 @@ body:has(.app-nav) .toaster {
   @apply relative gap-2.5 overflow-hidden px-3 py-2.5;
 }
 
+/* Summary month switch: the content stays where it is, goes grey with a spinner while the next month loads,
+   then only the values change (no entrance animation again) */
+#summary-content {
+  @apply relative;
+}
+
+#summary-content > :not(.summary-spinner) {
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+#summary-content.htmx-request > :not(.summary-spinner) {
+  @apply pointer-events-none opacity-50 grayscale;
+}
+
+.summary-spinner {
+  @apply pointer-events-none absolute inset-x-0 top-40 z-20 hidden place-items-center text-primary;
+}
+
+#summary-content.htmx-request > .summary-spinner {
+  @apply grid;
+}
+
+#summary-content[data-swapped] .hero,
+#summary-content[data-swapped] .card,
+#summary-content[data-swapped] .pile-summary {
+  animation: none;
+}
+
 /* ---- Piles: faded colour behind each card, drag to reorder ------------------------------- */
 .pile-card {
   touch-action: pan-y;

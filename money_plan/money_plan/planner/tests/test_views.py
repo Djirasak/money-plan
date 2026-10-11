@@ -1122,15 +1122,21 @@ class TestAdjustHistory:
             },
         )
         LogEntry.objects.create(
-            user=user, date=f"{month}-09", type="spend", from_pile=free, amount=100
+            user=user,
+            date=f"{month}-09",
+            type="spend",
+            from_pile=free,
+            amount=100,
         )
         entry = LogEntry.objects.get(type="adjust")
         assert entry.balance_before == system.quantize(
-            Decimal("0.01")
+            Decimal("0.01"),
         )  # not recomputed
 
     def test_other_types_and_old_adjustments_show_no_from_to_line(
-        self, client_in, user
+        self,
+        client_in,
+        user,
     ):
         free = Pile.objects.get(user=user, name="เงินใช้ฟรี")
         month = user.planner_settings.start_month
@@ -1145,7 +1151,11 @@ class TestAdjustHistory:
             },
         )
         LogEntry.objects.create(
-            user=user, date=f"{month}-06", type="adjust", to_pile=free, amount=7
+            user=user,
+            date=f"{month}-06",
+            type="adjust",
+            to_pile=free,
+            amount=7,
         )  # made before snapshots
         html = client_in.get(reverse("planner:log"), {"m": month}).content.decode()
         assert "ปรับจาก" not in html
@@ -1185,3 +1195,55 @@ class TestAdjustHistory:
             (system - 200).quantize(Decimal("0.01")),
         )
         assert (entry.from_pile, entry.to_pile, entry.amount) == (free, None, 200)
+
+
+class TestSummaryMonthSwitch:
+    content = staticmethod(lambda: reverse("planner:summary_content"))
+
+    def test_month_links_swap_the_content_in_place_with_htmx(self, client_in, user):
+        start = user.planner_settings.start_month
+        html = client_in.get(self.content(), {"m": start}).content.decode()
+        assert 'id="summary-content"' in html
+        next_month = services_next(start)
+        link = html.split(f"?m={next_month}")[1:3]
+        assert f'hx-get="{self.content()}?m={next_month}"' in html
+        assert 'hx-target="#summary-content"' in html
+        assert (
+            'hx-indicator="#summary-content"' in html
+        )  # greys out + spinner while loading
+        assert (
+            f'hx-push-url="/?m={next_month}"' in html
+        )  # the address bar and Back still work
+        assert (
+            f'href="/?m={next_month}"' in html
+        )  # and the plain link still works without JS
+        assert link
+
+    def test_a_month_switch_does_not_replay_the_entrance_animation(
+        self,
+        client_in,
+        user,
+    ):
+        start = user.planner_settings.start_month
+        first = client_in.get(self.content(), {"m": start}).content.decode()
+        assert "data-swapped" not in first  # the very first (lazy) load may animate
+        switched = client_in.get(
+            self.content(),
+            {"m": services_next(start)},
+            headers={"HX-Request": "true", "HX-Target": "summary-content"},
+        ).content.decode()
+        assert "data-swapped" in switched
+
+    def test_the_loading_state_exists_in_the_markup(self, client_in, user):
+        html = client_in.get(self.content()).content.decode()
+        assert 'class="summary-spinner"' in html
+
+    def test_other_pages_keep_plain_month_links(self, client_in, user):
+        html = client_in.get(reverse("planner:log")).content.decode()
+        assert 'hx-target="#summary-content"' not in html
+
+
+def services_next(month: str) -> str:
+    from money_plan.planner import engine
+
+    return engine.add_months(month, 1)

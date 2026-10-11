@@ -1,8 +1,10 @@
 {% load i18n planner_tags %}
-{# Prev / current / next month. Needs: month_text, prev_month, next_month; base = URL prefix for the links. #}
+{# Prev / current / next month. Needs: month_text, prev_month, next_month; base = URL prefix for the links.
+   With hx_url the links swap #summary-content in place (htmx) instead of reloading the page. #}
 <div class="month-bar mb-5 flex items-center justify-center gap-2">
   {% if prev_month %}
-    <a href="{{ base }}?m={{ prev_month }}" class="btn" data-variant="outline" data-size="icon" aria-label="{% trans 'Previous month' %}">
+    <a href="{{ base }}?m={{ prev_month }}" class="btn"
+       {% if hx_url %}hx-get="{{ hx_url }}?m={{ prev_month }}" hx-target="#summary-content" hx-swap="outerHTML" hx-indicator="#summary-content" hx-push-url="{{ base }}?m={{ prev_month }}" hx-sync="#summary-content:replace"{% endif %} data-variant="outline" data-size="icon" aria-label="{% trans 'Previous month' %}">
       {% icon "chevron-left" "size-4" %}
     </a>
   {% else %}
@@ -10,7 +12,8 @@
   {% endif %}
   <span class="w-52 shrink-0 text-center font-medium" aria-live="polite">{{ month_text }}</span>
   {% if next_month %}
-    <a href="{{ base }}?m={{ next_month }}" class="btn" data-variant="outline" data-size="icon" aria-label="{% trans 'Next month' %}">
+    <a href="{{ base }}?m={{ next_month }}" class="btn"
+       {% if hx_url %}hx-get="{{ hx_url }}?m={{ next_month }}" hx-target="#summary-content" hx-swap="outerHTML" hx-indicator="#summary-content" hx-push-url="{{ base }}?m={{ next_month }}" hx-sync="#summary-content:replace"{% endif %} data-variant="outline" data-size="icon" aria-label="{% trans 'Next month' %}">
       {% icon "chevron-right" "size-4" %}
     </a>
   {% else %}

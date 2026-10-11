@@ -85,6 +85,8 @@ class SummaryContentView(PlannerMixin, TemplateView):
                 card["incoming"] = pm.allocation + pm.net
             cards.append(card)
         ctx |= {
+            # a month switch (htmx targets #summary-content) keeps the cards in place: no entrance animation
+            "swapped": self.request.headers.get("HX-Target") == "summary-content",
             "current": current,
             "cards": cards,
             "sections": [

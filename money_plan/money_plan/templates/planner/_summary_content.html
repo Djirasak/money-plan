@@ -1,5 +1,10 @@
 {% load i18n %}
 {% load planner_tags %}
+<div id="summary-content"{% if swapped %} data-swapped{% endif %}>
+  {# shown (over the greyed-out content) while a month is loading #}
+  <div class="summary-spinner" aria-hidden="true">
+    <svg class="size-8 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+  </div>
   <div class="relative mt-10">
     <a class="avatar-link absolute -top-9 right-4 z-10 rounded-full ring-4 ring-background" href="{% url 'users:detail' request.user.pk %}" aria-label="{% trans 'My account' %}" title="{% trans 'My account' %}">
       {% if request.user.photo %}
@@ -21,7 +26,8 @@
   </div>
 
   {% url "planner:summary" as summary_url %}
-  <div class="mt-6">{% include "planner/_month_bar.html" with base=summary_url %}</div>
+  {% url "planner:summary_content" as content_url %}
+  <div class="mt-6">{% include "planner/_month_bar.html" with base=summary_url hx_url=content_url %}</div>
 
   {% for kind, heading in sections %}
     <h2 class="mb-2 mt-2 px-1 text-xs font-medium text-muted-foreground">{{ heading }}</h2>
@@ -31,3 +37,4 @@
       {% endfor %}
     </div>
   {% endfor %}
+</div>
