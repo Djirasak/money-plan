@@ -1,0 +1,7 @@
+{% extends "emails/base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Test email" %}{% endblock title %}
+{% block content %}
+  <h1 style="margin:0 0 12px;font-size:20px;">{% trans "Email is working" %}</h1>
+  <p style="margin:0;">{% blocktrans %}This is a test message from Money Plan. If you can read it, sending works.{% endblocktrans %}</p>
+{% endblock content %}

@@ -97,11 +97,13 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "drf_spectacular",
     "storages",
+    "anymail",
 ]
 
 LOCAL_APPS = [
     "money_plan.users",
     "money_plan.planner",
+    "money_plan.mailer",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -256,10 +258,23 @@ X_FRAME_OPTIONS = "DENY"
 
 # EMAIL
 # ------------------------------------------------------------------------------
+# Mail goes out through Resend (django-anymail) once RESEND_API_KEY is set; see money_plan.mailer.
+RESEND_API_KEY = env("RESEND_API_KEY", default="")
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 EMAIL_BACKEND = env(
     "DJANGO_EMAIL_BACKEND",
-    default="django.core.mail.backends.smtp.EmailBackend",
+    default=(
+        "anymail.backends.resend.EmailBackend"
+        if RESEND_API_KEY
+        else "django.core.mail.backends.smtp.EmailBackend"
+    ),
+)
+ANYMAIL = {"RESEND_API_KEY": RESEND_API_KEY}
+# The sender must be on a domain verified in Resend (onboarding@resend.dev works for tests).
+# https://docs.djangoproject.com/en/dev/ref/settings/#default-from-email
+DEFAULT_FROM_EMAIL = env(
+    "DJANGO_DEFAULT_FROM_EMAIL",
+    default="Money Plan <onboarding@resend.dev>",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-timeout
 EMAIL_TIMEOUT = 5

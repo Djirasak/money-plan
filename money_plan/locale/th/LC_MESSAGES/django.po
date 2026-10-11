@@ -804,3 +804,15 @@ msgstr "ฟ้า"
 
 msgid "Blue"
 msgstr "น้ำเงิน"
+
+msgid "Test email"
+msgstr "อีเมลทดสอบ"
+
+msgid "Email is working"
+msgstr "อีเมลใช้งานได้"
+
+msgid "This is a test message from Money Plan. If you can read it, sending works."
+msgstr "นี่คืออีเมลทดสอบจาก Money Plan ถ้าคุณอ่านข้อความนี้ได้ แสดงว่าการส่งอีเมลทำงานปกติ"
+
+msgid "You get this email because you have a Money Plan account."
+msgstr "คุณได้รับอีเมลนี้เพราะมีบัญชี Money Plan"

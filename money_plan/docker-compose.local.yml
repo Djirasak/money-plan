@@ -24,6 +24,8 @@ services:
         required: false
       - path: ./.envs/.local/.postgres
         required: false
+      - path: ./.envs/.local/.email
+        required: false
     ports:
       - '8000:8000'
     command: /start

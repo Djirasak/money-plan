@@ -1,0 +1,3 @@
+{% load i18n %}{% trans "Email is working" %}
+
+{% blocktrans %}This is a test message from Money Plan. If you can read it, sending works.{% endblocktrans %}

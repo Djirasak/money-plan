@@ -70,7 +70,7 @@ bash:
 # rebuild: Rebuild python image and reset its .venv volume (run after changing dependencies).
 rebuild:
 	$(call say,$(YELLOW),📦 Rebuilding python image and resetting .venv...)
-	@docker compose build django
+	@docker compose build django celeryworker celerybeat flower
 	@docker compose up -d -V --force-recreate django celeryworker celerybeat flower
 
 # rebuild-node: Rebuild node image and reset its node_modules volume.

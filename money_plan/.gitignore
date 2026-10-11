@@ -281,3 +281,6 @@ vendors.js
 .env
 .envs/*
 !.envs/.local/
+
+# local secrets (API keys)
+.envs/.local/.email
