@@ -146,3 +146,15 @@ def test_no_template_has_a_comment_that_spans_lines():
         if "{#" in line and "#}" not in line.split("{#", 1)[1]
     ]
     assert not broken, f"multi-line {{# #}} comments (use {{% comment %}}): {broken}"
+
+
+def test_toast_clears_the_floating_add_button(client_in):
+    """The log page's "+" button sits above the nav; a toast at the usual height would cover it."""
+    html = client_in.get(reverse("planner:log")).content.decode()
+    assert 'class="fab ' in html
+    css = (
+        Path(__file__).resolve().parents[2] / "static" / "css" / "tailwind.css"
+    ).read_text()
+    rule = css.split("body:has(.fab) .toaster")[1].split("}")[0]
+    assert "10.5rem" in rule  # nav 6rem + the 3.5rem button + a gap
+    assert "6rem" not in rule
