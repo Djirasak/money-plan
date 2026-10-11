@@ -1,0 +1,60 @@
+{% load i18n planner_tags %}
+{# Edit one plan (item) or add a new one (item=None). Needs: piles, plus the condition options and {{ pile_targets|json_script }} on the page. #}
+<dialog id="{% if item %}plan-edit-{{ item.period.pk }}{% else %}plan-new{% endif %}" class="dialog w-full sm:max-w-[460px]" aria-labelledby="plan-title-{{ item.period.pk|default:'new' }}">
+  <form method="post" class="overflow-y-auto"
+        x-data="{
+          total: {{ item.total|default:0|floatformat:'-2u' }},
+          sum() { this.total = [...$el.querySelectorAll('[data-percent]')].reduce((a, i) => a + (parseFloat(i.value) || 0), 0) },
+          get ok() { return Math.abs(this.total - 100) < 0.005 },
+        }">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="{% if item %}save{% else %}add{% endif %}" />
+    {% if item %}<input type="hidden" name="id" value="{{ item.period.pk }}" />{% endif %}
+    <header>
+      <h2 id="plan-title-{{ item.period.pk|default:'new' }}">{% if item %}{% trans "Edit plan" %}{% else %}{% trans "Add plan" %}{% endif %}</h2>
+      {% if item %}<p>{% blocktrans with m=item.period.effective_month|month_label %}From {{ m }}{% endblocktrans %}</p>{% endif %}
+    </header>
+    <section class="grid gap-4">
+      {% if not item %}
+        {% trans "Start month" as start_label %}
+        {% month_picker "effective_month" default_month "new_period_month" start_label %}
+      {% endif %}
+      <div class="grid gap-2">
+        <label class="label" for="plan-name-{{ item.period.pk|default:'new' }}">{% trans "Plan name (optional)" %}</label>
+        <input class="input" id="plan-name-{{ item.period.pk|default:'new' }}" name="name" value="{{ item.period.name|default:'' }}" />
+      </div>
+      {% if item %}
+        {% with p=item.period %}
+          {% include "planner/_plan_condition.html" with field_id=p.pk mode=p.cond_op pile_id=p.cond_pile_id op=p.cond_op|default:"gte" amount=p.cond_amount use_target=p.cond_use_target mode_selected=p.cond_op|yesno:'on,' pile_selected=p.cond_pile_id|default:piles.0.pk %}
+        {% endwith %}
+        <div class="grid gap-2">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-xs font-medium text-muted-foreground" aria-hidden="true">{% trans "% of salary" %}</p>
+            <span class="badge px-2 py-0.5 text-xs" :class="ok ? 'bg-success-soft text-success' : 'bg-warn-soft text-warn'" aria-live="polite">
+              {% trans "Total" %} <span x-text="Math.round(total * 100) / 100"></span>%
+            </span>
+          </div>
+          {% for pile, it in item.rows %}
+            <div class="grid grid-cols-[minmax(0,1fr)_6rem] items-center gap-2">
+              <span class="flex min-w-0 items-center gap-2 text-sm">{% pile_icon pile "sm" %}<span class="truncate">{{ pile.name }}</span></span>
+              <span class="relative">
+                <input class="input !pe-7 text-right" name="percent_{{ pile.pk }}" inputmode="decimal" data-percent @input="sum()" value="{{ it.percent|default:0|floatformat:'-2u' }}"
+                       aria-label="{% blocktrans with pile=pile.name %}{{ pile }}: % of salary{% endblocktrans %}" />
+                <span class="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground" aria-hidden="true">%</span>
+              </span>
+            </div>
+          {% endfor %}
+          <p class="text-xs text-muted-foreground">{% trans "Each pile gets this % of your salary. Keep the total at 100% so every baht has a place." %}</p>
+        </div>
+      {% else %}
+        {% include "planner/_plan_condition.html" with field_id="new_plan" mode="" pile_id=None op="gte" amount=None use_target=False mode_selected="" pile_selected=piles.0.pk %}
+        <p class="text-xs text-muted-foreground">{% trans "Values are copied from the previous plan; adjust as needed." %}</p>
+      {% endif %}
+    </section>
+    <footer>
+      <button type="button" class="btn" data-variant="outline" data-close-dialog>{% trans "Cancel" %}</button>
+      <button type="submit" class="btn" data-loading-text="{% if item %}{% trans 'Save plan' %}{% else %}{% trans 'Add plan' %}{% endif %}">{% if item %}{% trans "Save plan" %}{% else %}{% icon "plus" "size-4" %}{% trans "Add plan" %}{% endif %}</button>
+    </footer>
+    {% include "planner/_dialog_close.html" %}
+  </form>
+</dialog>

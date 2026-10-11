@@ -30,6 +30,7 @@ from .models import PlanItem
 from .models import PlannerSettings
 from .models import PlanPeriod
 from .models import Salary
+from .templatetags.planner_tags import baht
 from .templatetags.planner_tags import target_label
 
 
@@ -391,13 +392,37 @@ class SettingsPlanView(ActionPostMixin, PlannerMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         piles = list(self.request.user.piles.all())
         periods = []
-        for period in self.request.user.plan_periods.prefetch_related("items"):
+        ops = dict(PlanPeriod.OP_CHOICES)
+        for period in self.request.user.plan_periods.select_related(
+            "cond_pile",
+        ).prefetch_related("items"):
             items = {i.pile_id: i for i in period.items.all()}
+            total = sum((i.percent for i in items.values()), Decimal(0))
+            shares = sorted(
+                (
+                    (p, items[p.pk].percent)
+                    for p in piles
+                    if p.pk in items and items[p.pk].percent > 0
+                ),
+                key=lambda row: -row[1],
+            )
+            condition = None
+            if period.cond_op and period.cond_pile_id:
+                follows_goal = period.cond_use_target and period.cond_pile.has_target
+                condition = {
+                    "pile": period.cond_pile,
+                    "op": ops.get(period.cond_op, ""),
+                    "value": target_label(period.cond_pile)
+                    if follows_goal
+                    else baht(period.cond_amount),
+                }
             periods.append(
                 {
                     "period": period,
                     "rows": [(p, items.get(p.pk)) for p in piles],
-                    "total": sum((i.percent for i in items.values()), Decimal(0)),
+                    "total": total,
+                    "shares": shares,
+                    "condition": condition,
                 },
             )
         return ctx | {

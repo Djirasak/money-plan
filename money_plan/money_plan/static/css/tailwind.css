@@ -263,6 +263,28 @@
   @apply ring-[3px] ring-ring/60;
 }
 
+/* Plan cards (settings): the whole card opens the edit dialog; a thin bar shows how the salary is split */
+.plan-card {
+  @apply items-start;
+}
+
+.plan-open {
+  @apply block w-full rounded-md outline-none;
+}
+
+.plan-open:focus-visible {
+  @apply ring-[3px] ring-ring/50;
+}
+
+.plan-bar {
+  @apply flex h-2 w-full overflow-hidden rounded-full;
+  background-color: var(--muted);
+}
+
+.plan-bar > span {
+  @apply h-full;
+}
+
 /* Colour picker swatches (settings) */
 .swatch {
   @apply relative flex aspect-square flex-col items-center justify-end gap-0.5 rounded-xl p-2 text-white shadow-sm transition-transform active:scale-95;

@@ -6,62 +6,54 @@
   {% include "planner/_settings_tabs.html" %}
   {{ pile_targets|json_script:"pile-targets" }}
   <p class="mb-3 px-1 text-xs text-muted-foreground">{% trans "Each plan applies from its start month onwards. Split your salary between your piles by percentage. Plans can also wait for a pile to reach an amount. The newest plan whose condition is met is used." %}</p>
-  <div class="flex flex-col gap-3">
+  <ul class="flex flex-col gap-2">
     {% for item in periods %}
-      <form method="post" class="card" data-size="sm">
-        {% csrf_token %}<input type="hidden" name="id" value="{{ item.period.pk }}" /><input type="hidden" name="action" value="save" />
-        <header class="px-4">
-          <div class="flex items-center justify-between gap-2">
-            <h3 class="text-sm font-medium">{% blocktrans with m=item.period.effective_month|month_label %}From {{ m }}{% endblocktrans %}</h3>
-            <div class="flex items-center gap-1">
-              <span class="badge px-2 py-0.5 text-xs {% if item.total == 100 %}bg-success-soft text-success{% else %}bg-warn-soft text-warn{% endif %}">{% blocktrans with total=item.total|floatformat:"-2" %}Total {{ total }}{% endblocktrans %}%</span>
-              <button type="button" class="btn text-destructive" data-variant="ghost" data-size="icon-sm" data-confirm-delete data-delete-id="{{ item.period.pk }}"
-                      data-delete-name="{% blocktrans with m=item.period.effective_month|month_label %}From {{ m }}{% endblocktrans %}{% if item.period.name %} · {{ item.period.name }}{% endif %}"
-                      aria-label="{% trans 'Delete' %}" title="{% trans 'Delete' %}">
-                {% icon "trash-2" "size-4" %}
-              </button>
-            </div>
-          </div>
-        </header>
-        <section class="grid gap-4 px-4">
-          <input class="input" name="name" value="{{ item.period.name }}" placeholder="{% trans "Plan name (optional)" %}" aria-label="{% trans "Plan name" %}" />
-          {% with p=item.period %}
-            {% include "planner/_plan_condition.html" with field_id=p.pk mode=p.cond_op pile_id=p.cond_pile_id op=p.cond_op|default:"gte" amount=p.cond_amount use_target=p.cond_use_target mode_selected=p.cond_op|yesno:'on,' pile_selected=p.cond_pile_id|default:piles.0.pk %}
-          {% endwith %}
-          <div class="grid gap-2">
-            <p class="text-right text-xs font-medium text-muted-foreground" aria-hidden="true">{% trans "% of salary" %}</p>
-            {% for pile, it in item.rows %}
-              <div class="grid grid-cols-[minmax(0,1fr)_6rem] items-center gap-2">
-                <span class="flex min-w-0 items-center gap-2 text-sm">{% pile_icon pile "sm" %}<span class="truncate">{{ pile.name }}</span></span>
-                <span class="relative">
-                  <input class="input !pe-7 text-right" name="percent_{{ pile.pk }}" inputmode="decimal" value="{{ it.percent|default:0|floatformat:"-2" }}" aria-label="{% blocktrans with pile=pile.name %}{{ pile }}: % of salary{% endblocktrans %}" />
-                  <span class="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground" aria-hidden="true">%</span>
-                </span>
-              </div>
-            {% endfor %}
-            <p class="text-xs text-muted-foreground">{% trans "Each pile gets this % of your salary. Keep the total at 100% so every baht has a place." %}</p>
-          </div>
-        </section>
-        <footer class="justify-end px-4">
-          <button type="submit" class="btn" data-loading-text="{% trans 'Save plan' %}">{% icon "save" "size-4" %}{% trans "Save plan" %}</button>
-        </footer>
-      </form>
+      <li class="item plan-card" data-variant="outline">
+        <button type="button" class="plan-open min-w-0 flex-1 text-left" data-open-dialog="plan-edit-{{ item.period.pk }}"
+                aria-label="{% blocktrans with m=item.period.effective_month|month_label %}Edit plan from {{ m }}{% endblocktrans %}">
+          <span class="flex items-center justify-between gap-2">
+            <span class="min-w-0">
+              <span class="block truncate text-sm font-semibold">{% blocktrans with m=item.period.effective_month|month_label %}From {{ m }}{% endblocktrans %}</span>
+              {% if item.period.name %}<span class="block truncate text-xs text-muted-foreground">{{ item.period.name }}</span>{% endif %}
+            </span>
+            <span class="badge shrink-0 px-2 py-0.5 text-xs {% if item.total == 100 %}bg-success-soft text-success{% else %}bg-warn-soft text-warn{% endif %}">{% blocktrans with total=item.total|floatformat:"-2" %}Total {{ total }}{% endblocktrans %}%</span>
+          </span>
+          {% if item.shares %}
+            <span class="plan-bar mt-2" aria-hidden="true">
+              {% for pile, pct in item.shares %}<span style="width: {{ pct|floatformat:'-2u' }}%; background: {{ pile.color }}"></span>{% endfor %}
+            </span>
+            <span class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+              {% for pile, pct in item.shares|slice:":4" %}
+                <span class="inline-flex items-center gap-1">{% pile_icon pile "sm" %}<span class="truncate font-medium">{{ pile.name }}</span> {{ pct|floatformat:"-2" }}%</span>
+              {% endfor %}
+              {% if item.shares|length > 4 %}<span class="text-muted-foreground">{% blocktrans with n=item.shares|length|add:"-4" %}+{{ n }} more{% endblocktrans %}</span>{% endif %}
+            </span>
+          {% else %}
+            <span class="mt-2 block text-xs text-muted-foreground">{% trans "Nothing is allocated in this plan yet." %}</span>
+          {% endif %}
+          <span class="mt-2 block text-xs text-muted-foreground">
+            {% if item.condition %}{% icon "info" "me-1 inline size-3.5" %}{% blocktrans with pile=item.condition.pile.name op=item.condition.op value=item.condition.value %}Only while {{ pile }} {{ op }} {{ value }}{% endblocktrans %}{% else %}{% trans "Always, from the start month" %}{% endif %}
+          </span>
+        </button>
+        <aside>
+          <button type="button" class="btn text-destructive" data-variant="ghost" data-size="icon-sm" data-confirm-delete data-delete-id="{{ item.period.pk }}"
+                  data-delete-name="{% blocktrans with m=item.period.effective_month|month_label %}From {{ m }}{% endblocktrans %}{% if item.period.name %} · {{ item.period.name }}{% endif %}"
+                  aria-label="{% blocktrans with m=item.period.effective_month|month_label %}Delete plan from {{ m }}{% endblocktrans %}" title="{% trans 'Delete' %}">
+            {% icon "trash-2" "size-4" %}
+          </button>
+        </aside>
+      </li>
     {% endfor %}
-    <form method="post" class="card" data-size="sm" id="new-period">
-      {% csrf_token %}<input type="hidden" name="action" value="add" />
-      <header class="px-4"><h3 class="text-sm font-medium">{% trans "+ Add a new plan" %}</h3></header>
-      <section class="grid gap-4 px-4">
-        {% trans "Start month" as start_label %}
-        {% month_picker "effective_month" default_month "new_period_month" start_label %}
-        <div class="grid gap-2"><label class="label" for="new_period_name">{% trans "Plan name" %}</label><input class="input" id="new_period_name" name="name" /></div>
-        {% include "planner/_plan_condition.html" with field_id="new_plan" mode="" pile_id=None op="gte" amount=None use_target=False mode_selected="" pile_selected=piles.0.pk %}
-        <p class="text-xs text-muted-foreground">{% trans "Values are copied from the previous plan; adjust as needed." %}</p>
-      </section>
-      <footer class="justify-end px-4">
-        <button type="submit" class="btn" data-loading-text="{% trans 'Add plan' %}">{% icon "plus" "size-4" %}{% trans "Add plan" %}</button>
-      </footer>
-    </form>
-  </div>
+    <li>
+      <button type="button" class="btn w-full border-dashed" data-variant="outline" data-open-dialog="plan-new">
+        {% icon "plus" "size-4" %}{% trans "Add plan" %}
+      </button>
+    </li>
+  </ul>
+
+  {% for item in periods %}{% include "planner/_plan_dialog.html" with item=item %}{% endfor %}
+  {% include "planner/_plan_dialog.html" with item=None %}
+
   {% trans "Delete this plan?" as confirm_title %}
   {% include "planner/_confirm_dialog.html" with action="delete" title=confirm_title note="" %}
 {% endblock page %}

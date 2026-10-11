@@ -1263,3 +1263,27 @@ msgstr "เทมเพลตเสียหาย: กอง “%(name)s” ม
 
 msgid "Giving"
 msgstr "การให้"
+
+msgid "Edit plan"
+msgstr "แก้ไขแผน"
+
+msgid "Total"
+msgstr "รวม"
+
+msgid "Edit plan from %(m)s"
+msgstr "แก้ไขแผนตั้งแต่ %(m)s"
+
+msgid "Delete plan from %(m)s"
+msgstr "ลบแผนตั้งแต่ %(m)s"
+
+msgid "Nothing is allocated in this plan yet."
+msgstr "แผนนี้ยังไม่ได้จัดสรรเงินให้กองใด"
+
+msgid "+%(n)s more"
+msgstr "+อีก %(n)s"
+
+msgid "Only while %(pile)s %(op)s %(value)s"
+msgstr "ใช้เฉพาะเมื่อ %(pile)s %(op)s %(value)s"
+
+msgid "% of salary"
+msgstr "% ของเงินเดือน"

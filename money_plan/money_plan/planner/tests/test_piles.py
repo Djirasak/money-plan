@@ -313,7 +313,9 @@ class TestPileIcons:
         assert "size-2.5 shrink-0 rounded-full" not in html
 
     def test_the_summary_card_also_has_the_icon_as_a_faint_watermark(
-        self, client_in, user
+        self,
+        client_in,
+        user,
     ):
         Pile.objects.filter(user=user).update(icon="car")
         html = client_in.get(reverse("planner:summary_content")).content.decode()

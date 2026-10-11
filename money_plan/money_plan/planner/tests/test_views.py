@@ -661,3 +661,61 @@ def test_clear_all_deletes_everything_but_the_user(client_in, user):
 def test_clear_all_dialog_is_on_general_settings(client_in):
     html = client_in.get(reverse("planner:settings")).content.decode()
     assert 'id="clear-all"' in html and 'data-open-dialog="clear-all"' in html
+
+
+class TestPlanCards:
+    def page(self, client):
+        return client.get(reverse("planner:plan")).content.decode()
+
+    def test_each_plan_is_a_card_that_opens_its_edit_dialog(self, client_in, user):
+        period = PlanPeriod.objects.get(user=user)
+        html = self.page(client_in)
+        assert f'data-open-dialog="plan-edit-{period.pk}"' in html
+        assert f'id="plan-edit-{period.pk}"' in html
+        assert 'id="plan-new"' in html
+        assert 'data-open-dialog="plan-new"' in html
+
+    def test_the_card_summarises_the_split_without_editing_fields(
+        self, client_in, user
+    ):
+        html = self.page(client_in)
+        card = html.split('class="item plan-card"')[1].split("</li>")[0]
+        assert "รวม 100%" in card  # the total badge
+        assert "plan-bar" in card  # the stacked bar of the split
+        assert "55%" in card  # the biggest share, in brief
+        assert "<input" not in card  # editing happens in the dialog, not on the card
+        assert "ใช้เสมอ" in card  # no condition
+
+    def test_a_condition_is_spelled_out_on_the_card(self, client_in, user):
+        reserve = Pile.objects.get(user=user, name="เงินสำรอง")
+        PlanPeriod.objects.filter(user=user).update(
+            cond_pile=reserve,
+            cond_op="gte",
+            cond_amount=Decimal(250000),
+            cond_use_target=False,
+        )
+        html = self.page(client_in)
+        assert "ใช้เฉพาะเมื่อ เงินสำรอง" in html
+        assert "฿250,000" in html
+
+    def test_a_total_that_is_not_100_is_flagged(self, client_in, user):
+        period = PlanPeriod.objects.get(user=user)
+        period.items.update(percent=10)
+        html = self.page(client_in)
+        assert (
+            "bg-warn-soft" in html.split('class="item plan-card"')[1].split("</li>")[0]
+        )
+
+    def test_a_plan_with_nothing_allocated_says_so(self, client_in, user):
+        PlanPeriod.objects.get(user=user).items.update(percent=0)
+        assert "แผนนี้ยังไม่ได้จัดสรรเงินให้กองใด" in self.page(client_in)
+
+    def test_the_dialog_posts_the_same_fields_as_before(self, client_in, user):
+        period = PlanPeriod.objects.get(user=user)
+        html = self.page(client_in)
+        dialog = html.split(f'id="plan-edit-{period.pk}"')[1].split("</dialog>")[0]
+        assert 'name="action" value="save"' in dialog
+        for pile in user.piles.all():
+            assert f'name="percent_{pile.pk}"' in dialog
+        assert "data-percent" in dialog  # drives the live total
+        assert 'name="condition_mode"' in dialog
