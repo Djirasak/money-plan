@@ -1158,3 +1158,9 @@ msgstr "เปอร์เซ็นต์เป้าหมาย"
 
 msgid "plan percentage"
 msgstr "เปอร์เซ็นต์ของแผน"
+
+msgid "Choose a file"
+msgstr "เลือกไฟล์"
+
+msgid "No file chosen"
+msgstr "ยังไม่ได้เลือกไฟล์"

@@ -189,4 +189,18 @@ describe('project.js', () => {
     input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
     expect(select).toHaveBeenCalled();
   });
+
+  it('shows the chosen file name next to a custom file button, and the empty text again when cleared', () => {
+    document.body.innerHTML =
+      '<div data-file-input><input type="file" id="f" /><span data-file-name data-empty="No file chosen">No file chosen</span></div>';
+    const input = document.getElementById('f');
+    const label = document.querySelector('[data-file-name]');
+    const file = new File(['{}'], 'plan.json', { type: 'application/json' });
+    Object.defineProperty(input, 'files', { value: [file], configurable: true });
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(label.textContent).toBe('plan.json');
+    Object.defineProperty(input, 'files', { value: [], configurable: true });
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(label.textContent).toBe('No file chosen');
+  });
 });

@@ -155,6 +155,17 @@ window.addEventListener('pageshow', (event) => {
 })();
 
 /*
+ * File pickers: [data-file-input] holds a hidden <input type="file"> and a
+ * [data-file-name] text that shows the chosen file (or its data-empty text).
+ */
+document.addEventListener('change', (event) => {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement) || input.type !== 'file') return;
+  const name = input.closest('[data-file-input]')?.querySelector('[data-file-name]');
+  if (name) name.textContent = input.files?.[0]?.name || name.dataset.empty || '';
+});
+
+/*
  * Live password rule: next to a new-password field the server renders the rule(s) as a list
  * ([data-password-rules]). While typing it turns green (met) or red (not met), and the
  * confirmation field says at once when it differs. The server still validates on submit.
