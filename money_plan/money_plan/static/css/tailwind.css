@@ -252,7 +252,12 @@ input[type="color"].input {
 .select [data-popover][aria-hidden="true"] {
   display: none;
 }
+/* Toasts sit just above the screen edge; on pages with the floating bottom nav, above that */
 .toaster {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem) !important;
+}
+
+body:has(.app-nav) .toaster {
   bottom: calc(env(safe-area-inset-bottom, 0px) + 6rem) !important;
 }
 
