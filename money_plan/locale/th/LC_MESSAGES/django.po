@@ -934,9 +934,6 @@ msgstr "ชื่อเรื่อง"
 msgid "Description (optional)"
 msgstr "คำอธิบาย (ไม่บังคับ)"
 
-msgid "Anyone who is signed in and has the link can see it and add it to their own account. You can stop sharing at any time."
-msgstr "ทุกคนที่ล็อกอินและมีลิงก์จะดูและเพิ่มแผนนี้เข้าบัญชีของตัวเองได้ คุณหยุดแชร์ได้ทุกเมื่อ"
-
 msgid "Create link"
 msgstr "สร้างลิงก์"
 
@@ -1344,3 +1341,18 @@ msgstr "ภาษาและโหมด"
 
 msgid "Sharing"
 msgstr "การแชร์"
+
+msgid "Anyone who has the link can look at it, and anyone with an account can add it to their own. You can stop sharing at any time."
+msgstr "ทุกคนที่มีลิงก์ดูได้ และคนที่มีบัญชีเพิ่มเข้าบัญชีของตัวเองได้ คุณหยุดแชร์ได้ทุกเมื่อ"
+
+msgid "Want to use this plan?"
+msgstr "อยากใช้แผนนี้ไหม?"
+
+msgid "You are only looking at it. Sign in, or create an account, to add these piles and plans to your own Money Plan."
+msgstr "ตอนนี้คุณดูได้อย่างเดียว เข้าสู่ระบบหรือสมัครบัญชีเพื่อเพิ่มกองเงินและแผนเหล่านี้เข้า Money Plan ของคุณ"
+
+msgid "Sign in to add this plan"
+msgstr "เข้าสู่ระบบเพื่อเพิ่มแผนนี้"
+
+msgid "Create an account"
+msgstr "สร้างบัญชี"

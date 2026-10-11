@@ -140,8 +140,14 @@ class TemplateImportView(PlannerMixin, TemplateView):
     def dispatch(self, request, *args, **kwargs):
         self.share = None
         if "token" in kwargs:
-            if request.user.is_authenticated:
-                self.share = get_object_or_404(SharedTemplate, token=kwargs["token"])
+            self.share = get_object_or_404(SharedTemplate, token=kwargs["token"])
+            # A shared link may be LOOKED AT by anyone; adding the plan (POST) needs an account.
+            if not request.user.is_authenticated and request.method in {"GET", "HEAD"}:
+                response = TemplateView.dispatch(self, request, *args, **kwargs)
+                response["X-Robots-Tag"] = (
+                    "noindex, nofollow"  # a private link, not for search engines
+                )
+                return response
         return super().dispatch(request, *args, **kwargs)
 
     @property
@@ -197,7 +203,13 @@ class TemplateImportView(PlannerMixin, TemplateView):
             payload,
             initial={"month": services.current_month()},
         )
+        signed_in = self.request.user.is_authenticated
         return ctx | {
+            # visitors without an account get a plain page (no nav, no account links)
+            "layout_template": "planner/layout.html"
+            if signed_in
+            else "planner/public_layout.html",
+            "signed_in": signed_in,
             "share": self.share,
             "piles": piles,
             "plans": plans,

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load planner_tags %}
+{% block css %}
+  {{ block.super }}
+  <meta name="robots" content="noindex, nofollow" />
+{% endblock css %}
+{% block main %}
+  <header class="mb-5 flex items-center gap-3">
+    <div class="brand-tile">{% icon "wallet" "size-5" %}</div>
+    <div class="min-w-0 flex-1">
+      <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Money Plan</p>
+      <h1 class="truncate text-lg font-semibold leading-tight">{% block heading %}{% endblock heading %}</h1>
+    </div>
+  </header>
+  {% block page %}{% endblock page %}
+{% endblock main %}

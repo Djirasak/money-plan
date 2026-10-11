@@ -351,7 +351,6 @@ class TestViews:
             ("share", {}),
             ("share_export", {}),
             ("import_file", {}),
-            ("template", {"token": "abc"}),
         ):
             resp = client.get(reverse(f"planner:{name}", kwargs=kwargs))
             assert resp.status_code == HTTPStatus.FOUND
@@ -383,21 +382,10 @@ class TestViews:
         assert "98765" not in html
         assert 'name="cap_' in html  # asks for the cap amount
 
-    def test_a_wrong_token_is_404_and_anonymous_is_sent_to_login(
-        self,
-        client_in,
-        client,
-    ):
-        assert (
-            client_in.get(
-                reverse("planner:template", kwargs={"token": "nope"}),
-            ).status_code
-            == HTTPStatus.NOT_FOUND
-        )
-        anonymous = type(client)()
-        resp = anonymous.get(reverse("planner:template", kwargs={"token": "nope"}))
-        assert resp.status_code == HTTPStatus.FOUND
-        assert "login" in resp.url
+    def test_a_wrong_token_is_404_for_everyone(self, client_in, client):
+        url = reverse("planner:template", kwargs={"token": "nope"})
+        assert client_in.get(url).status_code == HTTPStatus.NOT_FOUND
+        assert type(client)().get(url).status_code == HTTPStatus.NOT_FOUND
 
     def test_deleting_a_link_kills_it_and_only_the_owner_can(
         self,
@@ -518,3 +506,74 @@ class TestViews:
         html = client_in.get(reverse("planner:share")).content.decode()
         assert "แชร์แผน" in html
         assert Salary.objects.filter(user=rich).exists()
+
+
+class TestPublicPreview:
+    """A shared link can be LOOKED AT by anyone; adding the plan needs an account."""
+
+    @pytest.fixture
+    def link(self, client_in, rich):
+        client_in.post(
+            reverse("planner:share"),
+            {"action": "create", "title": "Public plan", "description": "<b>hi</b>"},
+        )
+        return reverse(
+            "planner:template",
+            kwargs={"token": SharedTemplate.objects.get().token},
+        )
+
+    def anonymous(self, client):
+        return type(client)()
+
+    def test_visitors_see_the_plan_without_signing_in(self, link, client):
+        resp = self.anonymous(client).get(link)
+        html = resp.content.decode()
+        assert resp.status_code == HTTPStatus.OK
+        assert "Public plan" in html
+        assert "&lt;b&gt;hi&lt;/b&gt;" in html  # escaped for everyone, signed in or not
+        assert "ค่าใช้จ่าย" in html  # the piles
+        assert "55%" in html  # and the split
+
+    def test_the_visitor_page_is_look_only_with_a_way_in(self, link, client):
+        html = self.anonymous(client).get(link).content.decode()
+        assert 'name="month' not in html  # no import form
+        assert "เข้าสู่ระบบเพื่อเพิ่มแผนนี้" in html
+        assert f"{reverse('account_login')}?next=" in html
+        assert "app-nav" not in html  # none of the signed-in app around it
+        assert "avatar" not in html
+
+    def test_it_is_kept_out_of_search_engines(self, link, client):
+        resp = self.anonymous(client).get(link)
+        assert resp["X-Robots-Tag"] == "noindex, nofollow"
+        assert 'name="robots" content="noindex, nofollow"' in resp.content.decode()
+
+    def test_visitors_cannot_add_the_plan(self, link, client):
+        before = Pile.objects.count()
+        resp = self.anonymous(client).post(
+            link, {"month_year": "2027", "month_month": "7"}
+        )
+        assert resp.status_code == HTTPStatus.FOUND
+        assert "login" in resp.url
+        assert Pile.objects.count() == before  # nothing was created
+
+    def test_signed_in_people_still_get_the_import_form(self, link, client):
+        _other, other_client = other_user_client(type(client))
+        html = other_client.get(link).content.decode()
+        assert 'name="cap_' in html
+        assert "app-nav" in html
+        assert "เข้าสู่ระบบเพื่อเพิ่มแผนนี้" not in html
+
+    def test_a_removed_link_stops_working_for_visitors_too(
+        self,
+        link,
+        client_in,
+        client,
+    ):
+        share = SharedTemplate.objects.get()
+        client_in.post(reverse("planner:share"), {"action": "delete", "id": share.pk})
+        assert self.anonymous(client).get(link).status_code == HTTPStatus.NOT_FOUND
+
+    def test_the_file_import_preview_still_needs_a_login(self, client):
+        resp = self.anonymous(client).get(reverse("planner:import_file"))
+        assert resp.status_code == HTTPStatus.FOUND
+        assert "login" in resp.url

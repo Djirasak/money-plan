@@ -1,4 +1,4 @@
-{% extends "planner/layout.html" %}
+{% extends layout_template %}
 {% load i18n %}
 {% load planner_tags %}
 {% block heading %}{% trans "Shared plan" %}{% endblock heading %}
@@ -53,6 +53,19 @@
     </ul>
   </section>
 
+  {% if not signed_in %}
+    {# Look-only for visitors: adding the plan needs an account. #}
+    <section class="card mt-6" data-size="sm">
+      <header class="px-4">
+        <h2 class="text-sm font-medium">{% trans "Want to use this plan?" %}</h2>
+        <p class="text-xs text-muted-foreground">{% trans "You are only looking at it. Sign in, or create an account, to add these piles and plans to your own Money Plan." %}</p>
+      </header>
+      <footer class="flex flex-col gap-3 px-4">
+        <a class="btn w-full" href="{% url 'account_login' %}?next={{ request.path|urlencode }}">{% trans "Sign in to add this plan" %}</a>
+        {% if ACCOUNT_ALLOW_REGISTRATION %}<a class="btn w-full" data-variant="outline" href="{% url 'account_signup' %}?next={{ request.path|urlencode }}">{% trans "Create an account" %}</a>{% endif %}
+      </footer>
+    </section>
+  {% else %}
   <form method="post" class="card mt-6" data-size="sm">
     {% csrf_token %}
     <header class="px-4">
@@ -72,4 +85,5 @@
       <button type="submit" class="btn w-full sm:w-auto" data-loading-text="{% trans 'Add to my account' %}">{% icon "plus" "size-4" %}{% trans "Add to my account" %}</button>
     </footer>
   </form>
+  {% endif %}
 {% endblock page %}

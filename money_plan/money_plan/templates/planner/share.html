@@ -22,7 +22,7 @@
         <label class="label" for="share-description">{% trans "Description (optional)" %}</label>
         <textarea class="input h-auto py-2" id="share-description" name="description" rows="3" maxlength="{{ max_description }}"></textarea>
       </div>
-      <p class="text-xs text-muted-foreground">{% trans "Anyone who is signed in and has the link can see it and add it to their own account. You can stop sharing at any time." %}</p>
+      <p class="text-xs text-muted-foreground">{% trans "Anyone who has the link can look at it, and anyone with an account can add it to their own. You can stop sharing at any time." %}</p>
       <div class="flex justify-end">
         <button type="submit" class="btn" data-loading-text="{% trans 'Create link' %}">{% icon "plus" "size-4" %}{% trans "Create link" %}</button>
       </div>
