@@ -431,7 +431,8 @@ body:has(.app-nav) .toaster {
 }
 .pile-bar {
   @apply h-1.5 overflow-hidden rounded-full;
-  background-color: color-mix(in srgb, var(--pc) 18%, transparent);
+  /* opaque on purpose: the pile's watermark icon passes behind the bar without showing through it */
+  background-color: color-mix(in srgb, var(--pc) 18%, var(--card));
 }
 .pile-bar > div {
   @apply h-full rounded-full;
